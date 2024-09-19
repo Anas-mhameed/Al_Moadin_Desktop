@@ -1,0 +1,17 @@
+# Ignore Python compiled files
+*.pyc
+__pycache__/
+
+# Ignore directories
+dist/
+build/
+
+#  Ignore vscode
+.vscode/
+*.json
+
+# Ignore db files and pyinstaller
+adanProgram.db
+main.spec
+*.zip
+
