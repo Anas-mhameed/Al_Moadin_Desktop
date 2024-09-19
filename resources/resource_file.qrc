@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>images/button_88647.png</file>
+    <file>images/down-arrow.png</file>
+    <file>images/down-chevron.png</file>
+    <file>images/menu_12237096.png</file>
+    <file>images/pause_6415668.png</file>
+    <file>images/play_14441317.png</file>
+    <file>images/power_3039519.png</file>
+    <file>images/rewind_130901.png</file>
+    <file>images/square_13738097.png</file>
+    <file>images/stop.png</file>
+    <file>images/stop-button_73880.png</file>
+    <file>images/undo.png</file>
+  </qresource>
+</RCC>
