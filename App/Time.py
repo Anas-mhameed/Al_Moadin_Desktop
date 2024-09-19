@@ -1,7 +1,7 @@
 import datetime as dt
 from hijri_converter import convert
 from PySide6.QtWidgets import QLabel
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal, QObject
 from ResourceFile import resource_path
 from PySide6.QtGui import QFontDatabase, QFont
 
@@ -24,9 +24,26 @@ class ClickableLabel(QLabel):
         """Override the mousePressEvent to emit the clicked signal."""
         self.clicked.emit()
 
+class TimeSignal(QObject):
+
+    time_updated = Signal(dt.datetime)
+    new_day = Signal(str)
+    new_jomoaa = Signal()
+
+    def __init__(self):
+        super().__init__()
+
 class Time():
 
+    time_signal = TimeSignal()
+    time_updated = time_signal.time_updated
+    new_day_signal = time_signal.new_day
+    new_jomoaa = time_signal.new_jomoaa
+
+
     def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
+
+        self.time_formate = "%I:%M:%S %p"
 
         self.am_pm_frame = am_pm_frame
         self.am_pm_label = am_pm_label
@@ -61,6 +78,8 @@ class Time():
         # self.higri_date_label = higri_date_label 
 
         self.initate_labels()
+
+        # self.time_updated.connect(self.update_ui)
     
     def update_factor(self):
         if self.factor == 3:
@@ -75,6 +94,7 @@ class Time():
 
     def update_time(self):
         self.curr_dt = dt.datetime.now()
+        self.time_updated.emit(self.curr_dt)
     
     def update_date(self):
         self.date = dt.date.today()
@@ -130,9 +150,12 @@ class Time():
                 return True
         return False
 
-    def update_ui(self, time_formate, is_new_day = False):
-        
-        if time_formate == "%I:%M:%S %p":
+    def update_time_formate(self, new_formate):
+        self.time_formate = new_formate
+    
+    def update_ui(self):
+
+        if self.time_formate == "%I:%M:%S %p":
             self.am_pm_frame.show()
             self.time_label.setText(self.curr_dt.strftime("%I:%M:"))
 
@@ -141,13 +164,31 @@ class Time():
 
         else:
             self.am_pm_frame.hide()
-            self.time_label.setText(self.curr_dt.strftime(time_formate))
-
-        if is_new_day:
-            self.day_label.setText(self.day)
-            self.date_label.setText(self.date.strftime("%d/%m/%Y"))
-            self.higri_date_label.setText(self.set_hijri_date())
+            self.time_label.setText(self.curr_dt.strftime(self.time_formate))
 
     def hijri_label_click_handel(self):
         self.update_factor()
         self.higri_date_label.setText(self.set_hijri_date())
+
+    def update_day_date_hijri(self):
+        self.day_label.setText(self.day)
+        self.date_label.setText(self.date.strftime("%d/%m/%Y"))
+        self.higri_date_label.setText(self.set_hijri_date())
+
+    def run(self):
+
+        self.update_time()
+        self.update_ui()
+
+        self.time_updated.emit(self.curr_dt)
+        
+        is_new_day = self.check_if_new_day()
+
+        if is_new_day:
+            self.update_day_date_hijri()
+            
+            #  emit new day signal
+            self.new_day_signal.emit(self.day)
+
+            if self.day == "الجمعة":
+                self.new_jomoaa.emit()

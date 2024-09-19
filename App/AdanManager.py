@@ -2,17 +2,19 @@ from Sound import Sound
 from NextAdan import NextAdan
 from AdanTimePrepare import AdanTimePrepare
 from Adan import Adan
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton
+from PySide6.QtWidgets import QLabel, QPushButton
 from PySide6.QtCore import QObject, Signal, Slot
 from Runnable import Runnable, RunnableManager
 from datetime import time
 from ResourceFile import resource_path
 from time import sleep
-from PySide6.QtCore import QUrl
+from datetime import datetime as dt
 
-class AdanTime(QObject):
+
+class AdanManagerSignals(QObject):
     
     adan_time_changed = Signal(object)
+    prepare_for_adan = Signal()
 
     def __init__(self):
         super().__init__()
@@ -20,16 +22,20 @@ class AdanTime(QObject):
 
 class AdanManager():
 
-    def __init__(self, main_widget, database_manager, runnable_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, curr_time, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
+    adan_manager_signals = AdanManagerSignals()
+    adan_time_changed = adan_manager_signals.adan_time_changed 
+    prepare_for_adan_signal = adan_manager_signals.prepare_for_adan
 
-        self.AdanTimeSignal = AdanTime()
+    def __init__(self, main_widget, database_manager, runnable_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
         self.database_manager = database_manager
         self.runnable_manager = runnable_manager 
 
         self.adan_time_prepare = AdanTimePrepare()
         self.general_settings = general_settings
-        self.curr_time = curr_time
+        
+        self.time_formate = ""
+        self.is_summer = True
         self.quds_differ = 0
 
         self.wich_is_playing = None
@@ -59,22 +65,17 @@ class AdanManager():
         self.jomoaa = self.intiate_jomoaa(jomoaa)
         # self.handle_summer_winter_change(True)
 
-        self.next_adan = NextAdan(self.adans, self.set_not_adan_time, self.curr_time, next_adan_label, remaining_time_label, self.start_adan, self.prepare_for_adan)
-
-        # self.update_ui()
-
-    # def get_adan_sound(self, wich_adan):
+        self.next_adan = NextAdan(self.adans, self.set_not_adan_time, dt.now(), next_adan_label, remaining_time_label, self.start_adan, self.prepare_for_adan)
         
-    #     sound = Sound()
+        self.next_adan.adan_time_signal.connect(self.start_adan)
+        self.next_adan.prepare_for_adan_signal.connect(self.prepare_for_adan)
 
-    #     if wich_adan == 0:
-    #         # wich_adan = الفجر
-    #         sound.media_player.setSource(QUrl().fromLocalFile(self.fajer_sound.get_file_path()))
-    #     else:
-    #         sound.media_player.setSource(QUrl().fromLocalFile(self.basic_sound.get_file_path()))
+        self.update_ui()
+        self.update_jomoaa_ui()
 
-    #     return sound
-        
+    def update_curr_time(self, updated_time):
+        self.curr_time = updated_time
+
     def intiate_adans_state(self):
         adan_state_data = self.database_manager.get_adans_state()
         for i in range(len(self.adans)):
@@ -186,7 +187,7 @@ class AdanManager():
         return self.fajer_sound if name == "الفجر" else self.basic_sound
 
     def prepare_for_adan(self):
-        self.player_manager.prepare_for_adan()
+        self.prepare_for_adan_signal.emit()
 
     def change_fajer_sound(self, widget):
         self.fajer_sound.select_sound_file(widget)
@@ -194,7 +195,10 @@ class AdanManager():
     def change_basic_sound(self, widget):
         self.basic_sound.select_sound_file(widget)
             
-    def helper(self, adans, temp, is_summer):
+    def helper(self, adans):
+
+        temp = self.quds_differ
+
         for adan in adans:
             
             
@@ -204,7 +208,7 @@ class AdanManager():
             minute = adan_time.minute
 
             temp_summer = 0
-            if is_summer:
+            if self.is_summer:
                 temp_summer = 1
 
             if temp < 0:
@@ -232,24 +236,16 @@ class AdanManager():
                 new_hour = (hour + temp_hour + (total_minute // 60) + temp_summer) % 24
                 new_minute = total_minute % 60
 
-            # tot_minute = minute + temp
-            # temp_hour = 0
-            # if tot_minute == 60:
-            #     temp_hour = 1 
-            #     tot_minute = 00
-            # elif tot_minute < 0 :
-            #     temp_hour = -1
-            #     tot_minute = 59
-            # new_hour = temp_hour + hour
-            # new_minute = tot_minute
-
             adan.update_time(adan.get_adan_time().replace(hour=new_hour, minute=new_minute))
 
-    def handle_summer_winter_helper(self, adan, is_summer_time):
+    def update_is_summer_time(self, is_summer):
+        self.is_summer = is_summer
+
+    def handle_summer_winter_helper(self, adan):
         
         new_hour = adan.get_adan_time().hour
 
-        if is_summer_time :
+        if self.is_summer :
                 new_hour += 1
         else:
                 new_hour -= 1
@@ -264,34 +260,48 @@ class AdanManager():
         adan.update_time(new_adan_time)
 
     def handle_summer_winter_change(self, is_summer_time):
- 
+        
+        self.update_is_summer_time(is_summer_time)
+
         for adan in self.adans:
             
-            self.handle_summer_winter_helper(adan, is_summer_time)
+            self.handle_summer_winter_helper(adan)
         
-        self.handle_summer_winter_helper(self.shorok, is_summer_time)
-        self.handle_summer_winter_helper(self.jomoaa, is_summer_time)
+        self.handle_summer_winter_helper(self.shorok)
+        self.handle_summer_winter_helper(self.jomoaa)
 
-        self.AdanTimeSignal.adan_time_changed.emit(None)
+        self.adan_time_changed.emit(None)
+
+        self.update_ui()
+        self.update_jomoaa_ui()
     
-    def handle_quds_diff_change(self, quds_differ, is_summer):
+    def update_quds_differ(self, new_quds_diff):
+        self.quds_differ = new_quds_diff
+
+    def handle_quds_diff_change(self, new_quds_differ):
+
+        self.update_quds_differ(new_quds_differ)
 
         # make function
         all_adans = self.adans.copy()
         all_adans.append(self.shorok)
         all_adans.append(self.jomoaa)
    
-        self.helper(all_adans, quds_differ, is_summer)
+        self.helper(all_adans)
         
-        self.AdanTimeSignal.adan_time_changed.emit(None)
-    
-    def check_if_jomoaa_passed(self):
-        if self.curr_time.day == "السبت" :
-            if self.curr_time.curr_dt.time() > time(0,0,0) and self.curr_time.curr_dt.time() < time(0,0,1):
-                return True
-        return False
+        self.adan_time_changed.emit(None)
+
+        self.update_ui()
+        self.update_jomoaa_ui()
+
+    # def check_if_jomoaa_passed(self):
+    #     if self.curr_time.day == "السبت" :
+    #         if self.curr_time.curr_dt.time() > time(0,0,0) and self.curr_time.curr_dt.time() < time(0,0,1):
+    #             return True
+    #     return False
 
     def get_new_adans_time(self):
+
         self.adan_time_prepare.get_current_day_adans()
         all_adans_time = self.adan_time_prepare.convert_to_dt()
 
@@ -300,32 +310,50 @@ class AdanManager():
         for i in range(len(self.adans)):
             self.adans[i].update_original_time(all_adans_time[2][i])
 
-        is_new_jomoaa = self.check_if_jomoaa_passed()
-        if is_new_jomoaa:
-            self.get_new_jomoaa()
 
         # activate quds differ and summer ... => wich also trigger notification update 
-        is_summer_time = self.general_settings.is_summer_time
-        self.handle_quds_diff_change(self.general_settings.quds_time_diff, is_summer_time)
-        # self.handle_summer_winter_change(is_summer_time)
+        
+        #  check this #############################                 !!!!!!!!!!!!!!!!!!!!! !!!!!!!!!!! ###############
+        
+        # is_summer_time = self.general_settings.is_summer_time
+        # self.handle_quds_diff_change(self.general_settings.quds_time_diff, is_summer_time)
+
+    def update_ui(self):
+        for adan in self.adans:
+            adan.update_ui(self.time_formate)
+
+        self.shorok.update_ui(self.time_formate)
+
+    def update_jomoaa_ui(self):
+        self.jomoaa.update_ui(self.time_formate)
+
+    def handle_new_day(self):
+        
+        self.get_new_adans_time()
 
         # update the ui 
         self.update_ui()
 
-        if is_new_jomoaa:
-            self.update_jomoaa_ui()
+        # send the new prayers to next adan
+        self.next_adan.update_five_prayers(self.adans)
+        
+        # emit a signal to update notificatins
+        self.adan_time_changed.emit()
 
-    def update_ui(self):
-        for adan in self.adans:
-            adan.update_ui(self.general_settings.get_time_formate()[1])
+    def handle_new_jomoaa(self):
+        
+        self.get_new_jomoaa()
 
-        self.shorok.update_ui(self.general_settings.get_time_formate()[1])
-
-    def update_jomoaa_ui(self):
-        self.jomoaa.update_ui(self.general_settings.get_time_formate()[1])
-
-    def run(self):
-        self.next_adan.run(self.adans)
-
+        #  update jomoaa ui
+        self.update_jomoaa_ui()
+        
+        # emit a signal to update notificatins
+        self.adan_time_changed.emit()
+    
+    def update_time_formate(self, new_formate):
+        self.time_formate = new_formate
+    
+    def handle_new_time_formate(self, new_time_formate):
+        self.update_time_formate(new_time_formate)
         self.update_ui()
         self.update_jomoaa_ui()

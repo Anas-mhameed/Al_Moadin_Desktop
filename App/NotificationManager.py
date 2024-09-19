@@ -29,7 +29,7 @@ class NotificationManager:
 
     stop_dialog_signal = StopDialogSignal()
 
-    def __init__(self, main_window, curr_time, scrollArea_container, player_manager, secondary_messager, runnable_manager, total_noti_label, noti_sort_box, database_manager):
+    def __init__(self, main_window, scrollArea_container, player_manager, secondary_messager, runnable_manager, total_noti_label, noti_sort_box, database_manager):
         
         self.stop_dialog_signal.stick(self.reject_dialog)
 
@@ -38,7 +38,7 @@ class NotificationManager:
         self.running_noti = ""
 
         self.main_window = main_window
-        self.curr_time = curr_time
+        self.curr_time = dt.datetime.now()
 
         self.scrollArea_container = scrollArea_container
 
@@ -59,6 +59,9 @@ class NotificationManager:
         self.sound = Sound() 
 
         self.intiate_index(self.curr_time)
+
+    def update_curr_time(self, updated_time):
+        self.curr_time = updated_time
 
     def get_notification_from_db(self):
         # dan_index Integer, minutes REAL, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer
@@ -369,7 +372,8 @@ class NotificationManager:
     def intiate_index(self, dt):
         self.permenant_noti_index = 0
         for noti in self.permenant_notifications:
-            if dt.get_curr_time() > noti.get_adjusted_datetime():
+            # if dt.get_curr_time() > noti.get_adjusted_datetime():
+            if dt > noti.get_adjusted_datetime():
                 self.permenant_noti_index += 1
 
         noti_num = len(self.permenant_notifications)
@@ -425,16 +429,16 @@ class NotificationManager:
         except:
             pass
 
-    def run(self, curr_datetime):
+    def run(self):
 
-        res = self.wich_noti_next(curr_datetime)
+        res = self.wich_noti_next(self.curr_time)
         if res != 2:
             if res == 0:
                 notification = self.permenant_notifications[self.permenant_noti_index]
             else:
                 notification = self.once_notifications[0]
 
-            if self.check_if_time_to_play(curr_datetime, notification):
+            if self.check_if_time_to_play(self.curr_time, notification):
                 if notification.activated():
 
                     # if self.player_manager.get_is_adan_playing():

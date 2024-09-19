@@ -1,5 +1,4 @@
 from AppManager import AppManager
-import os
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from ResourceFile import resource_path
@@ -11,7 +10,7 @@ def get_mac_address():
 
 def validate_license():
     current_mac = get_mac_address()
-    return (current_mac == '18:C0:4D:9F:E6:76') or False
+    return (current_mac == '18:C0:4D:9F:E6:76') or True
 
 if __name__ == "__main__":
 

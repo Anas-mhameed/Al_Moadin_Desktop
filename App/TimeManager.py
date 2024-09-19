@@ -13,19 +13,22 @@ class NextDaySignal(QObject):
 
 class TimeManager():
 
-    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label, general_settings) :
+    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
+        
+        self.time = Time(am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label)
+    
+    def connect_to_next_day_signal(self, func):
+        self.time.new_day_signal.connect(func)
 
-        self.next_day_signal = NextDaySignal()
+    def connect_to_time_updated_signal(self, func):
+        self.time.time_updated.connect(func)
 
-        self.curr_time = Time(am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label)
+    def connect_to_new_jomoaa_signal(self, func):
+        self.time.new_jomoaa.connect(func)
 
-        self.general_settings = general_settings
+    def update_time_formate(self, new_time_formate):
+        self.time.update_time_formate(new_time_formate)
 
     def run(self):
-        self.curr_time.update_time()
-        
-        is_new_day = self.curr_time.check_if_new_day()
-        if is_new_day:
-            self.next_day_signal.next_day.emit()
-
-        self.curr_time.update_ui(self.general_settings.get_time_formate()[0], is_new_day)
+        #  should run in different thread!!!
+        self.time.run()

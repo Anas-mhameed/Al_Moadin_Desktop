@@ -1,15 +1,27 @@
 from Runnable import Runnable
 from PySide6.QtCore import QObject, Signal
 
-class ForceTimeChange(QObject):
+class SettingsSignals(QObject):
     
-    adan_time_updated = Signal(object)
+    # adan_time_updated = Signal(object)
+
+    adan_time_formate_signal = Signal(str)
+    time_formate_signal = Signal(str)
+    summer_timing_signal = Signal(bool)
+    quds_diff_signal = Signal(int)
 
     def __init__(self):
         super().__init__()
 
 
 class GeneralSettings():
+
+    settings_signals = SettingsSignals()
+    
+    time_formate_changed = settings_signals.time_formate_signal
+    adan_time_formate_changed = settings_signals.adan_time_formate_signal
+    summer_timing_changed = settings_signals.summer_timing_signal
+    quds_diff_changed = settings_signals.quds_diff_signal
 
     def __init__(self, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, database_manager, runnable_manager) :
 
@@ -23,12 +35,13 @@ class GeneralSettings():
         self.database_manager = database_manager
         self.runnable_manager = runnable_manager
 
+        self.time_formate = ("%H:%M:%S", "%H:%M")
+
         data = self.database_manager.get_settings_data()
 
         self.msjed_name = data[0][1]
         self.city = data[1][1]
 
-        # we are here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.update_ui()
 
         self.quds_time_diff = int(data[2][1])
@@ -52,7 +65,7 @@ class GeneralSettings():
 
         # self.is_24_formate = self.summer_winter_buttons[1].isChecked()
 
-        self.time_handling_functions = []
+        # self.time_handling_functions = []
 
         self.masjed_name_input.textChanged.connect(lambda: self.update_masjed_name())
         self.city_input.textChanged.connect(lambda: self.update_city())
@@ -91,15 +104,15 @@ class GeneralSettings():
 
         self.update_ui()
 
-    def set_handle_timing_functions(self, functions_list):
-        self.time_handling_functions = functions_list
+    # def set_handle_timing_functions(self, functions_list):
+    #     self.time_handling_functions = functions_list
 
-        self.time_handling_functions[0](True)
+    #     self.time_handling_functions[0](True)
 
-        if not self.is_summer_time:
-            self.time_handling_functions[0](self.is_summer_time)
+    #     if not self.is_summer_time:
+    #         self.time_handling_functions[0](self.is_summer_time)
 
-        self.time_handling_functions[1](self.quds_time_diff, self.is_summer_time)
+    #     self.time_handling_functions[1](self.quds_time_diff, self.is_summer_time)
 
     def change_quds_diff(self):
         self.quds_time_diff = self.quds_time_diff_input.value()
@@ -107,7 +120,9 @@ class GeneralSettings():
         # save to db 
         self.save_to_db('quds_time_diff', str(self.quds_time_diff))
 
-        self.time_handling_functions[1](self.quds_time_diff, self.is_summer_time)
+        self.quds_diff_changed.emit(self.quds_time_diff)
+
+        # self.time_handling_functions[1](self.quds_time_diff, self.is_summer_time)
 
     def change_time_formate(self, index):
         
@@ -130,7 +145,9 @@ class GeneralSettings():
 
             self.time_formate_buttons[0].setChecked(False)
             self.time_formate_buttons[1].setChecked(True)
-  
+
+        self.set_time_formate()
+
         # save to db
         self.save_to_db('time_formate',temp)
        
@@ -145,7 +162,7 @@ class GeneralSettings():
 
                 temp = '1'
 
-                self.time_handling_functions[0](self.is_summer_time)
+                # self.time_handling_functions[0](self.is_summer_time)
 
             self.summer_winter_buttons[0].setChecked(True)
             self.summer_winter_buttons[1].setChecked(False)
@@ -158,18 +175,26 @@ class GeneralSettings():
 
                 temp = '0'
 
-                self.time_handling_functions[0](self.is_summer_time)
+                # self.time_handling_functions[0](self.is_summer_time)
 
             self.summer_winter_buttons[0].setChecked(False)
             self.summer_winter_buttons[1].setChecked(True)
 
+        self.summer_timing_changed.emit(self.is_summer_time)
+
         # save to db        
         self.save_to_db('is_summer_time', temp)
 
-    def get_time_formate(self):
+    def set_time_formate(self):
+
         if self.is_24_formate :
-            return ("%H:%M:%S", "%H:%M")
-        return ("%I:%M:%S %p", "%I:%M %p")
+            self.time_formate = ("%H:%M:%S", "%H:%M")
+        else:
+            self.time_formate = ("%I:%M:%S %p", "%I:%M %p")
+
+        # emit time formate changed
+        self.time_formate_changed.emit(self.time_formate[0])
+        self.adan_time_formate_changed.emit(self.time_formate[1])
 
     def update_ui(self):
         self.masjed_name_label.setText(f"{self.msjed_name} - {self.city}")
