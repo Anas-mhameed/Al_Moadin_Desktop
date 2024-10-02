@@ -66,12 +66,19 @@ class Sound:
     def update_file_path(self, new_path):
         self.file_path = new_path
 
-    def play(self):
-        self.stop()
-        self.set_audio_volume()
+    def set_source(self):
         try :
             self.media_player.setSource(QUrl().fromLocalFile(self.file_path))
             self.media_player.setPosition(0)
+        
+        except Exception as e:
+            print(e)
+
+    def play(self):
+        self.stop()
+        self.set_audio_volume()
+        self.set_source()
+        try :
             self.media_player.play()
         except Exception as e:
             print(e)

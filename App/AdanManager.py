@@ -15,6 +15,13 @@ class AdanManagerSignals(QObject):
     
     adan_time_changed = Signal(object)
     prepare_for_adan = Signal()
+    get_settings_signal = Signal()
+    adan_sound_changed = Signal()
+    find_next_adan_signal = Signal()
+    force_stop_adan_signal = Signal()
+    play_adan_signal = Signal(str)
+    fajer_duartion_signal = Signal(int)
+    basic_duartion_signal = Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -25,6 +32,15 @@ class AdanManager():
     adan_manager_signals = AdanManagerSignals()
     adan_time_changed = adan_manager_signals.adan_time_changed 
     prepare_for_adan_signal = adan_manager_signals.prepare_for_adan
+    get_settings_signal = adan_manager_signals.get_settings_signal
+    
+    adan_sound_changed = adan_manager_signals.adan_sound_changed
+
+    find_next_adan_signal = adan_manager_signals.find_next_adan_signal
+    force_stop_adan_signal = adan_manager_signals.force_stop_adan_signal
+    play_adan_signal = adan_manager_signals.play_adan_signal
+    fajer_duartion_signal = adan_manager_signals.fajer_duartion_signal
+    basic_duartion_signal = adan_manager_signals.basic_duartion_signal
 
     def __init__(self, main_widget, database_manager, runnable_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
@@ -32,11 +48,9 @@ class AdanManager():
         self.runnable_manager = runnable_manager 
 
         self.adan_time_prepare = AdanTimePrepare()
-        self.general_settings = general_settings
+        # self.general_settings = general_settings
         
-        self.time_formate = ""
-        self.is_summer = True
-        self.quds_differ = 0
+        self.time_formate = "%H:%M"
 
         self.wich_is_playing = None
 
@@ -47,9 +61,18 @@ class AdanManager():
         self.emerg_btn = emerg_btn
         self.emerg_btn.clicked.connect(lambda: self.emergency_stop())
 
-        # initiate defaulte sounds 
-        self.fajer_sound = Sound(sound_file=resource_path("resources/sounds/azan9.mp3"))
-        self.basic_sound = Sound(sound_file=resource_path("resources/sounds/azan2.mp3"))
+        # self.fajer_sound_duration = 0
+        # self.basic_sound_duration = 0
+
+        data = self.database_manager.get_adans_sound()
+
+        # initiate default sounds 
+        self.fajer_sound = Sound(sound_file=resource_path(data[1][1]))
+        
+        self.basic_sound = Sound(sound_file=resource_path(data[0][1]))
+
+        self.fajer_sound.track_media_duration(self.fajer_duration_changed)
+        self.basic_sound.track_media_duration(self.basic_duartion_changed)
 
         for button in adans_sound_buttons:
             if button.objectName() == "fajerSoundButton" :
@@ -63,15 +86,39 @@ class AdanManager():
         self.intiate_adans_state()
 
         self.jomoaa = self.intiate_jomoaa(jomoaa)
-        # self.handle_summer_winter_change(True)
 
-        self.next_adan = NextAdan(self.adans, self.set_not_adan_time, dt.now(), next_adan_label, remaining_time_label, self.start_adan, self.prepare_for_adan)
-        
+        self.next_adan = NextAdan(self.adans, next_adan_label, remaining_time_label)
+
+        self.find_next_adan_signal.connect(self.next_adan.intiate_next_adan)
+
         self.next_adan.adan_time_signal.connect(self.start_adan)
         self.next_adan.prepare_for_adan_signal.connect(self.prepare_for_adan)
+        self.next_adan.force_stop_adan.connect(self.force_stop_adan)
 
         self.update_ui()
         self.update_jomoaa_ui()
+
+    def set_fajer_sound_source(self):
+        self.fajer_sound.set_source()
+
+    def set_basic_sound_source(self):
+        self.basic_sound.set_source()
+
+    def set_sounds_source(self):
+        self.set_fajer_sound_source()
+        self.set_basic_sound_source()
+
+    def fajer_duration_changed(self):
+        self.fajer_duartion_signal.emit(self.fajer_sound.get_duration())
+
+    def basic_duartion_changed(self):
+        self.basic_duartion_signal.emit(self.basic_sound.get_duration())
+
+    def force_stop_adan(self):
+        self.force_stop_adan_signal.emit()
+
+    def get_settings(self):
+        self.get_settings_signal.emit()
 
     def update_curr_time(self, updated_time):
         self.curr_time = updated_time
@@ -167,9 +214,12 @@ class AdanManager():
             self.wich_is_playing = self.fajer_sound
         else:
             self.wich_is_playing = self.basic_sound
-        
+
         if adan.check_state():
-            self.wich_is_playing.play()
+            # emit signal to player manager to play adan
+            self.play_adan_signal.emit(self.wich_is_playing.get_file_path())
+
+            # self.wich_is_playing.play()
             self.emerg_frame.show()
             self.time_to_hide_emerg_frame()
 
@@ -190,17 +240,22 @@ class AdanManager():
         self.prepare_for_adan_signal.emit()
 
     def change_fajer_sound(self, widget):
+
         self.fajer_sound.select_sound_file(widget)
+        self.set_fajer_sound_source()
+        self.database_manager.update_adans_sound("fajer_adan", self.fajer_sound.get_file_path())
 
     def change_basic_sound(self, widget):
+
         self.basic_sound.select_sound_file(widget)
+        self.set_basic_sound_source()
+        self.database_manager.update_adans_sound("basic_adan", self.basic_sound.get_file_path())
             
     def helper(self, adans):
 
         temp = self.quds_differ
 
         for adan in adans:
-            
             
             adan_time = adan.get_original_time()
             
@@ -270,7 +325,9 @@ class AdanManager():
         self.handle_summer_winter_helper(self.shorok)
         self.handle_summer_winter_helper(self.jomoaa)
 
-        self.adan_time_changed.emit(None)
+        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+
+        self.find_next_adan_signal.emit()
 
         self.update_ui()
         self.update_jomoaa_ui()
@@ -289,7 +346,9 @@ class AdanManager():
    
         self.helper(all_adans)
         
-        self.adan_time_changed.emit(None)
+        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+
+        self.find_next_adan_signal.emit()
 
         self.update_ui()
         self.update_jomoaa_ui()
@@ -357,3 +416,9 @@ class AdanManager():
         self.update_time_formate(new_time_formate)
         self.update_ui()
         self.update_jomoaa_ui()
+
+    def get_adans_for_notification_manager(self):
+        lst = []
+        for i in range(1,7):
+            lst.append(self.get_current_adan_time(i))
+        return lst

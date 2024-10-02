@@ -72,38 +72,55 @@ class AppManager(QMainWindow):
         self.player_manager = PlayerManager(self, self.messager, self.runnable_manager)
 
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.database_manager, self.runnable_manager)
+        
 
         self.time_manager = TimeManager(self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label, self.hijri_date_label)
 
         self.general_settings.time_formate_changed.connect(self.time_manager.update_time_formate)
-
+        self.time_manager.connect_to_get_formate_signal(self.general_settings.set_time_formate)
+        self.time_manager.get_time_formate()
+        
         self.adan_manager = AdanManager(self, self.database_manager, self.runnable_manager, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.general_settings, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        
+        self.adan_manager.play_adan_signal.connect(self.player_manager.play_adan)
+        self.adan_manager.force_stop_adan_signal.connect(self.player_manager.force_stop_adan)
 
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
-
-        self.instant_player = InstantPlayer(self.runnable_manager, self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
-
-        # self.notification_manager = NotificationManager(self, self.scrollAreaContainer, self.player_manager, self.secondary_messager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box, self.database_manager)
-        # self.time_manager.connect_to_time_updated_signal(self.notification_manager.update_curr_time)
-
-        # self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
-        self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
-
-        self.time_manager.connect_to_next_day_signal(self.adan_manager.handle_new_day)
-        self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
-
-        self.time_manager.connect_to_next_day_signal(self.adan_manager.next_adan.update_curr_day)
-        # self.player_manager_helper = PlayerManagerHelper(self.adan_manager, self.notification_manager, self.instant_player )
         
-        # self.player_manager.set_player_manager_helper(self.player_manager_helper)
-
         self.general_settings.summer_timing_changed.connect(self.adan_manager.handle_summer_winter_change)
         self.general_settings.quds_diff_changed.connect(self.adan_manager.handle_quds_diff_change)
         self.general_settings.adan_time_formate_changed.connect(self.adan_manager.handle_new_time_formate)
-
-
         
-        # self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
+        self.adan_manager.get_settings_signal.connect(self.general_settings.send_all_settings_to_adan_manager)
+        self.adan_manager.get_settings()
+
+        self.time_manager.connect_to_next_day_signal(self.adan_manager.handle_new_day)
+        self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
+        self.time_manager.connect_to_next_day_signal(self.adan_manager.next_adan.update_curr_day)
+
+        self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
+
+        self.instant_player = InstantPlayer(self.runnable_manager, self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+
+        self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.secondary_messager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box, self.database_manager)
+
+        self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
+        self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)
+        self.adan_manager.set_sounds_source()
+
+        self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
+
+        self.notification_manager.can_noti_play.connect(self.player_manager.can_noti_play)
+        
+        self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
+        
+        # self.player_manager_helper = PlayerManagerHelper(self.adan_manager, self.notification_manager, self.instant_player )
+        
+        # self.player_manager.set_player_manager_helper(self.player_manager_helper
+        
+
+
+        self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
         
         # load from db
         # self.notification_manager.get_notification_from_db()
@@ -454,14 +471,14 @@ class AppManager(QMainWindow):
 
             if self.before_adan_type_button.isChecked():
                 # before adan notification
-                res = self.notification_manager.create_notification(True, is_permenant, self.before_adan_box.currentIndex() + 1, self.before_adan_minutes_spin.value(), date, duration)
+                res = self.notification_manager.create_notification(True, is_permenant, self.before_adan_box.currentIndex() + 1, (self.before_adan_minutes_spin.value() * 60), date, duration)
             else:
                 # after adan notification
-                minutes = self.after_adan_minutes_spin.value()
-                if self.after_adan_minutes_spin.suffix() == " ثواني":
-                    minutes /= 60
+                seconds = self.after_adan_minutes_spin.value()
+                if self.after_adan_minutes_spin.suffix() != " ثواني":
+                    seconds *= 60
                 
-                res = self.notification_manager.create_notification(False, is_permenant, self.after_adan_box.currentIndex() + 1, minutes, date, duration)
+                res = self.notification_manager.create_notification(False, is_permenant, self.after_adan_box.currentIndex() + 1, seconds, date, duration)
             
             if res :
                 self.cancel_noti_handle()

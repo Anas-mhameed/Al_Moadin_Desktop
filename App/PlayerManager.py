@@ -2,6 +2,7 @@ from Runnable import Runnable
 from CustomDialog import CustomDialog
 from PySide6.QtWidgets import QDialog
 from time import sleep
+from Sound import Sound
 
 class PlayerManager:
 
@@ -16,7 +17,13 @@ class PlayerManager:
         self.runnable_manager = runnable_manager
 
         self.noti_runnable = ""
+        self.sound = Sound()
     
+    def play_adan(self, file_path):
+        # play adan !!!!!!!!
+        self.sound.update_file_path(file_path)
+        self.sound.play()
+
     def get_is_adan_playing(self):
         return self.is_adan_playing
 
@@ -46,6 +53,9 @@ class PlayerManager:
 
         self.set_is_instant_player_playing(True)
         return True
+
+    def can_noti_play(self):
+        pass
 
     def prepare_for_adan(self):
         self.set_is_adan_playing(True)
@@ -83,6 +93,9 @@ class PlayerManager:
         self.messager.update_error_label(error_msg)
         self.messager.update_info_label(info_msg)
         self.messager.show()
+
+    def force_stop_adan(self):
+        pass
 
     # def run(self):
     #     print()

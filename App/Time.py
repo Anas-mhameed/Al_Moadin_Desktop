@@ -30,16 +30,19 @@ class TimeSignal(QObject):
     new_day = Signal(str)
     new_jomoaa = Signal()
 
+    get_formate_signal = Signal()
+
     def __init__(self):
         super().__init__()
 
 class Time():
 
     time_signal = TimeSignal()
+
     time_updated = time_signal.time_updated
     new_day_signal = time_signal.new_day
     new_jomoaa = time_signal.new_jomoaa
-
+    get_formate_signal = time_signal.get_formate_signal
 
     def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
 
@@ -81,6 +84,9 @@ class Time():
 
         # self.time_updated.connect(self.update_ui)
     
+    def get_formate(self):
+        self.get_formate_signal.emit()
+
     def update_factor(self):
         if self.factor == 3:
             self.factor = -3
@@ -114,19 +120,20 @@ class Time():
 
     def set_hijri_date(self):
         hijri_date = self.gregorian_to_hijri(self.date.year, self.date.month, self.date.day)
+
         day = hijri_date.day + self.factor
         month = hijri_date.month
         year = hijri_date.year
 
         if day > 30:
-            day = 1
+            day -= 30
             month += 1
         elif day < 1:
             day = 30 + day
             month -= 1
         
         if month > 12:
-            month = 1
+            month -= 12
             year += 1
         elif month < 1:
             month = 12

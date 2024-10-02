@@ -24,7 +24,6 @@ class Notification():
         new_day = new_date.day
         self.time = self.time.replace(year=new_year, month=new_month, day=new_day)
 
-
     def update_sound(self, new_sound_path):
         self.file_path = new_sound_path
     
@@ -39,7 +38,7 @@ class Notification():
 
 class AdanNotification(Notification):
 
-    def __init__(self, is_before_adan, time, adan_index, minutes, file_path, date=None, duration=0):
+    def __init__(self, is_before_adan, time, adan_index, seconds, file_path, date=None, duration=0,  adan_duration=0):
         
         updated_time = time
 
@@ -55,23 +54,24 @@ class AdanNotification(Notification):
         if adan_index > 6 or adan_index < 1:
             raise IndexError
         
+        self.adan_duration = adan_duration
         self.is_before_adan = is_before_adan
         self.adan_index = adan_index
-        self.minutes = minutes
-        self.adjust_datetime_minutes(self.minutes)
+        self.seconds = seconds
+        self.adjust_datetime_minutes(self.seconds + self.adan_duration)
         self.is_activated = True
         self.index_in_layout = -1
 
     def update_date(self, new_date):
         super().update_date(new_date)
-        self.adjust_datetime_minutes(self.minutes)
+        self.adjust_datetime_minutes(self.seconds + self.adan_duration)
         self.update_ui()
 
     def activated(self):
         return self.is_activated
 
-    def get_minutes(self):
-        return self.minutes
+    def get_seconds(self):
+        return self.seconds
 
     def get_index(self):
         return self.adan_index
@@ -83,19 +83,33 @@ class AdanNotification(Notification):
         self.ui_obj.noti_time_label.setText(f"{self.get_formatted_date()[1].strftime('%H:%M')}")
         self.ui_obj.noti_date_label.setText(f"{self.get_formatted_date()[0]}")
 
-    def update_time(self, new_time):
-        super().update_time(new_time)
-        self.adjust_datetime_minutes(self.minutes)
+    def update_adan_duration(self, new_duration):
+        self.adan_duration = new_duration
+        self.adjust_datetime_minutes(self.seconds + self.adan_duration)
         self.update_ui()
+
+    def update_time(self, new_time):
+        print(new_time)
+        super().update_time(new_time)
+        self.adjust_datetime_minutes(self.seconds + self.adan_duration)
+        print(f"new time: {self.get_adjusted_datetime()}")
+        self.update_ui()
+
 
     def noti_play_time(self):
         return self.adjusted_datetime 
 
-    def adjust_datetime_minutes(self, minute_offset):
+    def adjust_datetime_minutes(self, seconds_offset):
+        print(f"second offset: {seconds_offset}")
+        print(f"offset in minutes: {seconds_offset / 60}")
+
         # Extract the original hours and minutes
         original_hours = self.time.hour
         original_minutes = self.time.minute
         
+        print(f"orignal: {original_hours}")
+        print(f"orignal: {original_minutes}")
+
         day = self.time.day
         month = self.time.month
         year = self.time.year
@@ -107,21 +121,24 @@ class AdanNotification(Notification):
 
         # total_minutes = original_minutes
         total_minutes = original_minutes
-        seconds = 0
 
-        if minute_offset >= 1:
-            # Calculate the total minutes
-            if self.is_before_adan:
-                total_minutes -= minute_offset
-            else:
-                total_minutes += minute_offset
+        minute_offset = seconds_offset // 60
+        seconds = seconds_offset % 60
+
+        if self.is_before_adan:
+            total_minutes -= minute_offset
         else:
-            seconds = minute_offset * 60
+            total_minutes += minute_offset
+
+        print(f"total minutes: {total_minutes}")
+
         # Determine the new hours and minutes
         new_hours, new_minutes = divmod(total_minutes, 60)
-
+        print(f"new_minutes: {new_minutes}")
+        print(f"temp hour: {new_hours}")
+        
         # Adjust the date and time based on the new hours and minutes
-        self.adjusted_datetime = dt(year, month, day, hour=original_hours + new_hours, minute=new_minutes, second= int(seconds))
+        self.adjusted_datetime = dt(year, month, day, hour=(original_hours + new_hours) % 24, minute=new_minutes, second= int(seconds))
 
     def get_adjusted_datetime(self):
         return self.adjusted_datetime
@@ -170,7 +187,6 @@ class AdanNotification(Notification):
             self.set_activated(False)
 
         self.change_noti_state_in_db(self, int(self.is_activated))
-            
 
     def get_formatted_date(self):
         adan_list = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء", "الجمعة"]
@@ -181,30 +197,23 @@ class AdanNotification(Notification):
         adan = adan_list[self.adan_index - 1]
 
         when = "قبل" if self.is_before_adan else "بعد"
-
-        minutes = self.minutes
-        if self.minutes < 1 :
+        
+        if self.seconds < 60:
             min_sec = "ثواني"
-            minutes *= 60
-        elif self.minutes > 10:
-            min_sec = "دقيقة"
+            if self.seconds > 10:
+                min_sec = "ثانية"
+            tot = self.seconds
         else:
-            min_sec = "دقائق"
+            min_sec = "دقيقة"
+            tot = self.seconds // 60
+            if  tot <= 10 and tot > 1:
+                min_sec = "دقائق"
 
-        return (date, time, f"{when} اذان {adan}", f"ب {int(minutes)} {min_sec}") 
+        return (date, time, f"{when} اذان {adan}", f"ب {int(tot)} {min_sec}") 
 
     def __str__(self):
-        adans = ["فجر", "ظهر", "عصر", "مغرب", "عشاء", "الجمعة"]
-        
-        prefix = "دقائق"
-        minutes = self.minutes
-        if self.minutes < 1:
-            prefix = "ثواني"
-            minutes = minutes * 60
-        elif self.minutes < 11:
-            prefix = "دقيقة"
-        
-        return f"قبل صلاة ال{adans[self.get_index() - 1]} ب {minutes} {prefix}"
+        formatted_time = self.get_formatted_date()
+        return f"{formatted_time[2]}\n{formatted_time[3]}"
 
     def show_dialog_info(self, main_window):
         self.show_dialog = ShowDialog(self.get_adjusted_datetime(), str(self), self.edit_file_path, self.save_updates, lambda: self.delete_noti(), parent=main_window)

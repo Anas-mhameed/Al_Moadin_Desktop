@@ -35,8 +35,6 @@ class GeneralSettings():
         self.database_manager = database_manager
         self.runnable_manager = runnable_manager
 
-        self.time_formate = ("%H:%M:%S", "%H:%M")
-
         data = self.database_manager.get_settings_data()
 
         self.msjed_name = data[0][1]
@@ -49,6 +47,8 @@ class GeneralSettings():
         self.is_summer_time = bool(int(data[3][1]))
 
         self.is_24_formate = bool(int(data[4][1]))
+
+        self.set_time_formate()
 
         # intiate quds time diff to db value
         self.quds_time_diff_input.setValue(self.quds_time_diff)
@@ -159,6 +159,8 @@ class GeneralSettings():
             if self.is_summer_time == False: 
 
                 self.is_summer_time = True
+                
+                self.summer_timing_changed.emit(self.is_summer_time)
 
                 temp = '1'
 
@@ -173,14 +175,14 @@ class GeneralSettings():
 
                 self.is_summer_time = False
 
+                self.summer_timing_changed.emit(self.is_summer_time)
+
                 temp = '0'
 
                 # self.time_handling_functions[0](self.is_summer_time)
 
             self.summer_winter_buttons[0].setChecked(False)
             self.summer_winter_buttons[1].setChecked(True)
-
-        self.summer_timing_changed.emit(self.is_summer_time)
 
         # save to db        
         self.save_to_db('is_summer_time', temp)
@@ -198,3 +200,10 @@ class GeneralSettings():
 
     def update_ui(self):
         self.masjed_name_label.setText(f"{self.msjed_name} - {self.city}")
+
+    def send_all_settings_to_adan_manager(self):
+        self.summer_timing_changed.emit(self.is_summer_time)
+        self.quds_diff_changed.emit(self.quds_time_diff)
+
+        self.adan_time_formate_changed.emit(self.time_formate[1])
+

@@ -16,23 +16,66 @@ class DatabaseManager:
         con.commit()
         
         # create notification table
-        cur.execute("CREATE TABLE if not exists notification (adan_index Integer, minutes REAL, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer, active Integer)")
+        cur.execute("CREATE TABLE if not exists notification (adan_index Integer, seconds Integer, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer, active Integer, adan_duration Integer)")
         con.commit()
 
         cur.execute("CREATE TABLE if not exists adans_state (adan_index Integer, is_active Integer)")
         con.commit()
+        
+        cur.execute("CREATE TABLE if not exists adans_sound (adan TEXT, sound TEXT)")
+        con.commit()
 
         con.close()
-
+        
         # add default values if table is embty
         if self.check_if_table_is_empty('general_settings'):
             self.initialize_general_settings()
         
-        if self.check_if_table_is_empty('notification'):
-            self.initialize_notifications()
+        # if self.check_if_table_is_empty('notification'):
+        #     self.initialize_notifications()
         
         if self.check_if_table_is_empty('adans_state'):
             self.initialize_adans_state()
+        
+        if self.check_if_table_is_empty('adans_sound'):
+            self.initialize_adans_sound()
+
+    def initialize_adans_sound(self):
+        
+        data = [("basic_adan", "resources/sounds/azan9.mp3"), ("fajer_adan", "resources/sounds/azan2.mp3")]
+        
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        cur.executemany("INSERT INTO adans_sound VALUES(?, ?)", data)
+
+        con.commit()
+        con.close()
+        
+    def get_adans_sound(self):
+
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        res = cur.execute("SELECT * FROM adans_sound")
+        records = res.fetchall()
+
+        con.close()
+
+        return records
+
+    def update_adans_sound(self, row_name, new_val):
+
+        print(row_name)
+        print(new_val)
+        
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        cur.execute("UPDATE adans_sound SET sound = ? WHERE adan = ?", (new_val, row_name))
+
+        con.commit()
+        con.close()
 
     def get_settings_data(self):
         
@@ -101,16 +144,18 @@ class DatabaseManager:
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("INSERT INTO notification VALUES(?, ?, ?, ?, ?, ?, ?, ?)", noti_data)
+        cur.execute("INSERT INTO notification VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", noti_data)
         con.commit()
         
         con.close()
 
-    def update_notification(self, adan_index, minute, new_file_path):
+    def update_notification(self, adan_index, seconds, row, new_val):
+        print("in db")
+        print(row)
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("UPDATE notification SET file_path = ? WHERE adan_index = ? AND minutes = ?", (new_file_path, adan_index, minute))
+        cur.execute(f"UPDATE notification SET {row} = ? WHERE adan_index = ? AND seconds = ?", (new_val, adan_index, seconds))
 
         con.commit()
         con.close()
@@ -124,21 +169,21 @@ class DatabaseManager:
         con.commit()
         con.close()
 
-    def initialize_notifications(self):
-        con = sqlite3.connect(self.db_name)
-        cur = con.cursor()
+    # def initialize_notifications(self):
+    #     con = sqlite3.connect(self.db_name)
+    #     cur = con.cursor()
 
-        data = [
-            (1, 30.0, None, 0, resource_path("resources/sounds/al_minshawi_yasin.mp3"), 1, 1, 1),
-            (6, 60.0, None, 0, resource_path("resources/sounds/al_minshawi_al_kahf.mp3"), 1, 1, 1),
-            (6, 25.0, None, 0, resource_path("resources/sounds/abd_albast_al_jomoaa.mp3"), 1, 1, 1),
-            (4, 20.0, None, 0, resource_path("resources/sounds/abd_albast_al_mulk.mp3"), 1, 1, 1),
-        ]
+    #     data = [
+    #         (1, 30 * 60, None, 0, resource_path("resources/sounds/al_minshawi_yasin.mp3"), 1, 1, 1),
+    #         (6, 60 * 60, None, 0, resource_path("resources/sounds/al_minshawi_al_kahf.mp3"), 1, 1, 1),
+    #         (6, 25 * 60, None, 0, resource_path("resources/sounds/abd_albast_al_jomoaa.mp3"), 1, 1, 1),
+    #         (4, 20 * 60, None, 0, resource_path("resources/sounds/abd_albast_al_mulk.mp3"), 1, 1, 1),
+    #     ]
 
-        cur.executemany("INSERT INTO notification VALUES(?, ?, ?, ?, ?, ?, ?, ?)", data)
+    #     cur.executemany("INSERT INTO notification VALUES(?, ?, ?, ?, ?, ?, ?, ?)", data)
 
-        con.commit()
-        con.close()
+    #     con.commit()
+    #     con.close()
 
     def get_notifications(self):
         con = sqlite3.connect(self.db_name)
@@ -156,8 +201,8 @@ class DatabaseManager:
         cur = con.cursor()
 
         cur.execute("""
-                    DELETE FROM notification WHERE adan_index = ? AND minutes = ?
-                    """, (notification.get_index(), float(notification.get_minutes())))
+                    DELETE FROM notification WHERE adan_index = ? AND seconds = ?
+                    """, (notification.get_index(), notification.get_seconds()))
         
         con.commit()
         con.close()
