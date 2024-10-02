@@ -1,6 +1,7 @@
 # Ignore Python compiled files
 *.pyc
 __pycache__/
+temp.py
 
 # Ignore directories
 dist/
