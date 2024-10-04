@@ -1,9 +1,16 @@
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog 
 from PySide6.QtCore import QTimer
-from PySide6.QtCore import QFile, QUrl
+from PySide6.QtCore import QUrl
+from PySide6.QtCore import QObject, Signal
+
+class SoundSignals(QObject):
+    end_of_media_signal = Signal()
 
 class Sound:
+
+    sound_signals = SoundSignals()
+    end_of_media_signal = sound_signals.end_of_media_signal
 
     def __init__(self, sound_file = "", volume = 50, duration = -1):
 
@@ -18,6 +25,12 @@ class Sound:
         self.set_volume(volume)
 
         self.media_player.durationChanged.connect(lambda: self.get_duration())
+
+        self.media_player.mediaStatusChanged.connect(self.emit_end_of_media)
+    
+    def emit_end_of_media(self, status):
+        if status == QMediaPlayer.MediaStatus.EndOfMedia:
+            self.end_of_media_signal.emit()
 
     def track_media_position(self, func):
         self.media_player.positionChanged.connect(func)

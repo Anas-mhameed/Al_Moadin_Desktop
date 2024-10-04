@@ -63,9 +63,6 @@ class NotificationManager:
         self.clear_layout()
         self.show_notifications()
 
-        # self.find_next_noti()
-
-        # self.intiate_index(self.curr_time)
 
     def update_curr_time(self, updated_time):
         self.curr_time = updated_time
@@ -98,8 +95,6 @@ class NotificationManager:
             is_active = bool(record[7])
 
             self.intialize_notification(is_permenant, noti_type, adan_index, minutes, date, duration, file_path, is_active)
-        
-        # self.intiate_index(self.curr_time)
 
 
     def create_notification(self, is_before_adan, is_permenant, *args):
@@ -126,17 +121,6 @@ class NotificationManager:
             else:
                 # basic adan noti
                 duration_in_seconds = self.get_adan_duration(1)
-        
-        print("in create noti")
-        print(duration_in_seconds)
-        #  need to be continue 
-        #  if minutes variable = to 10 seconds ?
-        #  what if minute variable = to 1 =< minutes 
-
-
-        #  in both scenrios need to convert it to seconds !!
-        # then add it to duration_in_seconds then pass it to constructor
-        # AdanNotification need to be edited accordinly (change from minute calc to seconds calc)
 
         new_notification = AdanNotification(is_before_adan, time, adan_index, minutes, file_path, date, duration, duration_in_seconds)
 
@@ -164,12 +148,12 @@ class NotificationManager:
 
         self.show_notifications()
 
-        self.increase_total_noti_num()
-
-        # self.turn_on_off_noti(False)
-
         if is_permenant:
-            self.intiate_index(self.curr_time)
+            self.intiate_index()
+
+        self.find_next_noti()
+
+        self.increase_total_noti_num()
 
         return True
 
@@ -291,7 +275,11 @@ class NotificationManager:
         else:
             self.once_notifications.remove(notification)
         
-        self.intiate_index(self.curr_time)
+        self.next_noti = None
+
+        self.intiate_index()
+
+        self.find_next_noti()
 
         self.decrease_total_noti_num()
 
@@ -416,8 +404,10 @@ class NotificationManager:
         self.update_adan_time(new_adan_times)
         # update notification
         self.update_notifications()
-        # find next noti in permenant
-        self.intiate_index(self.curr_time)
+        # find next noti index in permenant
+        self.intiate_index()
+        # find next noti
+        self.find_next_noti()
 
     def update_notifications(self):
         for noti in self.permenant_notifications:
@@ -435,11 +425,11 @@ class NotificationManager:
         curr_date = dt.datetime.now().date()
         notification.update_date(curr_date)
 
-    def intiate_index(self, dt):
+    def intiate_index(self):
         self.permenant_noti_index = 0
         for noti in self.permenant_notifications:
             # if dt.get_curr_time() > noti.get_adjusted_datetime():
-            if dt > noti.get_adjusted_datetime():
+            if self.curr_time > noti.get_adjusted_datetime():
                 self.permenant_noti_index += 1
 
         noti_num = len(self.permenant_notifications)
@@ -682,17 +672,17 @@ class NotificationManager:
         
         # update self.curr_time
         self.update_curr_time(curr_time)
-        
+
         # find next noti if not exist 
         if not self.next_noti:
+            self.intiate_index()
             self.find_next_noti()
 
-        if self.next_noti:    
+        if self.next_noti:  
             if self.check_if_time_to_play(curr_time, self.next_noti):
                     if self.next_noti.activated():
                         # emit signal to player manager (can i play ?)
-                        print("time to play!")
-                        self.can_noti_play.emit()
+                        self.can_noti_play.emit(self.next_noti)
 
                     # find next notification
                     if self.curr_noti_type:
@@ -708,10 +698,9 @@ class NotificationManager:
                         self.permenant_noti_index += 1 
                         if self.permenant_noti_index == len(self.permenant_notifications):
                             self.permenant_noti_index = 0
-                    
-                    # need to be completed inside the func
-                    # need to be checked also ... 
+
                     self.find_next_noti()
+
  
     def handle_fajer_duration_changed(self, new_duration):
 

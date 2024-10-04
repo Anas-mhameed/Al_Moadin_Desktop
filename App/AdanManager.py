@@ -209,6 +209,7 @@ class AdanManager():
         self.player_manager.set_is_adan_playing(False)
         self.next_adan.set_praper_for_adan_call(False)
 
+    # need to be checked/updated (on how to hide emerg frame and stop adan)
     def start_adan(self, adan):
         if adan.get_adan_name() == "الفجر":
             self.wich_is_playing = self.fajer_sound
@@ -397,7 +398,7 @@ class AdanManager():
         self.next_adan.update_five_prayers(self.adans)
         
         # emit a signal to update notificatins
-        self.adan_time_changed.emit()
+        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
 
     def handle_new_jomoaa(self):
         
@@ -407,7 +408,7 @@ class AdanManager():
         self.update_jomoaa_ui()
         
         # emit a signal to update notificatins
-        self.adan_time_changed.emit()
+        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
     
     def update_time_formate(self, new_formate):
         self.time_formate = new_formate

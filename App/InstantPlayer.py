@@ -1,8 +1,17 @@
 from Sound import Sound
 from Runnable import Runnable
 from time import sleep
+from PySide6.QtCore import QObject, Signal
+
+class InstantPlayersignals(QObject):
+    can_I_play_signal = Signal()
+    finished_signal = Signal()
 
 class InstantPlayer:
+
+    instant_player_signals = InstantPlayersignals()
+    can_I_play = instant_player_signals.can_I_play_signal
+    finished_signal = instant_player_signals.finished_signal
 
     def __init__(self, runnable_manager, main_widget, player_manager, choose_file_button, delete_file_button, position_controller, play_button, pause_button, resume_button, stop_button):
         
@@ -27,10 +36,12 @@ class InstantPlayer:
         self.choose_file_button.clicked.connect(lambda: self.choose_sound(self.main_widget))
         self.delete_file_button.clicked.connect(lambda: self.delete_sound())
 
-        self.play_button.clicked.connect(lambda: self.play())
+        self.play_button.clicked.connect(lambda: self.ask_player_manager_to_play())
         self.pause_button.clicked.connect(lambda: self.pause())
         self.resume_button.clicked.connect(lambda: self.resume())
         self.stop_button.clicked.connect(lambda: self.stop())
+
+        self.sound.end_of_media_signal.connect(self.handle_end_of_media)
 
         # self.position_controller.valueChanged.connect(lambda: self.handle_position_change())
         self.sound.track_media_duration(self.set_position_controller_range)
@@ -52,63 +63,73 @@ class InstantPlayer:
     def disable(self, btn):
         btn.setEnabled(False)
 
-    def play(self):
-
+    def ask_player_manager_to_play(self):
         if self.sound.check_path_is_empty():
-            msg = "لا يوجد ملف صوتي" 
-            self.player_manager.send_msg(msg, "")
-            self.disable(self.play_button)
-
-            self.player_manager.hide_msg(3, [self.enable , self.play_button])
-
+            msg = "لا يوجد ملف صوتي"             
+            print("empty path")
+            # send a signal to Message Manager to display apropriate msg 
+            #  here \/ \/ \/
         else:
-            if self.player_manager.can_instant_player_play():
-                # if self.sound.is_playing():
-                #     self.stop()
-                try:
-                    self.stop()
-                except:
-                    pass
+            if self.sound.is_playing():
+                self.stop()
 
-                def temp(func):
-                    sleep(1)
-                    self.sound.set_volume(100)
-                    self.set_position_controller(0)
-                    self.player_manager.set_is_instant_player_playing(True)
-                    self.sound.play()
-                self.runnable_manager.runTask(Runnable(temp))
-                # self.sound.play()
-                
-                def temp(func):
-                    while func() and not self.sound.end_of_media():
-                        sleep(0.5)
-                    self.sound.stop()
-                    self.player_manager.set_is_instant_player_playing(False)
+            self.can_I_play.emit()
 
-                self.runnable = Runnable(temp)
-                self.runnable_manager.runTask(self.runnable)
+    def play(self):
+        
+        # self.player_manager.send_msg(msg, "")
+        # self.disable(self.play_button)
 
-            else:
-                self.player_manager.send_msg("لا يمكن تشغيل ملف الصوت الفوري الان ", "الرجاء الانتظار حتى الانتهاء من الاذان")
-                self.disable(self.play_button)
-                self.player_manager.hide_msg(5, [self.enable , self.play_button])
+        # self.player_manager.hide_msg(3, [self.enable , self.play_button])
+
+        #  ----------------------------------------------------------------------------
+
+        # if self.sound.is_playing():
+        #     self.stop()
+        # try:
+        #     self.stop()
+        # except:
+        #     pass
+
+        self.sound.play()
+        # def temp(func):
+            # sleep(1)
+            # self.sound.set_volume(100)
+            # self.set_position_controller(0)
+            # self.player_manager.set_is_instant_player_playing(True)
+            # self.sound.play()
+            # self.runnable_manager.runTask(Runnable(temp))
+        # self.sound.play()
+
+        # def temp(func):
+        #     while func() and not self.sound.end_of_media():
+        #         sleep(0.5)
+        #     self.sound.stop()
+        #     self.player_manager.set_is_instant_player_playing(False)
+
+        # self.runnable = Runnable(temp)
+        # self.runnable_manager.runTask(self.runnable)
+
+        # self.player_manager.send_msg("لا يمكن تشغيل ملف الصوت الفوري الان ", "الرجاء الانتظار حتى الانتهاء من الاذان")
+        # self.disable(self.play_button)
+        # self.player_manager.hide_msg(5, [self.enable , self.play_button])
 
     def pause(self):
         self.sound.pause()
 
     def resume(self):
         self.sound.resume()
-    
+
     def stop(self):
-        try:
-            self.runnable.stop()
-        except:
-            pass
         self.sound.stop()
         self.sound.set_position(0)
         self.position_controller.setValue(0)
-        self.player_manager.set_is_instant_player_playing(False)
-    
+        self.finished_signal.emit()
+
+    def handle_end_of_media(self):
+        self.stop()
+        self.finished_signal.emit()
+
     def handle_position_change(self):
         self.position = self.position_controller.value()
         self.sound.set_position(self.position)
@@ -118,7 +139,7 @@ class InstantPlayer:
 
     def set_position_controller_range(self):
         self.position_controller.setRange(0, self.sound.get_duration())
-    
+
     def stop_slider_update(self):
         """Stop updating the slider during manual user interaction."""
         self.sound.disconnect_media_position(self.set_position_controller)

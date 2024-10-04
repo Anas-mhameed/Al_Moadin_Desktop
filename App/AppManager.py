@@ -101,6 +101,10 @@ class AppManager(QMainWindow):
         self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
 
         self.instant_player = InstantPlayer(self.runnable_manager, self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+        self.instant_player.finished_signal.connect(self.player_manager.handle_instant_finished_signal)
+        self.player_manager.play_instant_player.connect(self.instant_player.play)
+        self.instant_player.can_I_play.connect(self.player_manager.can_instant_player_play)
+
 
         self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.secondary_messager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box, self.database_manager)
 
@@ -543,6 +547,7 @@ class AppManager(QMainWindow):
 
         self.time_manager.run()
         
+        self.player_manager.run()
         # self.adan_manager.run()
 
         # self.notification_manager.run()

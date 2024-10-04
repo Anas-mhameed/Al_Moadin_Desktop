@@ -3,8 +3,16 @@ from CustomDialog import CustomDialog
 from PySide6.QtWidgets import QDialog
 from time import sleep
 from Sound import Sound
+from PySide6.QtCore import QObject, Signal
+
+
+class PlayerManagersignals(QObject):
+    play_instant_player_signal = Signal()
 
 class PlayerManager:
+
+    player_manager_signals = PlayerManagersignals()
+    play_instant_player = player_manager_signals.play_instant_player_signal
 
     def __init__(self, main_window, messager, runnable_manager):
         
@@ -26,6 +34,9 @@ class PlayerManager:
 
     def get_is_adan_playing(self):
         return self.is_adan_playing
+
+    def handle_instant_finished_signal(self):
+        self.set_is_instant_player_playing(False)
 
     def get_is_instant_player_playing(self):
         return self.is_instant_player_playing
@@ -52,7 +63,8 @@ class PlayerManager:
             self.set_is_notification_playing(False)
 
         self.set_is_instant_player_playing(True)
-        return True
+
+        return self.play_instant_player.emit()
 
     def can_noti_play(self):
         pass
@@ -97,8 +109,8 @@ class PlayerManager:
     def force_stop_adan(self):
         pass
 
-    # def run(self):
-    #     print()
-    #     print(f"adan: {self.is_adan_playing}")
-    #     print(f"instnat: {self.is_instant_player_playing}")
-    #     print(f"notifiaction: {self.is_notification_playing}")
+    def run(self):
+        print()
+        print(f"adan: {self.is_adan_playing}")
+        print(f"instnat: {self.is_instant_player_playing}")
+        print(f"notifiaction: {self.is_notification_playing}")
