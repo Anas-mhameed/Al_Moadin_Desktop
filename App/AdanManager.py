@@ -22,6 +22,11 @@ class AdanManagerSignals(QObject):
     play_adan_signal = Signal(str)
     fajer_duartion_signal = Signal(int)
     basic_duartion_signal = Signal(int)
+    # stop_adan_signal = Signal()
+    pause_adan_signal = Signal()
+    resume_adan_signal = Signal()
+
+    possible_not_adan_time_signal = Signal()
 
     def __init__(self):
         super().__init__()
@@ -41,6 +46,12 @@ class AdanManager():
     play_adan_signal = adan_manager_signals.play_adan_signal
     fajer_duartion_signal = adan_manager_signals.fajer_duartion_signal
     basic_duartion_signal = adan_manager_signals.basic_duartion_signal
+
+    # stop_adan_signal = adan_manager_signals.stop_adan_signal
+    pause_adan_signal = adan_manager_signals.pause_adan_signal
+    resume_adan_signal = adan_manager_signals.resume_adan_signal
+
+    possible_not_adan_time_signal = adan_manager_signals.possible_not_adan_time_signal
 
     def __init__(self, main_widget, database_manager, runnable_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
@@ -89,6 +100,7 @@ class AdanManager():
 
         self.next_adan = NextAdan(self.adans, next_adan_label, remaining_time_label)
 
+        self.next_adan.possible_not_adan_time_signal.connect(self.possible_fake_prepare_emitted)
         self.find_next_adan_signal.connect(self.next_adan.intiate_next_adan)
 
         self.next_adan.adan_time_signal.connect(self.start_adan)
@@ -168,40 +180,22 @@ class AdanManager():
         return Adan(adan_name_label, adan_time, adan_time_label)
 
     def emergency_stop(self):
-        
-        if self.wich_is_playing.is_playing():
-            self.wich_is_playing.pause()
+        if self.emerg_btn.isChecked():
+            # emit signal to pause adan
+            self.pause_adan_signal.emit()
             self.emerg_label.setText("لاستكمال الاذان اضغط هنا")
         else:
-            self.wich_is_playing.resume()
+            # emit signal to resume adan
+            self.resume_adan_signal.emit()
             self.emerg_label.setText("لايقاف الاذان اضغط هنا")
 
-    def time_to_hide_emerg_frame(self):
-        def temp(func):
-            sound = self.get_next_adan_sound()
-            sleep(1)
-            time_to_sleep = (sound.get_duration() // 1000) + 1
-
-            while func() and time_to_sleep != 0:
-                time_to_sleep -= 1
-                sleep(1)
-                
-            self.emerg_frame_hide_helper()
-
-        self.runnable = Runnable(temp)
-        self.runnable_manager.runTask(self.runnable)
-    
-    def emerg_frame_hide_helper(self):
+    def emerg_frame_hide(self):
         self.emerg_frame.hide()
         self.emerg_label.setText("لايقاف الاذان اضغط هنا")
 
-        if self.emerg_btn.isChecked():
-            self.wich_is_playing.stop()
-            try:
-                self.runnable2.stop()
-            except:
-                pass
-            self.player_manager.set_is_adan_playing(False)
+        # if self.emerg_btn.isChecked():
+        #     # emit signal to stop adan
+        #     self.stop_adan_signal.emit()
 
         self.emerg_btn.setChecked(False)
 
@@ -219,19 +213,11 @@ class AdanManager():
         if adan.check_state():
             # emit signal to player manager to play adan
             self.play_adan_signal.emit(self.wich_is_playing.get_file_path())
-
-            # self.wich_is_playing.play()
+            # emergency frame show (pause/resume adan)
             self.emerg_frame.show()
-            self.time_to_hide_emerg_frame()
 
-        def temp(func):
-            sound = self.get_next_adan_sound()
-            while func() and not sound.end_of_media():
-                sleep(1)
-            self.set_not_adan_time()
-
-        self.runnable2 = Runnable(temp)
-        self.runnable_manager.runTask(self.runnable2)
+    def possible_fake_prepare_emitted(self):
+        self.possible_not_adan_time_signal.emit()
 
     def get_next_adan_sound(self):
         name = self.next_adan.get_next_adan_name()

@@ -81,7 +81,11 @@ class AppManager(QMainWindow):
         self.time_manager.get_time_formate()
         
         self.adan_manager = AdanManager(self, self.database_manager, self.runnable_manager, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.general_settings, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
-        
+        self.adan_manager.possible_not_adan_time_signal.connect(self.player_manager.possible_fake_prepare_emitted)
+        self.player_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
+        # self.adan_manager.stop_adan_signal.connect(self.player_manager.force_stop_adan)
+        self.adan_manager.pause_adan_signal.connect(self.player_manager.pause_adan)
+        self.adan_manager.resume_adan_signal.connect(self.player_manager.resume_adan)
         self.adan_manager.play_adan_signal.connect(self.player_manager.play_adan)
         self.adan_manager.force_stop_adan_signal.connect(self.player_manager.force_stop_adan)
 
@@ -101,6 +105,7 @@ class AppManager(QMainWindow):
         self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
 
         self.instant_player = InstantPlayer(self.runnable_manager, self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+        self.player_manager.force_stop_instant_player.connect(self.instant_player.stop)
         self.instant_player.finished_signal.connect(self.player_manager.handle_instant_finished_signal)
         self.player_manager.play_instant_player.connect(self.instant_player.play)
         self.instant_player.can_I_play.connect(self.player_manager.can_instant_player_play)

@@ -8,11 +8,15 @@ from PySide6.QtCore import QObject, Signal
 
 class PlayerManagersignals(QObject):
     play_instant_player_signal = Signal()
+    force_stop_instant_player_signal = Signal()
+    hide_emergency_frame_signal = Signal()
 
 class PlayerManager:
 
     player_manager_signals = PlayerManagersignals()
     play_instant_player = player_manager_signals.play_instant_player_signal
+    force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
+    hide_emergency_frame_signal = player_manager_signals.hide_emergency_frame_signal
 
     def __init__(self, main_window, messager, runnable_manager):
         
@@ -26,7 +30,8 @@ class PlayerManager:
 
         self.noti_runnable = ""
         self.sound = Sound()
-    
+        self.sound.end_of_media_signal.connect(self.adan_finished)
+
     def play_adan(self, file_path):
         # play adan !!!!!!!!
         self.sound.update_file_path(file_path)
@@ -53,6 +58,10 @@ class PlayerManager:
     def turn_off_instant_player(self):
         self.player_manager_helper.turn_off_instant_player()
 
+    def can_noti_play(self, file_path):
+        if not self.get_is_adan_playing():
+            pass
+
     def can_instant_player_play(self):
         if self.is_adan_playing:
             return False
@@ -66,15 +75,11 @@ class PlayerManager:
 
         return self.play_instant_player.emit()
 
-    def can_noti_play(self):
-        pass
-
     def prepare_for_adan(self):
         self.set_is_adan_playing(True)
         self.set_is_instant_player_playing(False)
         self.set_is_notification_playing(False)
-        self.turn_off_instant_player()
-        self.turn_off_notification()
+        self.force_stop_instant_player.emit()
 
     def set_is_adan_playing(self, bool):
         self.is_adan_playing = bool
@@ -106,8 +111,31 @@ class PlayerManager:
         self.messager.update_info_label(info_msg)
         self.messager.show()
 
+    def possible_fake_prepare_emitted(self):
+        if self.get_is_adan_playing() and (not self.sound.is_playing() and not self.sound.is_paused()):
+            self.set_is_adan_playing(False)
+
     def force_stop_adan(self):
-        pass
+        self.sound.stop()
+        self.set_is_adan_playing(False)
+
+        # emit a signal to hide emergency frame
+        self.hide_emergency_frame_signal.emit()
+
+    def pause_adan(self):
+        if self.get_is_adan_playing():
+            if self.sound.is_playing():
+                self.sound.pause()
+
+    def resume_adan(self):
+        if self.get_is_adan_playing():
+            if self.sound.is_paused():
+                self.sound.resume()
+
+    def adan_finished(self):
+        if self.get_is_adan_playing():
+            self.hide_emergency_frame_signal.emit()
+            self.set_is_adan_playing(False)
 
     def run(self):
         print()

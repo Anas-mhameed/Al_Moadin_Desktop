@@ -8,6 +8,7 @@ class AdanSignal(QObject):
     prepare_for_adan = Signal()
     force_stop_adan = Signal()
     open_mic = Signal()
+    possible_not_adan_time_signal = Signal()
 
     def __init__(self):
         super().__init__()
@@ -18,6 +19,7 @@ class NextAdan() :
     adan_time_signal = adan_signal.adan_time
     prepare_for_adan_signal = adan_signal.prepare_for_adan
     force_stop_adan = adan_signal.force_stop_adan
+    possible_not_adan_time_signal = adan_signal.possible_not_adan_time_signal
 
     def __init__(self, five_prayers, adan_name_label, remaining_time_label) :
 
@@ -141,3 +143,8 @@ class NextAdan() :
             #  emit prepare for adan signal
             self.prepare_for_adan_signal.emit()
             self.prepare_adan_signal_emitted = True
+        
+        elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
+            
+            self.possible_not_adan_time_signal.emit()
+            self.prepare_adan_signal_emitted = False
