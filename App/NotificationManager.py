@@ -1,33 +1,32 @@
 from notificationUI import Ui_notification_widget
-from time import sleep
 from Sound import Sound
 from Notification import AdanNotification
 from Runnable import Runnable
 from PySide6.QtWidgets import (
     QWidget,
-    QMessageBox,
 )
 import datetime as dt
 from PySide6.QtCore import QDate
-from CustomDialog import CustomDialog
-import asyncio
 from PySide6.QtCore import QObject, Signal
-import threading
 
 
 class NotificationSignal(QObject):
     
+    cancel_noti_signal = Signal()
     can_noti_play = Signal(str)
-    show_msg_signal = Signal(list)
+    force_stop_signal = Signal()
+    show_msg_signal = Signal(str, int)
 
     
 class NotificationManager:
 
     notification_signal = NotificationSignal()
+    cancel_noti_signal = notification_signal.cancel_noti_signal
     can_noti_play = notification_signal.can_noti_play
+    force_stop_signal = notification_signal.force_stop_signal
     show_msg_signal = notification_signal.show_msg_signal
 
-    def __init__(self, prayers_times, adans_duration, main_window, scrollArea_container, player_manager, secondary_messager, runnable_manager, total_noti_label, noti_sort_box, database_manager):
+    def __init__(self, prayers_times, adans_duration, main_window, scrollArea_container, player_manager, runnable_manager, total_noti_label, noti_sort_box, database_manager):
 
         self.running_noti = ""
 
@@ -44,7 +43,7 @@ class NotificationManager:
 
         self.database_manager = database_manager
         self.player_manager = player_manager
-        self.messager = secondary_messager
+        # self.messager = secondary_messager
         self.runnable_manager = runnable_manager
         self.sort_box = noti_sort_box
 
@@ -64,6 +63,21 @@ class NotificationManager:
         self.show_notifications()
 
 
+    def handel_save_noti_button_clicked(self, day_of_week, adan_type, is_permenant, adan_index, seconds, date, duration):
+        if self.is_empty_sound():
+            self.show_msg_signal.emit("الرجاء ادخال ملف صوتي", 4)
+            return
+
+        if (not is_permenant and adan_index == 5 and day_of_week != 5) :
+            self.show_msg_signal.emit("عليك اختيار تاريخ يوافق يوم الجمعة", 4)
+            return
+        
+        res = self.create_notification(adan_type, is_permenant, adan_index + 1, seconds, date, duration)
+
+        if res:
+            self.cancel_noti_signal.emit()
+
+        
     def update_curr_time(self, updated_time):
         self.curr_time = updated_time
 
@@ -129,11 +143,8 @@ class NotificationManager:
         if validation_res[0]:
             self.position_notification(new_notification, is_permenant)
         else:
-            # use messager to display error msg
-            # self.show_msg(validation_res[1])
 
-            # emit msg to messager manager
-            self.show_msg_signal.emit([validation_res[1]])
+            self.show_msg_signal.emit(validation_res[1], 4)
             return False
         
         date_in_db =  date.toString("yyyy-MM-dd") if date else None
@@ -328,62 +339,7 @@ class NotificationManager:
             new_notification.handle_button_click()
 
         self.increase_total_noti_num()
-
-    # not needed
-    def can_play_accept(self, notification):
-        # self.clean_sound()
-        self.play(notification)
-
-    def can_play_reject(self, dialog):
-        try:
-            self.stop_dialog_signal.send(dialog)
-        except:
-            pass
-
-    def play(self, notification):
-        self.sound.update_file_path(notification.get_file_path())
-        try:
-            def temp(func):
-                if func():
-                    sleep(1)
-                    self.sound.play()
-            runnable = Runnable(temp)
-            self.runnable_manager.runTask(runnable)
-
-        except Exception as e:
-            print(e)
-
-    def turn_off(self):
-        try:
-            self.clean_sound()
-            self.th2.stop()
-        except:
-            pass
     
-    # not needed
-    def turn_off_running_thread(self):
-        try:
-            self.th2.stop()
-        except:
-            pass
-
-    def clean_sound(self):
-        self.sound.stop()
-        # self.sound.removeSound()
-    
-    def show_msg(self, msg):
-        self.messager.update_info_label(msg)
-        self.messager.show()
-        def temp(func):
-            sleep_time = 5
-            while func() and sleep_time != 0:
-                sleep_time -= 1
-                sleep(1)
-            self.messager.hide()
-
-        runnable = Runnable(temp)
-        self.runnable_manager.runTask(runnable)
-
     def position_notification(self, notification, is_permenant):
         
         if is_permenant:
@@ -482,14 +438,6 @@ class NotificationManager:
         res = self.compare_datetimes(curr_time, notification)
         return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 1)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
 
-    # not needed
-    def reject_dialog(self, dialog):
-        try:
-            dialog.reject()
-        except:
-            pass
-
-
     def find_next_noti(self):
         res = self.wich_noti_next(self.curr_time)
         if res != 2:
@@ -502,171 +450,6 @@ class NotificationManager:
         else:
             self.curr_noti_type = -1
             self.next_noti = None
-
-    # not needed
-    def run(self):
-
-        res = self.wich_noti_next(self.curr_time)
-        if res != 2:
-            if res == 0:
-                notification = self.permenant_notifications[self.permenant_noti_index]
-            else:
-                notification = self.once_notifications[0]
-
-            if self.check_if_time_to_play(self.curr_time, notification):
-                if notification.activated():
-
-                    # if self.player_manager.get_is_adan_playing():
-                    #     pass
-
-                    if self.player_manager.get_is_instant_player_playing():
-
-                        def dialog_accepted():
-                            self.player_manager.set_is_notification_playing(True)
-
-                            self.player_manager.set_is_instant_player_playing(False)
-                            self.player_manager.turn_off_instant_player()
-
-                            self.can_play_accept(notification)
-
-                            def temp(func):
-                                while func() and not self.sound.end_of_media():
-                                    sleep(1)
-
-                                try:
-                                    self.clean_sound()
-                                except Exception as e:
-                                    print(e)
-
-                                self.player_manager.set_is_notification_playing(False)
-
-                            self.running_noti = Runnable(temp)
-
-                            self.runnable_manager.runTask(self.running_noti)
-
-                            self.auto_reject_thread.stop()                            
-
-                        text = "ان ملف التشغيل الفوري قيد التشغيل\nهل تريد ايقافه وتشغيل الاشعار ؟"
-                        
-                        def can_play_reject_instant():
-                            try:
-                                self.auto_reject_thread.stop()
-                            except Exception as e:
-                                print(e)
-
-                            # self.can_play_reject(self.instant_dialog)
-
-                        self.instant_dialog = CustomDialog(dialog_accepted,  can_play_reject_instant, text, parent=self.main_window)
-                        self.instant_dialog.show()
-
-                        def temp(func):
-                            sleep_time = 30
-                            while func() and sleep_time != 0:
-                                sleep_time -= 1
-                                sleep(1)
-                            # self.stop_dialog_signal.send(self.instant_dialog)
-                            if sleep_time == 0:
-                                self.stop_dialog_signal.send(self.instant_dialog)
-                                # self.instant_dialog.cancel()
-
-                        self.auto_reject_thread = Runnable(temp)
-                        self.runnable_manager.runTask(self.auto_reject_thread)
-
-                    elif self.player_manager.get_is_notification_playing():
-
-                        def dialog_accepted():
-                            
-                            try:
-                                self.turn_off_running_thread()
-
-                            except Exception as e:
-                                print(e)
-
-                            self.player_manager.set_is_notification_playing(True)
-
-                            self.can_play_accept(notification)
-                            
-                            
-                            def temp(func):
-                                while func() and not self.sound.end_of_media():
-                                    sleep(1)
-
-                                try:
-                                    self.clean_sound()
-                                except Exception as e:
-                                    print(e)
-
-                                self.player_manager.set_is_notification_playing(False)
-
-                            try :
-                                self.auto_reject_thread.stop()
-
-                            except Exception as e :
-                                print(e)
-
-                            self.running_noti = Runnable(temp)
-
-                            self.runnable_manager.runTask(self.running_noti)
-                        
-                        text = "هنالك اشعار قيد التشغيل\nهل تريد ايقافه ؟"
-
-                        def can_play_reject_noti():
-                            try:
-                                self.auto_reject_thread.stop()
-                            except Exception as e:
-                                print(e)
-
-                            # self.can_play_reject(self.noti_dialog)
-
-                        self.noti_dialog = CustomDialog(dialog_accepted,  can_play_reject_noti, text, parent=self.main_window)
-                        self.noti_dialog.show()
-
-                        def temp(func):
-                            sleep_time = 30
-                            while func() and sleep_time != 0:
-                                sleep_time -= 1
-                                sleep(1)
-                            # self.stop_dialog_signal.send(self.noti_dialogg)
-                            if sleep_time == 0:
-                                self.stop_dialog_signal.send(self.noti_dialog)
-                                # self.noti_dialog.cancel()
-
-                        self.auto_reject_thread = Runnable(temp)
-                        self.runnable_manager.runTask(self.auto_reject_thread)
-                            
-                    else:
-                        self.player_manager.set_is_notification_playing(True)
-                        
-                        self.play(notification)
-                        
-                        def temp(func):
-                            while func() and not self.sound.end_of_media():
-                                sleep(1)
-
-                            try:
-                                self.clean_sound()
-                            except Exception as e:
-                                print(e)
-
-                            self.player_manager.set_is_notification_playing(False)
-
-                        self.running_noti = Runnable(temp)
-
-                        self.runnable_manager.runTask(self.running_noti)
-
-                if res == 0:
-
-                    self.permenant_noti_index = 1 + self.permenant_noti_index
-                    if self.permenant_noti_index == len(self.permenant_notifications):
-                        self.permenant_noti_index = 0
-                        # self.turn_on_off_noti(True)
-                else:
-                    self.once_notifications.pop(0)
-                    self.decrease_total_noti_num()
-                    self.delete_notification_from_db(notification)
-                    self.clear_layout()
-                    self.show_notifications()
-
 
     def handel_time_changed(self, curr_time):
         
@@ -682,7 +465,7 @@ class NotificationManager:
             if self.check_if_time_to_play(curr_time, self.next_noti):
                     if self.next_noti.activated():
                         # emit signal to player manager (can i play ?)
-                        self.can_noti_play.emit(self.next_noti)
+                        self.can_noti_play.emit(self.next_noti.get_file_path())
 
                     # find next notification
                     if self.curr_noti_type:
@@ -701,7 +484,6 @@ class NotificationManager:
 
                     self.find_next_noti()
 
- 
     def handle_fajer_duration_changed(self, new_duration):
 
         self.update_adan_duration(0, new_duration)

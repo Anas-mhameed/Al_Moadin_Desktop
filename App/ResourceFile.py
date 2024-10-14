@@ -16,6 +16,3 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     
     return os.path.join(base_path, relative_path)
-    
-# main_ui_file = resource_path("resources/ui/main_adan_page_ui.ui")
-# print(main_ui_file)

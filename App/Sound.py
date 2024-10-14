@@ -6,11 +6,15 @@ from PySide6.QtCore import QObject, Signal
 
 class SoundSignals(QObject):
     end_of_media_signal = Signal()
+    media_stopped_signal = Signal()
+    media_loaded_signal = Signal()
 
 class Sound:
 
     sound_signals = SoundSignals()
     end_of_media_signal = sound_signals.end_of_media_signal
+    media_stopped_signal = sound_signals.media_stopped_signal
+    media_loaded_signal = sound_signals.media_loaded_signal
 
     def __init__(self, sound_file = "", volume = 50, duration = -1):
 
@@ -18,6 +22,7 @@ class Sound:
         self.audio_output = QAudioOutput()
         self.media_player.setAudioOutput(self.audio_output)
 
+        self.play_emitted = False
         self.file_path = sound_file
         # from second to millisecond
         self.play_period = duration * 1000 
@@ -27,10 +32,18 @@ class Sound:
         self.media_player.durationChanged.connect(lambda: self.get_duration())
 
         self.media_player.mediaStatusChanged.connect(self.emit_end_of_media)
-    
+        self.media_player.playbackStateChanged.connect(self.emit_stopped_media)
+        self.media_player.mediaStatusChanged.connect(self.on_media_loaded)
+
+
     def emit_end_of_media(self, status):
         if status == QMediaPlayer.MediaStatus.EndOfMedia:
             self.end_of_media_signal.emit()
+    
+    def emit_stopped_media(self, state):
+        if state == QMediaPlayer.StoppedState :
+            self.media_stopped_signal.emit()
+
 
     def track_media_position(self, func):
         self.media_player.positionChanged.connect(func)
@@ -62,10 +75,6 @@ class Sound:
     
     def is_paused(self):
         if not self.is_playing() :
-            # if self.media_player.mediaStatus() == QMediaPlayer.BufferingMedia :
-            #     return True
-            # elif self.media_player.mediaStatus() == QMediaPlayer.StalledMedia :
-            #     return True
             if self.status() == QMediaPlayer.BufferedMedia:
                 return True
         return False
@@ -82,20 +91,23 @@ class Sound:
     def set_source(self):
         try :
             self.media_player.setSource(QUrl().fromLocalFile(self.file_path))
-            self.media_player.setPosition(0)
-        
         except Exception as e:
             print(e)
 
+    def on_media_loaded(self, status):
+        if status == QMediaPlayer.LoadedMedia:
+            self.media_loaded_signal.emit()
+
+    def set_position(self, position):
+        self.media_player.setPosition(position)
+
     def play(self):
-        self.stop()
         self.set_audio_volume()
-        self.set_source()
-        try :
+        try:
+            self.set_position(0)
             self.media_player.play()
         except Exception as e:
             print(e)
-            print("الرجاء التحقق من ادخال ملف صوتي")
 
     def resume(self):
         if not self.check_path_is_empty():
@@ -122,8 +134,8 @@ class Sound:
     def stop(self):
         try:
             self.media_player.stop()
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     def pause(self):
         if not self.check_path_is_empty():

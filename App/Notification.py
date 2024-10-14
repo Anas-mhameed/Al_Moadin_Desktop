@@ -89,10 +89,8 @@ class AdanNotification(Notification):
         self.update_ui()
 
     def update_time(self, new_time):
-        print(new_time)
         super().update_time(new_time)
         self.adjust_datetime_minutes(self.seconds + self.adan_duration)
-        print(f"new time: {self.get_adjusted_datetime()}")
         self.update_ui()
 
 
@@ -100,15 +98,9 @@ class AdanNotification(Notification):
         return self.adjusted_datetime 
 
     def adjust_datetime_minutes(self, seconds_offset):
-        print(f"second offset: {seconds_offset}")
-        print(f"offset in minutes: {seconds_offset / 60}")
-
         # Extract the original hours and minutes
         original_hours = self.time.hour
         original_minutes = self.time.minute
-        
-        print(f"orignal: {original_hours}")
-        print(f"orignal: {original_minutes}")
 
         day = self.time.day
         month = self.time.month
@@ -130,12 +122,8 @@ class AdanNotification(Notification):
         else:
             total_minutes += minute_offset
 
-        print(f"total minutes: {total_minutes}")
-
         # Determine the new hours and minutes
         new_hours, new_minutes = divmod(total_minutes, 60)
-        print(f"new_minutes: {new_minutes}")
-        print(f"temp hour: {new_hours}")
         
         # Adjust the date and time based on the new hours and minutes
         self.adjusted_datetime = dt(year, month, day, hour=(original_hours + new_hours) % 24, minute=new_minutes, second= int(seconds))

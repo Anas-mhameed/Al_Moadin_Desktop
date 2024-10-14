@@ -100,7 +100,7 @@ class Time():
 
     def update_time(self):
         self.curr_dt = dt.datetime.now()
-        self.time_updated.emit(self.curr_dt)
+        # self.time_updated.emit(self.curr_dt)
     
     def update_date(self):
         self.date = dt.date.today()

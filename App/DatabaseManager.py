@@ -65,9 +65,6 @@ class DatabaseManager:
         return records
 
     def update_adans_sound(self, row_name, new_val):
-
-        print(row_name)
-        print(new_val)
         
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
@@ -150,8 +147,6 @@ class DatabaseManager:
         con.close()
 
     def update_notification(self, adan_index, seconds, row, new_val):
-        print("in db")
-        print(row)
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 

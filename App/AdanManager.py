@@ -3,12 +3,9 @@ from NextAdan import NextAdan
 from AdanTimePrepare import AdanTimePrepare
 from Adan import Adan
 from PySide6.QtWidgets import QLabel, QPushButton
-from PySide6.QtCore import QObject, Signal, Slot
-from Runnable import Runnable, RunnableManager
+from PySide6.QtCore import QObject, Signal
 from datetime import time
 from ResourceFile import resource_path
-from time import sleep
-from datetime import datetime as dt
 
 
 class AdanManagerSignals(QObject):
@@ -25,6 +22,8 @@ class AdanManagerSignals(QObject):
     # stop_adan_signal = Signal()
     pause_adan_signal = Signal()
     resume_adan_signal = Signal()
+
+    activate_emergency_timer_signal = Signal(int)
 
     possible_not_adan_time_signal = Signal()
 
@@ -53,10 +52,11 @@ class AdanManager():
 
     possible_not_adan_time_signal = adan_manager_signals.possible_not_adan_time_signal
 
-    def __init__(self, main_widget, database_manager, runnable_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
+    activate_emergency_timer_signal = adan_manager_signals.activate_emergency_timer_signal
+
+    def __init__(self, main_widget, database_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
         self.database_manager = database_manager
-        self.runnable_manager = runnable_manager 
 
         self.adan_time_prepare = AdanTimePrepare()
         # self.general_settings = general_settings
@@ -203,7 +203,6 @@ class AdanManager():
         self.player_manager.set_is_adan_playing(False)
         self.next_adan.set_praper_for_adan_call(False)
 
-    # need to be checked/updated (on how to hide emerg frame and stop adan)
     def start_adan(self, adan):
         if adan.get_adan_name() == "الفجر":
             self.wich_is_playing = self.fajer_sound
@@ -215,6 +214,8 @@ class AdanManager():
             self.play_adan_signal.emit(self.wich_is_playing.get_file_path())
             # emergency frame show (pause/resume adan)
             self.emerg_frame.show()
+            # send signal to msgManager to start counting
+            self.activate_emergency_timer_signal.emit(40)
 
     def possible_fake_prepare_emitted(self):
         self.possible_not_adan_time_signal.emit()
