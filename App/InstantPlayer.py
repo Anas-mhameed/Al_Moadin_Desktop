@@ -92,6 +92,8 @@ class InstantPlayer:
 
         sound = Sound(self.file_path)
         self.sound_lst.append(sound)
+        sound.track_media_position(self.set_position_controller)
+        sound.media_loaded_signal.connect(self.set_position_controller_range)
         sound.media_loaded_signal.connect(self.player_helper)
         sound.end_of_media_signal.connect(self.handle_end_of_media)  
         
@@ -117,7 +119,8 @@ class InstantPlayer:
             sound = self.sound_lst[0]
 
             try:
-                sound.end_of_media_signal.disconnect(self.handle_end_of_media)  
+                sound.end_of_media_signal.disconnect(self.handle_end_of_media)
+                sound.media_loaded_signal.disconnect(self.set_position_controller_range)
                 # sound.media_loaded_signal.disconnect(self.player_helper)
             except Exception as e:
                 print(e)
@@ -136,24 +139,36 @@ class InstantPlayer:
 
     def handle_end_of_media(self):
         self.stop()
+        self.set_position_controller_range()
 
     def handle_position_change(self):
         self.position = self.position_controller.value()
-        self.sound_lst[0].set_position(self.position)
+        if len(self.sound_lst) != 0:
+            self.sound_lst[0].set_position(self.position)
 
     def set_position_controller(self, value):
         self.position_controller.setValue(value)
 
     def set_position_controller_range(self):
-        self.position_controller.setRange(0, self.sound_lst[0].get_duration())
+        if len(self.sound_lst) == 0:
+            duration = 100
+        else:
+            duration = self.sound_lst[0].get_duration()
+
+        self.position_controller.setRange(0, duration)
 
     def stop_slider_update(self):
-        """Stop updating the slider during manual user interaction."""
-        self.sound_lst[0].disconnect_media_position(self.set_position_controller)
+        if len(self.sound_lst) != 0 :
+            """Stop updating the slider during manual user interaction."""
+            try:
+                self.sound_lst[0].disconnect_media_position(self.set_position_controller)
+            except Exception as e:
+                print(e)
 
     def resume_slider_update(self):
-        """Resume updating the slider after manual user interaction."""
-        self.sound_lst[0].track_media_position(self.set_position_controller)
+        if len(self.sound_lst) != 0:
+            """Resume updating the slider after manual user interaction."""
+            self.sound_lst[0].track_media_position(self.set_position_controller)
 
     def turn_off(self):
         self.stop()

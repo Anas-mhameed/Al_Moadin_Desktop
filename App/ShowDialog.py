@@ -15,7 +15,9 @@ class ShowDialog(QDialog):
         loader = QUiLoader()
         
         # Load the UI into the QDialog
-        self.dialog = loader.load(ui_file)
+        self.dialog = loader.load(ui_file, self)
+        self.setFixedSize(450, 400)  # Set a fixed size of 400x300 for the dialog
+        self.setStyleSheet("background-color: white;")
         ui_file.close()
 
         self.destroy_and_remove_from_db = handle_delete

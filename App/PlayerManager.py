@@ -1,6 +1,7 @@
 from Sound import Sound
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
+from PySide6.QtCore import QTimer
 
 
 class PlayerManagersignals(QObject):
@@ -9,7 +10,6 @@ class PlayerManagersignals(QObject):
     hide_emergency_frame_signal = Signal()
 
     show_msg_signal = Signal(str, str, int)
-    # disconnect_slot_signal = Signal()
 
 class PlayerManager:
 
@@ -18,7 +18,6 @@ class PlayerManager:
     force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
     hide_emergency_frame_signal = player_manager_signals.hide_emergency_frame_signal
     show_msg_signal = player_manager_signals.show_msg_signal
-    # disconnect_slot_signal = player_manager_signals.disconnect_slot_signal
 
     def __init__(self, main_window):
         
@@ -32,10 +31,14 @@ class PlayerManager:
 
         self.sound_lst = []
         
-    
+
     def play_adan(self, file_path):
+
+        self.close_msgbox()
+
         if len(self.sound_lst) != 0:
             self.sound_lst[0].stop()
+
         sound = Sound(file_path)
 
         sound.end_of_media_signal.connect(self.sound_finished)
@@ -58,17 +61,11 @@ class PlayerManager:
 
     def get_is_notification_playing(self):
         return self.is_notification_playing
-     
-    # def set_player_manager_helper(self, player_manager_helper):
-    #     self.player_manager_helper = player_manager_helper
-
-    # def turn_off_notification(self):
-    #     self.player_manager_helper.turn_off_notification()
-
-    # def turn_off_instant_player(self):
-    #     self.player_manager_helper.turn_off_instant_player()
 
     def can_noti_play(self, file_path):
+
+        self.close_msgbox()
+
         if not self.get_is_adan_playing():
 
             if self.get_is_instant_player_playing() or self.get_is_notification_playing():
@@ -99,6 +96,20 @@ class PlayerManager:
         
         # Show the message box and wait for a user response
         self.msg_box.show()
+        self.auto_close_messagebox(40000)
+
+    def auto_close_messagebox(self, timeout):
+        """Auto-close the message box after `timeout` milliseconds."""
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.close_msgbox)  # or use message_box.close()
+        self.timer.setSingleShot(True)
+        self.timer.start(timeout)
+
+    def close_msgbox(self):
+        try:
+            self.msg_box.button(QMessageBox.Cancel).click()
+        except Exception as e:
+            print(e)
 
     def handle_message_box_response(self, button, file_path):
         # Handle the response based on which button was clicked
@@ -122,6 +133,9 @@ class PlayerManager:
             
 
     def can_instant_player_play(self):
+
+        self.close_msgbox()
+
         if self.get_is_adan_playing():
             self.show_msg_signal.emit("لا يمكن تشغيل ملف الصوت الفوري الان ", "الرجاء الانتظار حتى الانتهاء من الاذان", 3)
             return False
@@ -144,6 +158,8 @@ class PlayerManager:
         if self.get_is_notification_playing():
             self.stop()
         self.set_is_notification_playing(False)
+
+        self.close_msgbox()
 
     def set_is_adan_playing(self, bool):
         self.is_adan_playing = bool

@@ -532,7 +532,6 @@ class AppManager(QMainWindow):
     def run(self):
         self.time_manager.run()
 
-
     def closeEvent(self, event: QEvent):
         self.runnable_manager.terminate_all_workers()
         self.runnable_manager.wait_for_done()

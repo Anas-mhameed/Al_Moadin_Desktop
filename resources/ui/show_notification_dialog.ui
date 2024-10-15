@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -299,8 +299,7 @@ background-color: rgb(8, 185, 123);
   </layout>
  </widget>
  <resources>
-  <include location="new_noti_resources.qrc"/>
-  <include location="resources.qrc"/>
+  <include location="../resource_file.qrc"/>
  </resources>
  <connections/>
 </ui>
