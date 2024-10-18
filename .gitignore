@@ -13,6 +13,6 @@ build/
 
 # Ignore db files and pyinstaller
 adanProgram.db
-main.spec
+*.spec
 *.zip
 
