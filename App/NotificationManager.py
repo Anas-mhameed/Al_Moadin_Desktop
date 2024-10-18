@@ -171,14 +171,14 @@ class NotificationManager:
     def change_noti_state_in_db(self, notification, new_state):
         def temp(func):
             if func():
-                self.database_manager.change_noti_state(notification.get_index(), notification.get_minutes(), new_state)
+                self.database_manager.change_noti_state(notification.get_index(), notification.get_seconds(), new_state)
         runnable = Runnable(temp)
         self.runnable_manager.runTask(runnable)
 
     def update_notification_path_in_db(self, notification, new_val):
         def temp(func):
             if func():
-                self.database_manager.update_notification(notification.get_index(), notification.get_minutes(), "file_path", new_val)
+                self.database_manager.update_notification(notification.get_index(), notification.get_seconds(), "file_path", new_val)
         runnable = Runnable(temp)
         self.runnable_manager.runTask(runnable)
 

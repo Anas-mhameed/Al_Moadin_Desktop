@@ -3,6 +3,8 @@ import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from ResourceFile import resource_path
 import uuid
+from PySide6.QtGui import QIcon
+
 
 def get_mac_address():
     mac = uuid.getnode()
@@ -10,11 +12,12 @@ def get_mac_address():
 
 def validate_license():
     current_mac = get_mac_address()
-    return (current_mac == '18:C0:4D:9F:E6:76') or True
+    return (current_mac == '18:C0:4D:9F:E6:76')
 
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("resources/images/mosque.png"))
 
     if validate_license():
         main_ui_file = resource_path("resources/ui/main_adan_window_ui.ui")

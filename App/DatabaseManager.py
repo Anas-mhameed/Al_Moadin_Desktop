@@ -159,7 +159,7 @@ class DatabaseManager:
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("UPDATE notification SET active = ? WHERE adan_index = ? AND minutes = ?", (new_state, adan_index, minute))
+        cur.execute("UPDATE notification SET active = ? WHERE adan_index = ? AND seconds = ?", (new_state, adan_index, minute))
 
         con.commit()
         con.close()
