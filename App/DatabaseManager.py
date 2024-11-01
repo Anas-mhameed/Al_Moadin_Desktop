@@ -52,18 +52,18 @@ class DatabaseManager:
 
         con.close()
 
-        return records
+        return records[0][0]
     
     def check_token(self):
         return self.check_if_table_is_empty('tokens')
     
-    def save_token(self,token):
+    def save_token(self, token):
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("INSERT INTO tokens VALUES(?)", token)
+        cur.execute("INSERT INTO tokens VALUES(?)", [(token)])
         con.commit()
-        
+
         con.close()
 
     def initialize_adans_sound(self):

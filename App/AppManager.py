@@ -65,9 +65,8 @@ class AppManager(QMainWindow):
             # else ask for token
             token = input("Enter your Token:\n")
             # save token in database
-            #self.database_manager.save_token(token)
+            self.database_manager.save_token(token)
         
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZTNmNDg2Nzc3YjE0NDdhYjRjNTA1MWQzNjA2NDA3YSIsImlhdCI6MTcyOTg2NjYzMSwiZXhwIjoyMDQ1MjI2NjMxfQ.X0sBjdtajvKlCDTEo6OSUwU1XHoPkM7ssS-paQZJYsk"
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
 
         def temp():
