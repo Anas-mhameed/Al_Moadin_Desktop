@@ -16,5 +16,5 @@ adanProgram.db
 *.spec
 *.zip
 
-../temp/
+temp/
 
