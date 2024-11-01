@@ -30,6 +30,7 @@ from Runnable import RunnableManager, Runnable
 from DatabaseManager import DatabaseManager
 from NotificationManager import NotificationManager
 from SpinBoxTrack import SpinBoxTrack
+from ZigbeeController import ZigbeeController
 
 
 class AppManager(QMainWindow):
@@ -57,12 +58,37 @@ class AppManager(QMainWindow):
         self.database_manager = DatabaseManager()
         self.runnable_manager = RunnableManager()
 
+        # check if token exist
+        if not self.database_manager.check_token():
+            token = self.database_manager.get_token()
+        else:
+            # else ask for token
+            token = input("Enter your Token:\n")
+            # save token in database
+            #self.database_manager.save_token(token)
+        
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZTNmNDg2Nzc3YjE0NDdhYjRjNTA1MWQzNjA2NDA3YSIsImlhdCI6MTcyOTg2NjYzMSwiZXhwIjoyMDQ1MjI2NjMxfQ.X0sBjdtajvKlCDTEo6OSUwU1XHoPkM7ssS-paQZJYsk"
+        self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
+
+        def temp():
+            def helper(func):
+                if func():
+                    self.zigbee_controller.connect_to_zigbee_btn_clicked()
+            runnable = Runnable(helper)
+            self.runnable_manager.runTask(runnable)
+            
+        self.connect_to_zigbee_btn.clicked.connect(temp)
+        
         self.intiate_adans_state_button()
 
         self.msg_manager = MsgManager(self.client_info_msg_frame, self.error_msg_label, self.info_msg_label, self.noti_msg_frame, self.noti_msg_label)
 
         self.player_manager = PlayerManager(self)
+        self.player_manager.open_mic_signal.connect(lambda: self.zigbee_controller.run(True))
+        self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
+        
         self.player_manager.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
+        
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.database_manager, self.runnable_manager)
 
         self.time_manager = TimeManager(self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label, self.hijri_date_label)
@@ -125,8 +151,6 @@ class AppManager(QMainWindow):
         # self.player_manager_helper = PlayerManagerHelper(self.adan_manager, self.notification_manager, self.instant_player )
         
         # self.player_manager.set_player_manager_helper(self.player_manager_helper
-        
-
 
         self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
         
@@ -141,7 +165,8 @@ class AppManager(QMainWindow):
         self.start()
 
     def setup_ui(self):
-
+        self.connect_to_zigbee_btn = self.ui.findChild(QPushButton, "connect_to_zigbee_btn")
+        
         self.am_pm_frame = self.ui.findChild(QFrame, "am_pm_frame")
         self.am_pm_label = self.ui.findChild(QLabel, "am_pm_label")
         self.seconds_label = self.ui.findChild(QLabel, "seconds_label")

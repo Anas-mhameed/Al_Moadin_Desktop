@@ -10,6 +10,8 @@ class PlayerManagersignals(QObject):
     hide_emergency_frame_signal = Signal()
 
     show_msg_signal = Signal(str, str, int)
+    open_mic_signal = Signal()
+    close_mic_signal = Signal()
 
 class PlayerManager:
 
@@ -18,6 +20,9 @@ class PlayerManager:
     force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
     hide_emergency_frame_signal = player_manager_signals.hide_emergency_frame_signal
     show_msg_signal = player_manager_signals.show_msg_signal
+
+    open_mic_signal = player_manager_signals.open_mic_signal
+    close_mic_signal = player_manager_signals.close_mic_signal
 
     def __init__(self, main_window):
         
@@ -48,6 +53,7 @@ class PlayerManager:
         
         self.sound_lst.append(sound)
 
+        self.open_mic_signal.emit()
         sound.set_source()
 
     def get_is_adan_playing(self):
@@ -55,6 +61,7 @@ class PlayerManager:
 
     def handle_instant_finished_signal(self):
         self.set_is_instant_player_playing(False)
+        self.close_mic_signal.emit()
 
     def get_is_instant_player_playing(self):
         return self.is_instant_player_playing
@@ -82,6 +89,8 @@ class PlayerManager:
                 
                 self.sound_lst.append(sound)
                 
+                self.open_mic_signal.emit()
+
                 sound.set_source()
 
     def show_msg_box(self, file_path):
@@ -126,11 +135,12 @@ class PlayerManager:
             sound.media_loaded_signal.connect(sound.play)
 
             self.stop()
-                
+
             self.sound_lst.append(sound)
-            
+
+            self.open_mic_signal.emit()
+
             sound.set_source()
-            
 
     def can_instant_player_play(self):
 
@@ -146,6 +156,7 @@ class PlayerManager:
             self.set_is_notification_playing(False)
 
         self.set_is_instant_player_playing(True)
+        self.open_mic_signal.emit()
 
         return self.play_instant_player.emit()
 
@@ -157,8 +168,11 @@ class PlayerManager:
         # closing noti if is playing
         if self.get_is_notification_playing():
             self.stop()
-        self.set_is_notification_playing(False)
 
+        self.set_is_notification_playing(False)
+        
+        self.close_mic_signal.emit()
+        
         self.close_msgbox()
 
     def set_is_adan_playing(self, bool):
@@ -183,23 +197,30 @@ class PlayerManager:
 
             # emit a signal to hide emergency frame
             self.hide_emergency_frame_signal.emit()
+            self.close_mic_signal.emit()
 
     def force_stop_notification(self):
         if self.get_is_notification_playing():
             self.stop()
             self.set_is_notification_playing(False)
+            self.close_mic_signal.emit()
 
     def stop(self):
         if len(self.sound_lst) != 0:
             sound = self.sound_lst.pop()
-            try: 
-                sound.end_of_media_signal.disconnect(self.sound_finished)
+            try:
+                try:  
+                    sound.end_of_media_signal.disconnect(self.sound_finished)
+                except Exception as e:
+                    print(e)
+                
                 sound.media_loaded_signal.disconnect(sound.play)
-
-                sound.stop()
 
             except Exception as e:
                 print(e)
+      
+            finally:
+                sound.stop()
 
     def pause_adan(self):
         if self.get_is_adan_playing():
@@ -212,8 +233,11 @@ class PlayerManager:
                 self.sound_lst[0].resume()
 
     def sound_finished(self):
+        print("finished emitted !!!")
         if self.get_is_adan_playing():
             self.set_is_adan_playing(False)
         
         elif self.get_is_notification_playing():
             self.set_is_notification_playing(False)
+        
+        self.close_mic_signal.emit()

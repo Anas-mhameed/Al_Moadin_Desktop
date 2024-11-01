@@ -147,4 +147,4 @@ class NextAdan() :
         elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
             
             self.possible_not_adan_time_signal.emit()
-            self.prepare_adan_signal_emitted = False
+            self.prepare_adan_signal_emitted = False 

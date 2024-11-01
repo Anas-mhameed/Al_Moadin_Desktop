@@ -25,6 +25,9 @@ class DatabaseManager:
         cur.execute("CREATE TABLE if not exists adans_sound (adan TEXT, sound TEXT)")
         con.commit()
 
+        cur.execute("CREATE TABLE if not exists tokens (token TEXT)")
+        con.commit()
+
         con.close()
         
         # add default values if table is embty
@@ -39,6 +42,29 @@ class DatabaseManager:
         
         if self.check_if_table_is_empty('adans_sound'):
             self.initialize_adans_sound()
+
+    def get_token(self):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        res = cur.execute("SELECT * FROM tokens")
+        records = res.fetchall()
+
+        con.close()
+
+        return records
+    
+    def check_token(self):
+        return self.check_if_table_is_empty('tokens')
+    
+    def save_token(self,token):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        cur.execute("INSERT INTO tokens VALUES(?)", token)
+        con.commit()
+        
+        con.close()
 
     def initialize_adans_sound(self):
         
