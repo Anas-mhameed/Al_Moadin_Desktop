@@ -193,9 +193,9 @@ class AdanManager():
         self.emerg_frame.hide()
         self.emerg_label.setText("لايقاف الاذان اضغط هنا")
 
-        # if self.emerg_btn.isChecked():
-        #     # emit signal to stop adan
-        #     self.stop_adan_signal.emit()
+        if self.emerg_btn.isChecked():
+            # emit signal to stop adan
+            self.force_stop_adan_signal.emit()
 
         self.emerg_btn.setChecked(False)
 

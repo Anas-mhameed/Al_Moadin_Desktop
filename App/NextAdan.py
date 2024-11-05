@@ -61,8 +61,9 @@ class NextAdan() :
                 self.next_adan = adan  
                 self.adan_index = self.five_prayers.index(adan)  
                 return
-            
-            self.next_adan = self.five_prayers[0]
+
+        self.next_adan = self.five_prayers[0]
+        self.adan_index = 0
 
     def calc_remaining_time(self):
         self.remaining_time = self.next_adan.get_adan_time() - self.curr_time
@@ -104,8 +105,8 @@ class NextAdan() :
     def update_curr_time(self, new_curr_time):
         self.curr_time = new_curr_time
 
-    def increase_index_adan(self):
-        self.adan_index = (self.adan_index + 1) % 5
+    # def increase_index_adan(self):
+    #     self.adan_index = (self.adan_index + 1) % 5
 
     def find_next_adan(self):
         self.next_adan = self.five_prayers[self.adan_index]
@@ -134,7 +135,7 @@ class NextAdan() :
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan
 
-            self.increase_index_adan()
+            self.intiate_next_adan()
             self.find_next_adan()
 
             self.prepare_adan_signal_emitted = False
