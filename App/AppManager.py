@@ -31,7 +31,7 @@ from DatabaseManager import DatabaseManager
 from NotificationManager import NotificationManager
 from SpinBoxTrack import SpinBoxTrack
 from ZigbeeController import ZigbeeController
-
+from ProgramUpdater import ProgramUpdater
 
 class AppManager(QMainWindow):
 
@@ -58,6 +58,9 @@ class AppManager(QMainWindow):
         self.database_manager = DatabaseManager()
         self.runnable_manager = RunnableManager()
 
+        self.program_updater = ProgramUpdater(self.database_manager)
+        self.database_manager.initialize_app_version()
+
         # check if token exist
         if not self.database_manager.check_token():
             token = self.database_manager.get_token()
@@ -66,7 +69,7 @@ class AppManager(QMainWindow):
             token = input("Enter your Token:\n")
             # save token in database
             self.database_manager.save_token(token)
-        
+
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
 
         def temp():
@@ -92,13 +95,17 @@ class AppManager(QMainWindow):
 
         self.time_manager = TimeManager(self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label, self.hijri_date_label)
 
-        # self.time_manager.connect_to_time_updated_signal(self.msg_manager.x)4
-        self.time_manager.connect_to_time_updated_signal(self.msg_manager.handle_time_update)
+        self.time_manager.connect_to_check_version_update(self.program_updater.run)
+
         self.general_settings.time_formate_changed.connect(self.time_manager.update_time_formate)
         self.time_manager.connect_to_get_formate_signal(self.general_settings.set_time_formate)
         self.time_manager.get_time_formate()
         
         self.adan_manager = AdanManager(self, self.database_manager, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.general_settings, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+
+        self.time_manager.connect_to_time_updated_signal(self.adan_manager.adan_time_prepare.handle_time_updated)
+        self.time_manager.connect_to_time_updated_signal(self.msg_manager.handle_time_update)
+
         self.msg_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
         self.adan_manager.activate_emergency_timer_signal.connect(self.msg_manager.activate_emergency_frame_timer)
         self.adan_manager.possible_not_adan_time_signal.connect(self.player_manager.possible_fake_prepare_emitted)
@@ -111,6 +118,7 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
         
+        
         self.general_settings.summer_timing_changed.connect(self.adan_manager.handle_summer_winter_change)
         self.general_settings.quds_diff_changed.connect(self.adan_manager.handle_quds_diff_change)
         self.general_settings.adan_time_formate_changed.connect(self.adan_manager.handle_new_time_formate)
@@ -118,7 +126,7 @@ class AppManager(QMainWindow):
         self.adan_manager.get_settings_signal.connect(self.general_settings.send_all_settings_to_adan_manager)
         self.adan_manager.get_settings()
 
-        self.time_manager.connect_to_next_day_signal(self.adan_manager.handle_new_day)
+        # self.time_manager.connect_to_next_day_signal(self.adan_manager.handle_new_day)
         self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
         self.time_manager.connect_to_next_day_signal(self.adan_manager.next_adan.update_curr_day)
 

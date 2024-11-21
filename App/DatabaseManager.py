@@ -28,14 +28,18 @@ class DatabaseManager:
         cur.execute("CREATE TABLE if not exists tokens (token TEXT)")
         con.commit()
 
+        cur.execute('''CREATE TABLE if not exists app_version (id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)''')
+        con.commit()
+
         con.close()
         
         # add default values if table is embty
         if self.check_if_table_is_empty('general_settings'):
             self.initialize_general_settings()
         
-        # if self.check_if_table_is_empty('notification'):
-        #     self.initialize_notifications()
+        if self.check_if_table_is_empty('app_version'):
+            print("intializing app version ... ")
+            self.initialize_app_version()
         
         if self.check_if_table_is_empty('adans_state'):
             self.initialize_adans_state()
@@ -65,6 +69,38 @@ class DatabaseManager:
         con.commit()
 
         con.close()
+
+    def initialize_app_version(self):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        current_version = '0.1.0'
+        
+        cur.execute("INSERT INTO app_version (version) VALUES (?)", (current_version,))
+        con.commit()
+
+        con.close()
+
+    def get_app_version(self):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        res = cur.execute("SELECT version FROM app_version")
+        records = res.fetchone()
+
+        con.close()
+        print(f"current version from db {records[0]}")
+        return records[0]
+        
+    def update_app_version(self, new_version):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        cur.execute("UPDATE app_version SET version = ? WHERE id = ?", (new_version, 1))
+        con.commit()
+
+        con.close()
+        return 
 
     def initialize_adans_sound(self):
         
@@ -189,22 +225,6 @@ class DatabaseManager:
 
         con.commit()
         con.close()
-
-    # def initialize_notifications(self):
-    #     con = sqlite3.connect(self.db_name)
-    #     cur = con.cursor()
-
-    #     data = [
-    #         (1, 30 * 60, None, 0, resource_path("resources/sounds/al_minshawi_yasin.mp3"), 1, 1, 1),
-    #         (6, 60 * 60, None, 0, resource_path("resources/sounds/al_minshawi_al_kahf.mp3"), 1, 1, 1),
-    #         (6, 25 * 60, None, 0, resource_path("resources/sounds/abd_albast_al_jomoaa.mp3"), 1, 1, 1),
-    #         (4, 20 * 60, None, 0, resource_path("resources/sounds/abd_albast_al_mulk.mp3"), 1, 1, 1),
-    #     ]
-
-    #     cur.executemany("INSERT INTO notification VALUES(?, ?, ?, ?, ?, ?, ?, ?)", data)
-
-    #     con.commit()
-    #     con.close()
 
     def get_notifications(self):
         con = sqlite3.connect(self.db_name)

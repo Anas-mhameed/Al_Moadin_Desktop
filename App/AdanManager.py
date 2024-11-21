@@ -99,7 +99,7 @@ class AdanManager():
         self.jomoaa = self.intiate_jomoaa(jomoaa)
 
         self.next_adan = NextAdan(self.adans, next_adan_label, remaining_time_label)
-
+        self.next_adan.update_adan_times_signal.connect(self.handle_new_day)
         self.next_adan.possible_not_adan_time_signal.connect(self.possible_fake_prepare_emitted)
         self.find_next_adan_signal.connect(self.next_adan.intiate_next_adan)
 
@@ -323,14 +323,18 @@ class AdanManager():
     def update_quds_differ(self, new_quds_diff):
         self.quds_differ = new_quds_diff
 
+    def group_adans(self):
+        temp = self.adans.copy()
+        temp.append(self.shorok)
+        temp.append(self.jomoaa)
+
+        return temp
+
     def handle_quds_diff_change(self, new_quds_differ):
 
         self.update_quds_differ(new_quds_differ)
 
-        # make function
-        all_adans = self.adans.copy()
-        all_adans.append(self.shorok)
-        all_adans.append(self.jomoaa)
+        all_adans = self.group_adans()
    
         self.helper(all_adans)
         
@@ -357,13 +361,11 @@ class AdanManager():
         for i in range(len(self.adans)):
             self.adans[i].update_original_time(all_adans_time[2][i])
 
+        all_adans = self.group_adans()
 
-        # activate quds differ and summer ... => wich also trigger notification update 
-        
-        #  check this #############################                 !!!!!!!!!!!!!!!!!!!!! !!!!!!!!!!! ###############
-        
-        # is_summer_time = self.general_settings.is_summer_time
-        # self.handle_quds_diff_change(self.general_settings.quds_time_diff, is_summer_time)
+        # update adan_time after original_adan_time changed
+        self.helper(all_adans)
+
 
     def update_ui(self):
         for adan in self.adans:

@@ -9,10 +9,15 @@ class AdanTimePrepare():
         self.all_rows = [ col for col in df.itertuples() ]
         self.all_rows.pop(0)
 
+        self.curr_time = dt.datetime.now()
+
         self.callender = []
         self.current_adans_index = -1
         self.jomoaa_index = -1 
         self.new_year()
+    
+    def handle_time_updated(self, new_curr_time):
+        self.curr_time = new_curr_time
 
     def clear_callender(self):
         self.callender = []
@@ -33,13 +38,19 @@ class AdanTimePrepare():
                 self.callender.append((dt.datetime(today.year, month, day),col[3:]))
             except:
                 pass
-        
+    
+    def is_valide_adan_times(self):
+        datetimes_of_today = self.convert_to_dt()
+        return datetimes_of_today[2][4] > self.curr_time
+
     def get_current_day_adans(self):
-        for d in range(len(self.callender)):
+        len_callender = len(self.callender)
+        for d in range(len_callender):
             if self.callender[d][0].strftime("%d/%m") == dt.date.today().strftime("%d/%m"):
                 self.adansOfToday = self.callender[d]
-                self.current_adans_index = d
-                break
+                if not self.is_valide_adan_times():
+                    self.adansOfToday = self.callender[(d + 1)%len_callender]    
+                break                
         return self.adansOfToday
     
     # def get_next_day_adans(self):
@@ -77,7 +88,6 @@ class AdanTimePrepare():
     #     return dt.datetime.combine(dt.datetime(dt.date.today().year, self.callender[self.jomoaa_index][0].month, self.callender[self.jomoaa_index][0].day), self.callender[self.jomoaa_index][1][2])
         
     def convert_to_dt(self, ):
-
         self.datetimes_of_today = [self.adansOfToday[0],[]]
         for i in range(len(self.adansOfToday[1])):
             self.datetimes_of_today[1].append(dt.datetime.combine(dt.datetime(dt.date.today().year, self.adansOfToday[0].month, self.adansOfToday[0].day), self.adansOfToday[1][i]))

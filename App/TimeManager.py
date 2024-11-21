@@ -23,6 +23,9 @@ class TimeManager():
     def connect_to_get_formate_signal(self, func):
         self.time.get_formate_signal.connect(func)
 
+    def connect_to_check_version_update(self, func):
+        self.time.check_for_new_release.connect(func)
+
     def update_time_formate(self, new_time_formate):
         self.time.update_time_formate(new_time_formate)
     

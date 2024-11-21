@@ -31,6 +31,7 @@ class TimeSignal(QObject):
     new_jomoaa = Signal()
 
     get_formate_signal = Signal()
+    check_for_new_release = Signal()
 
     def __init__(self):
         super().__init__()
@@ -43,6 +44,7 @@ class Time():
     new_day_signal = time_signal.new_day
     new_jomoaa = time_signal.new_jomoaa
     get_formate_signal = time_signal.get_formate_signal
+    check_for_new_release = time_signal.check_for_new_release
 
     def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
 
@@ -188,14 +190,16 @@ class Time():
         self.update_ui()
 
         self.time_updated.emit(self.curr_dt)
-        
+
         is_new_day = self.check_if_new_day()
 
         if is_new_day:
             self.update_day_date_hijri()
-            
+
             #  emit new day signal
             self.new_day_signal.emit(self.day)
 
             if self.day == "الجمعة":
                 self.new_jomoaa.emit()
+
+            self.check_for_new_release.emit()

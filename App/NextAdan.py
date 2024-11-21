@@ -9,6 +9,7 @@ class AdanSignal(QObject):
     force_stop_adan = Signal()
     open_mic = Signal()
     possible_not_adan_time_signal = Signal()
+    update_adan_times_signal = Signal()
 
     def __init__(self):
         super().__init__()
@@ -20,6 +21,7 @@ class NextAdan() :
     prepare_for_adan_signal = adan_signal.prepare_for_adan
     force_stop_adan = adan_signal.force_stop_adan
     possible_not_adan_time_signal = adan_signal.possible_not_adan_time_signal
+    update_adan_times_signal = adan_signal.update_adan_times_signal
 
     def __init__(self, five_prayers, adan_name_label, remaining_time_label) :
 
@@ -52,12 +54,13 @@ class NextAdan() :
         self.called_prepare_for_adan = state
 
     def intiate_next_adan(self):
-        
+
         for adan in self.five_prayers:
                 
             next_time = adan.get_adan_time()
 
             if next_time > self.curr_time:
+
                 self.next_adan = adan  
                 self.adan_index = self.five_prayers.index(adan)  
                 return
@@ -66,7 +69,11 @@ class NextAdan() :
         self.adan_index = 0
 
     def calc_remaining_time(self):
-        self.remaining_time = self.next_adan.get_adan_time() - self.curr_time
+        
+        temp = self.next_adan.get_adan_time() - self.curr_time
+        temp1 = temp + dt.timedelta(seconds=1)
+ 
+        self.remaining_time = temp1 - dt.timedelta(microseconds= temp1.microseconds)
 
     def formate_time(self, time):
         hours = time.seconds // 3600
@@ -93,25 +100,28 @@ class NextAdan() :
         return (self.remaining_time > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 30)) and self.remaining_time < dt.timedelta(days = 0, hours = 0, minutes = 1, seconds = 30)
 
     def compare_with_timedelta(self, sec, sec1 = None):
+
+        remaining_time = self.remaining_time
+
+        zero_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec, microseconds= remaining_time.microseconds)
+        
         if sec1:
-            one_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1)
+            temp_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1, microseconds= remaining_time.microseconds)
+            return (self.remaining_time > zero_timedelta ) and (self.remaining_time < temp_timedelta)
         else:
-            one_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec + 1)
 
-        zero_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec)
 
-        return (self.remaining_time > zero_timedelta) and (self.remaining_time < one_timedelta)
+            return (remaining_time == zero_timedelta)
+        
 
     def update_curr_time(self, new_curr_time):
         self.curr_time = new_curr_time
-
-    # def increase_index_adan(self):
-    #     self.adan_index = (self.adan_index + 1) % 5
 
     def find_next_adan(self):
         self.next_adan = self.five_prayers[self.adan_index]
 
     def handle_time_updated(self, curr_time):
+
 
         self.update_curr_time(curr_time)
 
@@ -119,9 +129,9 @@ class NextAdan() :
             self.intiate_next_adan()
 
         if self.previous_adan:
-            if self.previous_adan == self.next_adan:
+            if self.previous_adan == self.next_adan.get_adan_name():
 
-                self.previous_adan = self.five_prayers[(self.adan_index - 1) % 5 ]
+                self.previous_adan = self.five_prayers[(self.adan_index - 1) % 5 ].get_adan_name()
                 # emit signal to stop adan
                 self.force_stop_adan.emit()
 
@@ -130,15 +140,18 @@ class NextAdan() :
         self.update_ui()
 
         if self.compare_with_timedelta(0):
-            
             # emit a signal to start adan
             self.adan_time_signal.emit(self.next_adan)
-            self.previous_adan = self.next_adan
+            self.previous_adan = self.next_adan.get_adan_name()
+
+            if self.next_adan.get_adan_name() == "العشاء" :
+                self.update_adan_times_signal.emit()
 
             self.intiate_next_adan()
             self.find_next_adan()
 
             self.prepare_adan_signal_emitted = False
+
 
         elif self.compare_with_timedelta(0, 30) and not self.prepare_adan_signal_emitted:
             #  emit prepare for adan signal
