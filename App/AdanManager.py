@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QLabel, QPushButton
 from PySide6.QtCore import QObject, Signal
 import datetime as dt
 from ResourceFile import resource_path
+from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 
 
 class AdanManagerSignals(QObject):
@@ -54,9 +55,9 @@ class AdanManager():
 
     activate_emergency_timer_signal = adan_manager_signals.activate_emergency_timer_signal
 
-    def __init__(self, main_widget, database_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
+    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
-        self.database_manager = database_manager
+        self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
         self.curr_time = dt.datetime.now()
 

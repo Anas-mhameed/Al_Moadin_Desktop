@@ -2,8 +2,16 @@ import sqlite3
 from ResourceFile import resource_path
 
 class DatabaseManager:
-    
+    _instance = None  # Class-level attribute to hold the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(DatabaseManager, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
+        if hasattr(self, '_initialized') and self._initialized:
+            return  # Prevent reinitialization
 
         self.db_name = 'adanProgram.db'
 
@@ -11,7 +19,7 @@ class DatabaseManager:
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
         
-        #  create general settings table if not exists
+        # create general settings table if not exists
         cur.execute("CREATE TABLE if not exists general_settings(name TEXT, value TEXT)")
         con.commit()
         
@@ -33,7 +41,7 @@ class DatabaseManager:
 
         con.close()
         
-        # add default values if table is embty
+        # add default values if table is empty
         if self.check_if_table_is_empty('general_settings'):
             self.initialize_general_settings()
         
@@ -45,6 +53,8 @@ class DatabaseManager:
         
         if self.check_if_table_is_empty('adans_sound'):
             self.initialize_adans_sound()
+
+        self._initialized = True  # Mark the instance as initialized
 
     def get_token(self):
         con = sqlite3.connect(self.db_name)

@@ -1,17 +1,17 @@
 import requests
 import subprocess
 import sys
-import os 
-
+import os
+from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 
 class ProgramUpdater:
     
     GITHUB_REPO = "Anas-mhameed/Al_Moadin_Program"
 
-    def __init__(self, db_manager):
-        self.database_manager = db_manager
-        # pull current version from db
-        self.current_version = self.database_manager.get_app_version() # Set to the current version of your app
+    def __init__(self):
+        self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
+        # Pull current version from the database
+        self.current_version = self.database_manager.get_app_version()  # Set to the current version of your app
 
     def get_latest_release(self):
         print("trying to get release ...")
@@ -60,7 +60,7 @@ class ProgramUpdater:
 
         print(f"Downloaded update to {temp_filename}")
 
-        # update current version in db
+        # Update current version in the database
         self.database_manager.update_app_version(latest_release)
 
 

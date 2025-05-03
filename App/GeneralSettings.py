@@ -1,5 +1,6 @@
 from Runnable import Runnable
 from PySide6.QtCore import QObject, Signal
+from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 
 class SettingsSignals(QObject):
     
@@ -23,7 +24,9 @@ class GeneralSettings():
     summer_timing_changed = settings_signals.summer_timing_signal
     quds_diff_changed = settings_signals.quds_diff_signal
 
-    def __init__(self, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, database_manager, runnable_manager) :
+    def __init__(self, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
+
+        self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
         self.masjed_name_label = masjed_name_label
         self.masjed_name_input = masjed_name_input
@@ -32,7 +35,6 @@ class GeneralSettings():
         self.summer_winter_buttons = winter_summer_buttons
         self.time_formate_buttons = time_formate_buttons
 
-        self.database_manager = database_manager
         self.runnable_manager = runnable_manager
 
         data = self.database_manager.get_settings_data()

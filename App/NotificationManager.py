@@ -2,6 +2,7 @@ from notificationUI import Ui_notification_widget
 from Sound import Sound
 from Notification import AdanNotification
 from Runnable import Runnable
+from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 from PySide6.QtWidgets import (
     QWidget,
 )
@@ -26,7 +27,7 @@ class NotificationManager:
     force_stop_signal = notification_signal.force_stop_signal
     show_msg_signal = notification_signal.show_msg_signal
 
-    def __init__(self, prayers_times, adans_duration, main_window, scrollArea_container, player_manager, runnable_manager, total_noti_label, noti_sort_box, database_manager):
+    def __init__(self, prayers_times, adans_duration, main_window, scrollArea_container, player_manager, runnable_manager, total_noti_label, noti_sort_box, *args, **kwargs):
 
         self.running_noti = ""
 
@@ -41,7 +42,7 @@ class NotificationManager:
 
         self.scrollArea_container = scrollArea_container
 
-        self.database_manager = database_manager
+        self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
         self.player_manager = player_manager
         # self.messager = secondary_messager
         self.runnable_manager = runnable_manager
