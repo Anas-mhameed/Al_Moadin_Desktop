@@ -38,7 +38,6 @@ class DatabaseManager:
             self.initialize_general_settings()
         
         if self.check_if_table_is_empty('app_version'):
-            print("intializing app version ... ")
             self.initialize_app_version()
         
         if self.check_if_table_is_empty('adans_state'):
@@ -89,7 +88,6 @@ class DatabaseManager:
         records = res.fetchone()
 
         con.close()
-        print(f"current version from db {records[0]}")
         return records[0]
         
     def update_app_version(self, new_version):

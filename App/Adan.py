@@ -1,3 +1,6 @@
+from AppManager import resource_path
+from PySide6.QtGui import QFontDatabase, QFont
+
 
 class Adan:
 
@@ -9,6 +12,18 @@ class Adan:
         self.time = adan_time
         self.time_label_ui = time_label_ui
         self.is_active = active
+
+        font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Noto_Kufi_Arabic/static/NotoKufiArabic-SemiBold.ttf"))
+        self.kufi_semiBold_font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        font = QFont(self.kufi_semiBold_font_family, 28)
+        font.setBold(True)
+
+        self.name_label.setFont(font)
+
+        font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Noto_Kufi_Arabic/static/NotoKufiArabic-Regular.ttf"))
+        self.kufi_font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        font = QFont(self.kufi_font_family, 24)
+        self.time_label_ui.setFont(font)
 
         # self.update_ui()
     def get_adan_time(self):

@@ -33,6 +33,10 @@ class NextAdan() :
         self.prepare_adan_signal_emitted = False
 
         self.curr_time = dt.datetime.now()
+        self.curr_day = self.curr_time.strftime('%A')
+
+        if self.curr_day == "Friday" :
+            self.curr_day = "الجمعة"
 
         self.remaining_time = dt.timedelta(seconds=0)
         self.adan_name_ui = adan_name_label
@@ -143,9 +147,6 @@ class NextAdan() :
             # emit a signal to start adan
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
-
-            if self.next_adan.get_adan_name() == "العشاء" :
-                self.update_adan_times_signal.emit()
 
             self.intiate_next_adan()
             self.find_next_adan()

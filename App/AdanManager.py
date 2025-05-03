@@ -4,7 +4,7 @@ from AdanTimePrepare import AdanTimePrepare
 from Adan import Adan
 from PySide6.QtWidgets import QLabel, QPushButton
 from PySide6.QtCore import QObject, Signal
-from datetime import time
+import datetime as dt
 from ResourceFile import resource_path
 
 
@@ -57,6 +57,8 @@ class AdanManager():
     def __init__(self, main_widget, database_manager, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
 
         self.database_manager = database_manager
+
+        self.curr_time = dt.datetime.now()
 
         self.adan_time_prepare = AdanTimePrepare()
         # self.general_settings = general_settings
@@ -183,15 +185,15 @@ class AdanManager():
         if self.emerg_btn.isChecked():
             # emit signal to pause adan
             self.pause_adan_signal.emit()
-            self.emerg_label.setText("لاستكمال الاذان اضغط هنا")
+            self.emerg_label.setText("لاستكمال الأذان إضغط هنا ")
         else:
             # emit signal to resume adan
             self.resume_adan_signal.emit()
-            self.emerg_label.setText("لايقاف الاذان اضغط هنا")
+            self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
 
     def emerg_frame_hide(self):
         self.emerg_frame.hide()
-        self.emerg_label.setText("لايقاف الاذان اضغط هنا")
+        self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
 
         if self.emerg_btn.isChecked():
             # emit signal to stop adan
@@ -279,7 +281,7 @@ class AdanManager():
                 new_hour = (hour + temp_hour + (total_minute // 60) + temp_summer) % 24
                 new_minute = total_minute % 60
 
-            adan.update_time(adan.get_adan_time().replace(hour=new_hour, minute=new_minute))
+            adan.update_time(adan.get_original_time().replace(hour=new_hour, minute=new_minute, ))
 
     def update_is_summer_time(self, is_summer):
         self.is_summer = is_summer
@@ -337,19 +339,20 @@ class AdanManager():
         all_adans = self.group_adans()
    
         self.helper(all_adans)
-        
+
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+
+        # if (self.adans[4].get_adan_time() < self.curr_time and self.next_adan.next_adan.get_adan_name() == "العشاء") or ( self.adans[4].get_adan_time() > self.curr_time and self.next_adan.next_adan.get_adan_name() == "الفجر" ) :
+        #     """ When Ishaa time pass's, I update the adans times (get adan times for tomorrow), 
+        #     so when quds time dif change and it pass ishaa time or updated to bee less than ishaa time should update adans time also 
+        #     NOT TRULY CHECK !!!
+        #     NEED TO BE CHECKED !"""
+        #     pass
 
         self.find_next_adan_signal.emit()
 
         self.update_ui()
         self.update_jomoaa_ui()
-
-    # def check_if_jomoaa_passed(self):
-    #     if self.curr_time.day == "السبت" :
-    #         if self.curr_time.curr_dt.time() > time(0,0,0) and self.curr_time.curr_dt.time() < time(0,0,1):
-    #             return True
-    #     return False
 
     def get_new_adans_time(self):
 
@@ -392,6 +395,8 @@ class AdanManager():
     def handle_new_jomoaa(self):
         
         self.get_new_jomoaa()
+
+        self.helper([self.jomoaa])
 
         #  update jomoaa ui
         self.update_jomoaa_ui()

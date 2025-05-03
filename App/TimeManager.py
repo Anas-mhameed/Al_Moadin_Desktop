@@ -7,9 +7,9 @@ from GeneralSettings import GeneralSettings
 
 class TimeManager():
 
-    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
+    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
 
-        self.time = Time(am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label)
+        self.time = Time(am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label)
 
     def connect_to_next_day_signal(self, func):
         self.time.new_day_signal.connect(func)

@@ -147,7 +147,7 @@ class PlayerManager:
         self.close_msgbox()
 
         if self.get_is_adan_playing():
-            self.show_msg_signal.emit("لا يمكن تشغيل ملف الصوت الفوري الان ", "الرجاء الانتظار حتى الانتهاء من الاذان", 3)
+            self.show_msg_signal.emit("لا يمكن تشغيل ملف الصوت الفوري الآن ", "ألرجاء الإنتظار حتى الإنتهاء من الأذان", 3)
             return False
 
         elif self.get_is_notification_playing():
@@ -196,7 +196,10 @@ class PlayerManager:
             self.set_is_adan_playing(False)
 
             # emit a signal to hide emergency frame
+            """ check here $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this line """
             self.hide_emergency_frame_signal.emit()
+            
+            
             self.close_mic_signal.emit()
 
     def force_stop_notification(self):
@@ -233,11 +236,11 @@ class PlayerManager:
                 self.sound_lst[0].resume()
 
     def sound_finished(self):
-        print("finished emitted !!!")
         if self.get_is_adan_playing():
             self.set_is_adan_playing(False)
         
         elif self.get_is_notification_playing():
             self.set_is_notification_playing(False)
         
+        self.stop()
         self.close_mic_signal.emit()

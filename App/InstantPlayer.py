@@ -102,7 +102,11 @@ class InstantPlayer:
     def player_helper(self):
         sound = self.sound_lst[0]
         
-        sound.media_loaded_signal.disconnect(self.player_helper)
+        try :
+            sound.media_loaded_signal.disconnect(self.player_helper)
+        except Exception as e:
+            print(e)
+
         sound.play()
 
     def pause(self):
@@ -115,13 +119,15 @@ class InstantPlayer:
 
     def stop_helper(self):
         if len(self.sound_lst) != 0:
-
             sound = self.sound_lst[0]
 
             try:
-                sound.end_of_media_signal.disconnect(self.handle_end_of_media)
+                try:
+                    sound.end_of_media_signal.disconnect(self.handle_end_of_media)
+                except Exception as e:
+                    print(e)
+
                 sound.media_loaded_signal.disconnect(self.set_position_controller_range)
-                # sound.media_loaded_signal.disconnect(self.player_helper)
             except Exception as e:
                 print(e)
             

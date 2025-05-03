@@ -12,7 +12,7 @@ def get_mac_address():
 
 def validate_license():
     current_mac = get_mac_address()
-    return (current_mac == '18:C0:4D:9F:E6:76') or True
+    return (current_mac == 'E8:FF:1E:D4:32:0E') or True
 
 if __name__ == "__main__":
 
@@ -33,4 +33,3 @@ if __name__ == "__main__":
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec() 
         sys.exit()
-    

@@ -6,7 +6,7 @@ from ResourceFile import resource_path
 from PySide6.QtGui import QFontDatabase, QFont
 
 hijri_months = ["محرم","صفر","ربيع الأول","ربيع الآخر","جمادى الأولى","جمادى الآخرة","رجب","شعبان","رمضان","شوال","ذو القعدة","ذو الحجة"]
-my_calendar = ["الاثنين", "الثلاثاء", "الاربعاء", "الخميس", "الجمعة", "السبت", "الاحد"]
+my_calendar = ["الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
 
 class ClickableLabel(QLabel):
     # Define a custom signal
@@ -14,11 +14,15 @@ class ClickableLabel(QLabel):
 
     def __init__(self, text='', parent=None):
         super().__init__(text, parent)
-        font = QFont("Sakkal Majalla", 32)
-        font.setBold(True)
-        self.setFont(font)
+        self.font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Noto_Kufi_Arabic/static/NotoKufiArabic-SemiBold.ttf"))
+        self.kufi_regular_font_family = QFontDatabase.applicationFontFamilies(self.font_id)[0]
+        self.kufi_font_24 = QFont(self.kufi_regular_font_family, 24)
+        self.kufi_font_24.setBold(True)
+        self.setFont(self.kufi_font_24)
 
-        # self.setHorizontalPolicy(QSizePolicy.Expanding)
+        self.setStyleSheet("""
+        color: black;
+        """)
 
     def mousePressEvent(self, event):
         """Override the mousePressEvent to emit the clicked signal."""
@@ -46,7 +50,7 @@ class Time():
     get_formate_signal = time_signal.get_formate_signal
     check_for_new_release = time_signal.check_for_new_release
 
-    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label, higri_date_label):
+    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
 
         self.time_formate = "%I:%M:%S %p"
 
@@ -199,7 +203,8 @@ class Time():
             #  emit new day signal
             self.new_day_signal.emit(self.day)
 
-            if self.day == "الجمعة":
+            if self.day == "السبت":
+                #  chekc here also !!!
                 self.new_jomoaa.emit()
 
             self.check_for_new_release.emit()

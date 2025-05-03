@@ -13,9 +13,9 @@ class AdanTimePrepare():
 
         self.callender = []
         self.current_adans_index = -1
-        self.jomoaa_index = -1 
+        self.jomoaa_index = -1
         self.new_year()
-    
+
     def handle_time_updated(self, new_curr_time):
         self.curr_time = new_curr_time
 
@@ -38,31 +38,14 @@ class AdanTimePrepare():
                 self.callender.append((dt.datetime(today.year, month, day),col[3:]))
             except:
                 pass
-    
-    def is_valide_adan_times(self):
-        datetimes_of_today = self.convert_to_dt()
-        return datetimes_of_today[2][4] > self.curr_time
 
     def get_current_day_adans(self):
         len_callender = len(self.callender)
         for d in range(len_callender):
             if self.callender[d][0].strftime("%d/%m") == dt.date.today().strftime("%d/%m"):
-                self.adansOfToday = self.callender[d]
-                if not self.is_valide_adan_times():
-                    self.adansOfToday = self.callender[(d + 1)%len_callender]    
+                self.adansOfToday = self.callender[d]   
                 break                
         return self.adansOfToday
-    
-    # def get_next_day_adans(self):
-        
-    #     self.current_adans_index += 1
-
-    #     if self.current_adans_index > len(self.callender) - 1:
-    #         self.current_adans_index = self.current_adans_index % len(self.callender)
-        
-    #     self.adansOfToday = self.callender[self.current_adans_index]
-        
-    #     return self.adansOfToday
         
     def get_jomoaa(self):
         Friday = "Friday"
@@ -75,18 +58,7 @@ class AdanTimePrepare():
                     self.jomoaa_index = j
                     break
         return dt.datetime.combine(dt.datetime(dt.date.today().year, self.callender[self.jomoaa_index][0].month, self.callender[self.jomoaa_index][0].day), self.callender[self.jomoaa_index][1][2])
-        
-    # def get_next_jomoaa(self):
 
-    #     self.jomoaa_index += 7
-        
-    #     days_in_year = len(self.callender)
-        
-    #     if self.jomoaa_index > days_in_year - 1:
-    #         self.jomoaa_index %= days_in_year
-        
-    #     return dt.datetime.combine(dt.datetime(dt.date.today().year, self.callender[self.jomoaa_index][0].month, self.callender[self.jomoaa_index][0].day), self.callender[self.jomoaa_index][1][2])
-        
     def convert_to_dt(self, ):
         self.datetimes_of_today = [self.adansOfToday[0],[]]
         for i in range(len(self.adansOfToday[1])):
