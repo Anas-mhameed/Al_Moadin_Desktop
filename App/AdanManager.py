@@ -225,7 +225,8 @@ class AdanManager():
             # emergency frame show (pause/resume adan)
             self.emerg_frame.show()
             # send signal to msgManager to start counting
-            self.activate_emergency_timer_signal.emit(40)
+            if self.mediator:
+                self.mediator.notify(self, "start_adan", 40)
 
     def possible_fake_prepare_emitted(self):
         self.possible_not_adan_time_signal.emit()
@@ -314,8 +315,6 @@ class AdanManager():
 
     def handle_summer_winter_change(self, is_summer_time):
         
-        # self.update_is_summer_time(is_summer_time)
-
         for adan in self.adans:
             
             self.handle_summer_winter_helper(adan, is_summer_time)
@@ -341,8 +340,6 @@ class AdanManager():
         return temp
 
     def handle_quds_diff_change(self, new_quds_differ, is_summer_time):
-
-        # self.update_quds_differ(new_quds_differ)
 
         all_adans = self.group_adans()
    
@@ -375,7 +372,9 @@ class AdanManager():
         all_adans = self.group_adans()
 
         # update adan_time after original_adan_time changed
-        self.helper(all_adans)
+        # self.helper(all_adans)
+        if self.mediator:
+            self.mediator.notify(self, "request_general_settings")
 
 
     def update_ui(self):
@@ -387,7 +386,7 @@ class AdanManager():
     def update_jomoaa_ui(self):
         self.jomoaa.update_ui(self.time_formate)
 
-    def handle_new_day(self):
+    def handle_new_day(self, new_day):
         
         self.get_new_adans_time()
 
@@ -399,6 +398,8 @@ class AdanManager():
         
         # emit a signal to update notificatins
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+
+        self.next_adan.update_curr_day(new_day)
 
     def handle_new_jomoaa(self):
         

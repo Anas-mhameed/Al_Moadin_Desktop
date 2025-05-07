@@ -40,3 +40,9 @@ class Mediator:
         
         elif event == "emergency_frame_timer_expired":
             self.components["AdanManager"].emerg_frame_hide()
+
+        elif event == "start_adan":
+            self.components["MsgManager"].activate_emergency_frame_timer(args[0])
+        
+        elif event == "new_day_event":
+            self.components["AdanManager"].handle_new_day(args[0])

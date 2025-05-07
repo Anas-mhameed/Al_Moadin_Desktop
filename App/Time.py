@@ -50,7 +50,10 @@ class Time():
     # get_formate_signal = time_signal.get_formate_signal
     check_for_new_release = time_signal.check_for_new_release
 
-    def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
+    def __init__(self, mediator, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
+
+        self.mediator = None
+        mediator.register("Time", self)
 
         self.time_formate = "%I:%M:%S %p"
 
@@ -88,11 +91,11 @@ class Time():
 
         self.initate_labels()
 
-        # self.time_updated.connect(self.update_ui)
     
-    # def get_formate(self):
-    #     self.get_formate_signal.emit()
-
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
+    
     def update_factor(self):
         if self.factor == 3:
             self.factor = -3
@@ -106,7 +109,6 @@ class Time():
 
     def update_time(self):
         self.curr_dt = dt.datetime.now()
-        # self.time_updated.emit(self.curr_dt)
     
     def update_date(self):
         self.date = dt.date.today()
@@ -202,7 +204,9 @@ class Time():
             self.update_day_date_hijri()
 
             #  emit new day signal
-            self.new_day_signal.emit(self.day)
+            # self.new_day_signal.emit(self.day)
+            if self.mediator:
+                self.mediator.notify(self, "new_day_event", self.day)
 
             if self.day == "السبت":
                 #  chekc here also !!!
