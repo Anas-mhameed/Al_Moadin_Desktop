@@ -26,6 +26,7 @@ class PlayerManager:
 
     def __init__(self, main_window):
         
+        self.mediator = None
         self.main_window = main_window
 
         self.is_adan_playing = False
@@ -36,6 +37,10 @@ class PlayerManager:
 
         self.sound_lst = []
         
+
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
 
     def play_adan(self, file_path):
 
@@ -195,9 +200,7 @@ class PlayerManager:
             self.stop()
             self.set_is_adan_playing(False)
 
-            # emit a signal to hide emergency frame
-            """ check here $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this line """
-            self.hide_emergency_frame_signal.emit()
+            self.mediator.notify(self, "emergency_frame_timer_expired")
             
             
             self.close_mic_signal.emit()

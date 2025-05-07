@@ -34,7 +34,7 @@ class TimeSignal(QObject):
     new_day = Signal(str)
     new_jomoaa = Signal()
 
-    get_formate_signal = Signal()
+    # get_formate_signal = Signal()
     check_for_new_release = Signal()
 
     def __init__(self):
@@ -47,7 +47,7 @@ class Time():
     time_updated = time_signal.time_updated
     new_day_signal = time_signal.new_day
     new_jomoaa = time_signal.new_jomoaa
-    get_formate_signal = time_signal.get_formate_signal
+    # get_formate_signal = time_signal.get_formate_signal
     check_for_new_release = time_signal.check_for_new_release
 
     def __init__(self, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
@@ -90,8 +90,8 @@ class Time():
 
         # self.time_updated.connect(self.update_ui)
     
-    def get_formate(self):
-        self.get_formate_signal.emit()
+    # def get_formate(self):
+    #     self.get_formate_signal.emit()
 
     def update_factor(self):
         if self.factor == 3:
@@ -165,14 +165,15 @@ class Time():
 
     def update_time_formate(self, new_formate):
         self.time_formate = new_formate
+
     
     def update_ui(self):
 
         if self.time_formate == "%I:%M:%S %p":
             self.am_pm_frame.show()
-            self.time_label.setText(self.curr_dt.strftime("%I:%M:"))
+            self.time_label.setText(self.curr_dt.strftime("%I:%M"))
 
-            self.seconds_label.setText(self.curr_dt.strftime("%S"))
+            self.seconds_label.setText(self.curr_dt.strftime(":%S"))
             self.am_pm_label.setText(self.curr_dt.strftime("%p"))
 
         else:
@@ -207,4 +208,4 @@ class Time():
                 #  chekc here also !!!
                 self.new_jomoaa.emit()
 
-            self.check_for_new_release.emit()
+            # self.check_for_new_release.emit()

@@ -32,6 +32,8 @@ from SpinBoxTrack import SpinBoxTrack
 from ZigbeeController import ZigbeeController
 from ProgramUpdater import ProgramUpdater
 from DatabaseManager import DatabaseManager
+from Mediator import Mediator
+
 
 class AppManager(QMainWindow):
 
@@ -54,6 +56,9 @@ class AppManager(QMainWindow):
         self.setCentralWidget(self.ui)
       
         self.setup_ui()
+
+        # Initialize the mediator
+        self.mediator = Mediator()
 
         # Initialize DatabaseManager as a singleton
         self.database_manager = DatabaseManager()
@@ -86,32 +91,43 @@ class AppManager(QMainWindow):
         self.intiate_adans_state_button()
 
         self.msg_manager = MsgManager(self.client_info_msg_frame, self.error_msg_label, self.info_msg_label, self.noti_msg_frame, self.noti_msg_label)
+        self.mediator.register("MsgManager", self.msg_manager)
 
         self.player_manager = PlayerManager(self)
+        self.mediator.register("PlayerManager", self.player_manager)
+  
+
+        #  NEED TO BE CHECKED ------ TO BE COMPLETED ------
         self.player_manager.open_mic_signal.connect(lambda: self.zigbee_controller.run(True))
         self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
         
         self.player_manager.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         
+        #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
+
+        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        self.mediator.register("AdanManager", self.adan_manager)
+
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
+        self.mediator.register("GeneralSettings", self.general_settings)
 
         self.time_manager = TimeManager(self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label)
+        self.mediator.register("TimeManager", self.time_manager)
 
-        self.time_manager.connect_to_check_version_update(self.program_updater.run)
-
-        self.general_settings.time_formate_changed.connect(self.time_manager.update_time_formate)
-        self.time_manager.connect_to_get_formate_signal(self.general_settings.set_time_formate)
         self.time_manager.get_time_formate()
         
-        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.general_settings, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
 
-        self.time_manager.connect_to_time_updated_signal(self.adan_manager.adan_time_prepare.handle_time_updated)
+        # self.time_manager.connect_to_time_updated_signal(self.adan_manager.adan_time_prepare.handle_time_updated)
         self.time_manager.connect_to_time_updated_signal(self.msg_manager.handle_time_update)
-
-        self.msg_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
+        
+        # self.msg_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
+        # self.player_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
+        
+        
         self.adan_manager.activate_emergency_timer_signal.connect(self.msg_manager.activate_emergency_frame_timer)
         self.adan_manager.possible_not_adan_time_signal.connect(self.player_manager.possible_fake_prepare_emitted)
-        self.player_manager.hide_emergency_frame_signal.connect(self.adan_manager.emerg_frame_hide)
+        
+        
         self.adan_manager.pause_adan_signal.connect(self.player_manager.pause_adan)
         self.adan_manager.resume_adan_signal.connect(self.player_manager.resume_adan)
         self.adan_manager.play_adan_signal.connect(self.player_manager.play_adan)
@@ -119,13 +135,7 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
         
-        
-        self.general_settings.summer_timing_changed.connect(self.adan_manager.handle_summer_winter_change)
-        self.general_settings.quds_diff_changed.connect(self.adan_manager.handle_quds_diff_change)
-        self.general_settings.adan_time_formate_changed.connect(self.adan_manager.handle_new_time_formate)
-        
-        self.adan_manager.get_settings_signal.connect(self.general_settings.send_all_settings_to_adan_manager)
-        self.adan_manager.get_settings()
+        self.adan_manager.request_settings()
 
         self.time_manager.connect_to_next_day_signal(self.adan_manager.handle_new_day)
         self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)

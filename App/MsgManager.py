@@ -12,6 +12,7 @@ class MsgManager():
     
     def __init__(self, main_page_msg_frame, main_page_error_label, main_page_info_label, noti_page_msg_frame, noti_page_info_label):
         
+        self.mediator = None
         self.main_page_msg_frame = main_page_msg_frame
         self.main_page_error_label = main_page_error_label
         self.main_page_info_label = main_page_info_label
@@ -22,6 +23,10 @@ class MsgManager():
         self.main_page_counter = -1
         self.noti_page_counter = -1
 
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
+    
     def activate_emergency_frame_timer(self, timer):
         if timer > 0 :
             self.emergency_counter = timer
@@ -80,7 +85,9 @@ class MsgManager():
         if self.emergency_counter > 0:
             self.emergency_counter -= 1
             if self.emergency_counter == 0 :
-                self.hide_emergency_frame_signal.emit()
+
+                self.mediator.notify(self, "emergency_frame_timer_expired")
+
                 self.emergency_counter = -1
 
         if self.main_page_counter > 0:

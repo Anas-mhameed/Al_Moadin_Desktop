@@ -55,15 +55,16 @@ class AdanManager():
 
     activate_emergency_timer_signal = adan_manager_signals.activate_emergency_timer_signal
 
-    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, general_settings, emerg_frame, emerg_label, emerg_btn):
+    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, emerg_frame, emerg_label, emerg_btn):
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
         self.curr_time = dt.datetime.now()
 
         self.adan_time_prepare = AdanTimePrepare()
-        # self.general_settings = general_settings
         
+        self.mediator = None
+
         self.time_formate = "%H:%M"
 
         self.wich_is_playing = None
@@ -129,11 +130,17 @@ class AdanManager():
     def basic_duartion_changed(self):
         self.basic_duartion_signal.emit(self.basic_sound.get_duration())
 
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
+
     def force_stop_adan(self):
         self.force_stop_adan_signal.emit()
 
-    def get_settings(self):
-        self.get_settings_signal.emit()
+    def request_settings(self):
+        # self.get_settings_signal.emit()
+        if self.mediator:
+            self.mediator.notify(self, "request_general_settings")
 
     def update_curr_time(self, updated_time):
         self.curr_time = updated_time
@@ -242,9 +249,9 @@ class AdanManager():
         self.set_basic_sound_source()
         self.database_manager.update_adans_sound("basic_adan", self.basic_sound.get_file_path())
             
-    def helper(self, adans):
+    def helper(self, adans, new_quds_diff, is_summer):
 
-        temp = self.quds_differ
+        temp = new_quds_diff
 
         for adan in adans:
             
@@ -254,7 +261,7 @@ class AdanManager():
             minute = adan_time.minute
 
             temp_summer = 0
-            if self.is_summer:
+            if is_summer:
                 temp_summer = 1
 
             if temp < 0:
@@ -284,14 +291,14 @@ class AdanManager():
 
             adan.update_time(adan.get_original_time().replace(hour=new_hour, minute=new_minute, ))
 
-    def update_is_summer_time(self, is_summer):
-        self.is_summer = is_summer
+    # def update_is_summer_time(self, is_summer):
+    #     self.is_summer = is_summer
 
-    def handle_summer_winter_helper(self, adan):
+    def handle_summer_winter_helper(self, adan, is_summer):
         
         new_hour = adan.get_adan_time().hour
 
-        if self.is_summer :
+        if is_summer :
                 new_hour += 1
         else:
                 new_hour -= 1
@@ -307,14 +314,14 @@ class AdanManager():
 
     def handle_summer_winter_change(self, is_summer_time):
         
-        self.update_is_summer_time(is_summer_time)
+        # self.update_is_summer_time(is_summer_time)
 
         for adan in self.adans:
             
-            self.handle_summer_winter_helper(adan)
+            self.handle_summer_winter_helper(adan, is_summer_time)
         
-        self.handle_summer_winter_helper(self.shorok)
-        self.handle_summer_winter_helper(self.jomoaa)
+        self.handle_summer_winter_helper(self.shorok, is_summer_time)
+        self.handle_summer_winter_helper(self.jomoaa, is_summer_time)
 
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
 
@@ -323,8 +330,8 @@ class AdanManager():
         self.update_ui()
         self.update_jomoaa_ui()
     
-    def update_quds_differ(self, new_quds_diff):
-        self.quds_differ = new_quds_diff
+    # def update_quds_differ(self, new_quds_diff):
+    #     self.quds_differ = new_quds_diff
 
     def group_adans(self):
         temp = self.adans.copy()
@@ -333,13 +340,13 @@ class AdanManager():
 
         return temp
 
-    def handle_quds_diff_change(self, new_quds_differ):
+    def handle_quds_diff_change(self, new_quds_differ, is_summer_time):
 
-        self.update_quds_differ(new_quds_differ)
+        # self.update_quds_differ(new_quds_differ)
 
         all_adans = self.group_adans()
    
-        self.helper(all_adans)
+        self.helper(all_adans, new_quds_differ, is_summer_time)
 
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
 

@@ -9,15 +9,15 @@ class AdanTimePrepare():
         self.all_rows = [ col for col in df.itertuples() ]
         self.all_rows.pop(0)
 
-        self.curr_time = dt.datetime.now()
+        # self.curr_time = dt.datetime.now()
 
         self.callender = []
         self.current_adans_index = -1
         self.jomoaa_index = -1
         self.new_year()
 
-    def handle_time_updated(self, new_curr_time):
-        self.curr_time = new_curr_time
+    # def handle_time_updated(self, new_curr_time):
+    #     self.curr_time = new_curr_time
 
     def clear_callender(self):
         self.callender = []
