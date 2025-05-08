@@ -132,7 +132,7 @@ class AppManager(QMainWindow):
 
         # WE ARE HERE ---------------- ------------------
 
-        self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
+        # self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
         
         self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
 

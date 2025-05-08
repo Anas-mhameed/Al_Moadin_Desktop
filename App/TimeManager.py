@@ -25,8 +25,8 @@ class TimeManager():
     def connect_to_time_updated_signal(self, func):
         self.time.time_updated.connect(func)
 
-    def connect_to_new_jomoaa_signal(self, func):
-        self.time.new_jomoaa.connect(func)
+    # def connect_to_new_jomoaa_signal(self, func):
+    #     self.time.new_jomoaa.connect(func)
 
     def connect_to_get_formate_signal(self, func):
         self.time.get_formate_signal.connect(func)

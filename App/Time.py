@@ -32,7 +32,7 @@ class TimeSignal(QObject):
 
     time_updated = Signal(dt.datetime)
     new_day = Signal(str)
-    new_jomoaa = Signal()
+    # new_jomoaa = Signal()
 
     # get_formate_signal = Signal()
     check_for_new_release = Signal()
@@ -46,7 +46,7 @@ class Time():
 
     time_updated = time_signal.time_updated
     new_day_signal = time_signal.new_day
-    new_jomoaa = time_signal.new_jomoaa
+    # new_jomoaa = time_signal.new_jomoaa
     # get_formate_signal = time_signal.get_formate_signal
     check_for_new_release = time_signal.check_for_new_release
 
