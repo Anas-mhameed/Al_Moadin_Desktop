@@ -157,17 +157,16 @@ class AdanManager():
         
     def intiate_jomoaa(self, ui_object):
         jomoaa_time = self.adan_time_prepare.get_jomoaa()
-        # need completion
-        # if jomoaa_time < self.curr_time.get_curr_time() :
-        #     jomoaa_time = self.adan_time_prepare.get_next_jomoaa()
-
         jomoaa_adan = self.adan_creator(ui_object,"jomoaa",jomoaa_time)
-
         return jomoaa_adan
 
     def get_new_jomoaa(self):
         jomoaa_time = self.adan_time_prepare.get_jomoaa()
         self.jomoaa.update_original_time(jomoaa_time)
+
+        if self.mediator:
+            self.mediator.notify(self, "request_general_settings")
+
 
     def initiate_adans(self, five_prayers, shorok):
         adans_labels = ["fajer", "dohor", "aser", "magreb", "ishaa"]
@@ -369,10 +368,6 @@ class AdanManager():
         for i in range(len(self.adans)):
             self.adans[i].update_original_time(all_adans_time[2][i])
 
-        all_adans = self.group_adans()
-
-        # update adan_time after original_adan_time changed
-        # self.helper(all_adans)
         if self.mediator:
             self.mediator.notify(self, "request_general_settings")
 
@@ -405,17 +400,16 @@ class AdanManager():
         
         self.get_new_jomoaa()
 
-        self.helper([self.jomoaa])
-
         #  update jomoaa ui
         self.update_jomoaa_ui()
         
         # emit a signal to update notificatins
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
     
+
     def update_time_formate(self, new_formate):
         self.time_formate = new_formate
-    
+
     def handle_new_time_formate(self, new_time_formate):
         self.update_time_formate(new_time_formate)
         self.update_ui()

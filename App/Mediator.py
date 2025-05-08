@@ -46,3 +46,5 @@ class Mediator:
         
         elif event == "new_day_event":
             self.components["AdanManager"].handle_new_day(args[0])
+            self.components["AdanManager"].handle_new_jomoaa()
+            

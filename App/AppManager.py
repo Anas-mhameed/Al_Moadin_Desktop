@@ -103,7 +103,7 @@ class AppManager(QMainWindow):
         self.player_manager.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
 
-        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_prayer, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
         self.mediator.register("AdanManager", self.adan_manager)
 
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
@@ -392,7 +392,7 @@ class AppManager(QMainWindow):
         
         self.shorok = self.ui.findChild(QWidget, "shorokWidget")
 
-        self.jomoaa_prayer = self.ui.findChild(QWidget, "jomoaaWidget")
+        self.jomoaa_widget = self.ui.findChild(QWidget, "jomoaaWidget")
 
         self.next_adan_label = self.ui.findChild(QLabel, "nextAdanNameLabel")
 
@@ -726,7 +726,7 @@ class AppManager(QMainWindow):
         return self.shorok
     
     def get_jomoaa_prayer(self):
-        return self.jomoaa_prayer
+        return self.jomoaa_widget
     
     # for general settings
     def get_masjed_name_label(self):

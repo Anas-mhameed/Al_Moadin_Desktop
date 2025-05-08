@@ -208,8 +208,3 @@ class Time():
             if self.mediator:
                 self.mediator.notify(self, "new_day_event", self.day)
 
-            if self.day == "السبت":
-                #  chekc here also !!!
-                self.new_jomoaa.emit()
-
-            # self.check_for_new_release.emit()
