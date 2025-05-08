@@ -132,11 +132,10 @@ class AppManager(QMainWindow):
 
         # WE ARE HERE ---------------- ------------------
 
-        # self.time_manager.connect_to_new_jomoaa_signal(self.adan_manager.handle_new_jomoaa)
-        
         self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
 
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+        
         self.instant_player.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         self.player_manager.force_stop_instant_player.connect(self.instant_player.stop)
         self.instant_player.finished_signal.connect(self.player_manager.handle_instant_finished_signal)

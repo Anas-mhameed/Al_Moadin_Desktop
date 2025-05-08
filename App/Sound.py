@@ -44,7 +44,6 @@ class Sound:
         if state == QMediaPlayer.StoppedState :
             self.media_stopped_signal.emit()
 
-
     def track_media_position(self, func):
         self.media_player.positionChanged.connect(func)
 
