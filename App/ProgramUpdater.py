@@ -14,7 +14,7 @@ class ProgramUpdater:
         self.current_version = self.database_manager.get_app_version()  # Set to the current version of your app
 
     def get_latest_release(self):
-        print("trying to get release ...")
+        
         url = f"https://api.github.com/repos/{self.GITHUB_REPO}/releases/latest"
         try:
             response = requests.get(url)
@@ -23,7 +23,6 @@ class ProgramUpdater:
             return response.json()
         
         except Exception as e:
-            print(e)
             return None
 
     def check_for_updates(self):
@@ -35,10 +34,8 @@ class ProgramUpdater:
         latest_version = release["tag_name"]  # This is typically in the format "v1.1" or similar
 
         if latest_version != f"{self.current_version}":
-            print(f"New version available: {latest_version}")
             return latest_version  # Return release details if update is available
         else:
-            print("No updates available.")
             return None
     
 
@@ -47,9 +44,7 @@ class ProgramUpdater:
         
         try:
             response = requests.get(url, stream=True)
-            print(f"download process status code: {response.status_code}")
         except Exception as e:
-            print(e)
             return 
 
         temp_filename = "Al_moadin_new_ver"
@@ -57,8 +52,6 @@ class ProgramUpdater:
         with open(temp_filename, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-
-        print(f"Downloaded update to {temp_filename}")
 
         # Update current version in the database
         self.database_manager.update_app_version(latest_release)

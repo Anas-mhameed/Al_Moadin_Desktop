@@ -225,7 +225,7 @@ class AdanManager():
             self.emerg_frame.show()
             # send signal to msgManager to start counting
             if self.mediator:
-                self.mediator.notify(self, "start_adan", 40)
+                self.mediator.notify(self, "start_adan", 60)
 
     def possible_fake_prepare_emitted(self):
         self.possible_not_adan_time_signal.emit()
@@ -291,9 +291,6 @@ class AdanManager():
 
             adan.update_time(adan.get_original_time().replace(hour=new_hour, minute=new_minute, ))
 
-    # def update_is_summer_time(self, is_summer):
-    #     self.is_summer = is_summer
-
     def handle_summer_winter_helper(self, adan, is_summer):
         
         new_hour = adan.get_adan_time().hour
@@ -328,9 +325,6 @@ class AdanManager():
         self.update_ui()
         self.update_jomoaa_ui()
     
-    # def update_quds_differ(self, new_quds_diff):
-    #     self.quds_differ = new_quds_diff
-
     def group_adans(self):
         temp = self.adans.copy()
         temp.append(self.shorok)
@@ -345,13 +339,6 @@ class AdanManager():
         self.helper(all_adans, new_quds_differ, is_summer_time)
 
         self.adan_time_changed.emit(self.get_adans_for_notification_manager())
-
-        # if (self.adans[4].get_adan_time() < self.curr_time and self.next_adan.next_adan.get_adan_name() == "العشاء") or ( self.adans[4].get_adan_time() > self.curr_time and self.next_adan.next_adan.get_adan_name() == "الفجر" ) :
-        #     """ When Ishaa time pass's, I update the adans times (get adan times for tomorrow), 
-        #     so when quds time dif change and it pass ishaa time or updated to bee less than ishaa time should update adans time also 
-        #     NOT TRULY CHECK !!!
-        #     NEED TO BE CHECKED !"""
-        #     pass
 
         self.find_next_adan_signal.emit()
 
@@ -370,7 +357,6 @@ class AdanManager():
 
         if self.mediator:
             self.mediator.notify(self, "request_general_settings")
-
 
     def update_ui(self):
         for adan in self.adans:

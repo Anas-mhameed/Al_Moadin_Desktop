@@ -64,8 +64,8 @@ class AppManager(QMainWindow):
         self.database_manager = DatabaseManager()
         self.runnable_manager = RunnableManager()
 
-        # Remove passing self.database_manager to constructors
-        self.program_updater = ProgramUpdater()
+        # self.program_updater = ProgramUpdater()
+
         self.database_manager.initialize_app_version()
 
         # Check if token exists
