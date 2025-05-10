@@ -48,7 +48,7 @@ class PlayerManager:
         self.cleanup_timer = QTimer()
         self.cleanup_timer.setInterval(20 * 1000)  # 40 secounds
         self.cleanup_timer.setSingleShot(True)
-        self.cleanup_timer.timeout.connect(self._stop_media)
+        self.cleanup_timer.timeout.connect(self._stop_adan)
 
         self.is_adan_playing = False
         self.is_notification_playing = False
@@ -74,8 +74,8 @@ class PlayerManager:
     def _clear_command(self):
         self.current_command = None # indicates that no one is playing
         
-    def _stop_media(self):
-        self.player.stop()
+    def _stop_adan(self):
+        self._stop_current()
         self._hide_emerg_frame()
 
     def _on_status_changed(self, status):
@@ -86,10 +86,10 @@ class PlayerManager:
     
     def _emergency_stop(self):
         if self.emerg_btn.isChecked():
-            self._pause_adan()
+            self._pause()
             self.emerg_label.setText("لاستكمال الأذان إضغط هنا ")
         else:
-            self.player.play()
+            self._resume()
             self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
 
     def _show_emerg_frame(self):
@@ -108,8 +108,20 @@ class PlayerManager:
         if command.requester == "AdanManager":
             self._play(command) 
             self._show_emerg_frame()
+        
+        elif command.requester == "InstantPlayer":
+            
+            if self.current_command is None or self.current_command.requester == "NotificationsManager" or self.current_command.requester == "InstantPlayer":
+                self._play(command)
+            
+            elif self.current_command.requester == "AdanManager":
+                # show an error message
+                pass
+            
+    def _resume(self):
+        self.player.play()
 
-    def _pause_adan(self):
+    def _pause(self):
         self.player.pause()
 
     def _play(self, command):
@@ -121,11 +133,20 @@ class PlayerManager:
             self.player.setSource(url)
         self.player.play()
 
-    
     def _stop_current(self):
         self.player.stop()
-        # self.audio_finished.emit(self.current_command.requester)
-        # self.current_command = None
+
+    def pause_instant_player(self):
+        if self.current_command and self.current_command.requester == "InstantPlayer" and self.player.playbackState() == QMediaPlayer.PlayingState:
+            self._pause()
+    
+    def resume_instant_player(self):
+        if self.current_command and self.current_command.requester == "InstantPlayer" and self.player.playbackState() == QMediaPlayer.PausedState:
+            self._resume()
+
+    def stop_instant_player(self):
+        if self.current_command and self.current_command.requester == "InstantPlayer" and (self.player.playbackState() == QMediaPlayer.PlayingState or self.player.playbackState() == QMediaPlayer.PausedState):
+            self._stop_current()
 
     # def prepare_for_adan(self):
     #     self.set_is_adan_playing(True)

@@ -193,7 +193,7 @@ class AdanManager():
         if adan.check_state():
             # emit signal to player manager to play adan
             self.play_adan_signal.emit(adan_sound.get_file_path())
-            command = PlayAudioCommand("AdanManager", adan_sound.get_file_path(), AudioPriority.HIGH)
+            command = PlayAudioCommand("AdanManager", adan_sound.get_file_path())
             self.player_manager.request_playback(command)
 
     def possible_fake_prepare_emitted(self):

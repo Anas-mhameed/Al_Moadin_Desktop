@@ -45,8 +45,6 @@ class MsgManager():
             else:
                 self.main_page_counter = timer
 
-        else:
-            print("ERROR: TIMER INVALID !!!")
 
     def hide_main_page_msg(self):
         self.main_page_msg_frame.hide()

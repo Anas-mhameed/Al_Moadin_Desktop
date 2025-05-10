@@ -1,4 +1,6 @@
-from Sound import Sound
+from AudioPriority import AudioPriority
+from PlayAudioCommand import PlayAudioCommand
+from helper_functions import select_sound_file
 from PySide6.QtCore import QObject, Signal
 
 class InstantPlayersignals(QObject):
@@ -41,20 +43,16 @@ class InstantPlayer:
         self.delete_file_button.clicked.connect(lambda: self.delete_sound())
 
         self.play_button.clicked.connect(lambda: self.ask_player_manager_to_play())
-        self.pause_button.clicked.connect(lambda: self.pause())
-        self.resume_button.clicked.connect(lambda: self.resume())
-        self.stop_button.clicked.connect(lambda: self.stop())
+        self.pause_button.clicked.connect(lambda: self.ask_to_pause())
+        self.resume_button.clicked.connect(lambda: self.ask_to_resume())
+        self.stop_button.clicked.connect(lambda: self.ask_to_stop())
 
         self.position_controller.sliderMoved.connect(lambda: self.handle_position_change())
         self.position_controller.sliderPressed.connect(self.stop_slider_update)
         self.position_controller.sliderReleased.connect(self.resume_slider_update)
 
     def choose_sound(self, widget):
-
-        sound = Sound()
-        sound.select_sound_file(widget)
-        
-        self.file_path = sound.get_file_path()
+        self.file_path = select_sound_file(widget)
     
     def delete_sound(self):
         self.file_path = ""
@@ -66,86 +64,24 @@ class InstantPlayer:
         btn.setEnabled(False)
 
     def ask_player_manager_to_play(self):
-        if self.file_path == "" :
+        self.player_manager.request_playback(PlayAudioCommand("InstantPlayer", self.file_path))
+        # if self.file_path == "" :
             
-            msg = "لا يوجد ملف صوتي"  
+        #     msg = "لا يوجد ملف صوتي"  
 
-            self.show_msg_signal.emit(msg, "", 3)     
+        #     self.show_msg_signal.emit(msg, "", 3)     
 
-        else:
-            # if self.sound_lst[0].is_playing():
-            #     self.stop()
+        # else:
+        #     self.can_I_play.emit()
 
-            self.can_I_play.emit()
+    def ask_to_pause(self):
+        self.player_manager.pause_instant_player()
 
-    def play(self):
-        
-        if len(self.sound_lst) != 0:
+    def ask_to_resume(self):    
+        self.player_manager.resume_instant_player()
 
-            sound = self.sound_lst[0]
-    
-            if sound.get_file_path() == self.file_path:
-                sound.play()
-                return
-            else:
-                self.stop_helper()
-
-        sound = Sound(self.file_path)
-        self.sound_lst.append(sound)
-        sound.track_media_position(self.set_position_controller)
-        sound.media_loaded_signal.connect(self.set_position_controller_range)
-        sound.media_loaded_signal.connect(self.player_helper)
-        sound.end_of_media_signal.connect(self.handle_end_of_media)  
-        
-        sound.set_source()
-
-    def player_helper(self):
-        sound = self.sound_lst[0]
-        
-        try :
-            sound.media_loaded_signal.disconnect(self.player_helper)
-        except Exception as e:
-            print(e)
-
-        sound.play()
-
-    def pause(self):
-        if len(self.sound_lst) != 0:
-            self.sound_lst[0].pause()
-
-    def resume(self):    
-        if len(self.sound_lst) != 0:
-            self.sound_lst[0].resume()
-
-    def stop_helper(self):
-        if len(self.sound_lst) != 0:
-            sound = self.sound_lst[0]
-
-            try:
-                try:
-                    sound.end_of_media_signal.disconnect(self.handle_end_of_media)
-                except Exception as e:
-                    print(e)
-
-                sound.media_loaded_signal.disconnect(self.set_position_controller_range)
-            except Exception as e:
-                print(e)
-            
-            sound.stop()
-            
-            sound = self.sound_lst.pop()
-
-            self.position_controller.setValue(0)
-
-    def stop(self):
-        # if len(self.sound_lst) != 0:
-        self.stop_helper()
-
-        self.finished_signal.emit()
-
-    def handle_end_of_media(self):
-        self.stop()
-        self.set_position_controller_range()
+    def ask_to_stop(self):
+        self.player_manager.stop_instant_player()
 
     def handle_position_change(self):
         self.position = self.position_controller.value()
@@ -175,7 +111,3 @@ class InstantPlayer:
         if len(self.sound_lst) != 0:
             """Resume updating the slider after manual user interaction."""
             self.sound_lst[0].track_media_position(self.set_position_controller)
-
-    def turn_off(self):
-        self.stop()
-        self.delete_sound()
