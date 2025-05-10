@@ -1,3 +1,5 @@
+from AudioPriority import AudioPriority
+from PlayAudioCommand import PlayAudioCommand
 from Sound import Sound
 from NextAdan import NextAdan
 from AdanTimePrepare import AdanTimePrepare
@@ -24,7 +26,6 @@ class AdanManagerSignals(QObject):
     pause_adan_signal = Signal()
     resume_adan_signal = Signal()
 
-    activate_emergency_timer_signal = Signal(int)
 
     possible_not_adan_time_signal = Signal()
 
@@ -53,9 +54,7 @@ class AdanManager():
 
     possible_not_adan_time_signal = adan_manager_signals.possible_not_adan_time_signal
 
-    activate_emergency_timer_signal = adan_manager_signals.activate_emergency_timer_signal
-
-    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label, emerg_frame, emerg_label, emerg_btn):
+    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label):
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
@@ -67,17 +66,9 @@ class AdanManager():
 
         self.time_formate = "%H:%M"
 
-        self.wich_is_playing = None
+        # self.wich_is_playing = None
 
         self.player_manager = player_manager
-
-        self.emerg_frame = emerg_frame
-        self.emerg_label = emerg_label
-        self.emerg_btn = emerg_btn
-        self.emerg_btn.clicked.connect(lambda: self.emergency_stop())
-
-        # self.fajer_sound_duration = 0
-        # self.basic_sound_duration = 0
 
         data = self.database_manager.get_adans_sound()
 
@@ -188,44 +179,22 @@ class AdanManager():
 
         return Adan(adan_name_label, adan_time, adan_time_label)
 
-    def emergency_stop(self):
-        if self.emerg_btn.isChecked():
-            # emit signal to pause adan
-            self.pause_adan_signal.emit()
-            self.emerg_label.setText("لاستكمال الأذان إضغط هنا ")
-        else:
-            # emit signal to resume adan
-            self.resume_adan_signal.emit()
-            self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
-
-    def emerg_frame_hide(self):
-        self.emerg_frame.hide()
-        self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
-
-        if self.emerg_btn.isChecked():
-            # emit signal to stop adan
-            self.force_stop_adan_signal.emit()
-
-        self.emerg_btn.setChecked(False)
-
     def set_not_adan_time(self):
         self.player_manager.set_is_adan_playing(False)
         self.next_adan.set_praper_for_adan_call(False)
 
     def start_adan(self, adan):
+        adan_sound = None
         if adan.get_adan_name() == "الفجر":
-            self.wich_is_playing = self.fajer_sound
+            adan_sound = self.fajer_sound
         else:
-            self.wich_is_playing = self.basic_sound
+            adan_sound = self.basic_sound
 
         if adan.check_state():
             # emit signal to player manager to play adan
-            self.play_adan_signal.emit(self.wich_is_playing.get_file_path())
-            # emergency frame show (pause/resume adan)
-            self.emerg_frame.show()
-            # send signal to msgManager to start counting
-            if self.mediator:
-                self.mediator.notify(self, "start_adan", 60)
+            self.play_adan_signal.emit(adan_sound.get_file_path())
+            command = PlayAudioCommand("AdanManager", adan_sound.get_file_path(), AudioPriority.HIGH)
+            self.player_manager.request_playback(command)
 
     def possible_fake_prepare_emitted(self):
         self.possible_not_adan_time_signal.emit()

@@ -93,7 +93,7 @@ class AppManager(QMainWindow):
         self.msg_manager = MsgManager(self.client_info_msg_frame, self.error_msg_label, self.info_msg_label, self.noti_msg_frame, self.noti_msg_label)
         self.mediator.register("MsgManager", self.msg_manager)
 
-        self.player_manager = PlayerManager(self)
+        self.player_manager = PlayerManager(self, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
         self.mediator.register("PlayerManager", self.player_manager)
   
 
@@ -103,7 +103,7 @@ class AppManager(QMainWindow):
         self.player_manager.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
 
-        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
 
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
@@ -116,14 +116,14 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.msg_manager.handle_time_update)
         
-        self.adan_manager.possible_not_adan_time_signal.connect(self.player_manager.possible_fake_prepare_emitted)
+        # self.adan_manager.possible_not_adan_time_signal.connect(self.player_manager.possible_fake_prepare_emitted)
     
         
         #  NEED TO BE CHECKED ------ TO BE COMPLETED ------
-        self.adan_manager.pause_adan_signal.connect(self.player_manager.pause_adan)
-        self.adan_manager.resume_adan_signal.connect(self.player_manager.resume_adan)
-        self.adan_manager.play_adan_signal.connect(self.player_manager.play_adan)
-        self.adan_manager.force_stop_adan_signal.connect(self.player_manager.force_stop_adan)
+        # self.adan_manager.pause_adan_signal.connect(self.player_manager.pause_adan)
+        # self.adan_manager.resume_adan_signal.connect(self.player_manager.resume_adan)
+        # self.adan_manager.play_adan_signal.connect(self.player_manager.play_adan)
+        # self.adan_manager.force_stop_adan_signal.connect(self.player_manager.force_stop_adan)
         #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
         
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
@@ -132,19 +132,19 @@ class AppManager(QMainWindow):
 
         # WE ARE HERE ---------------- ------------------
 
-        self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
+        # self.adan_manager.prepare_for_adan_signal.connect(self.player_manager.prepare_for_adan)
 
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
         
         self.instant_player.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         self.player_manager.force_stop_instant_player.connect(self.instant_player.stop)
-        self.instant_player.finished_signal.connect(self.player_manager.handle_instant_finished_signal)
+        # self.instant_player.finished_signal.connect(self.player_manager.handle_instant_finished_signal)
         self.player_manager.play_instant_player.connect(self.instant_player.play)
-        self.instant_player.can_I_play.connect(self.player_manager.can_instant_player_play)
+        # self.instant_player.can_I_play.connect(self.player_manager.can_instant_player_play)
 
 
         self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
-        self.notification_manager.force_stop_signal.connect(self.player_manager.force_stop_notification)
+        # self.notification_manager.force_stop_signal.connect(self.player_manager.force_stop_notification)
         self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
         self.notification_manager.show_msg_signal.connect(self.msg_manager.show_noti_page_msg)
 
@@ -154,7 +154,7 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
 
-        self.notification_manager.can_noti_play.connect(self.player_manager.can_noti_play)
+        # self.notification_manager.can_noti_play.connect(self.player_manager.can_noti_play)
         
         self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
         
