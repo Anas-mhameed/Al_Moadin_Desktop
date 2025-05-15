@@ -10,10 +10,10 @@ from PySide6.QtMultimediaWidgets import QVideoWidget  # Needed to keep audio bac
 from PySide6.QtCore import QUrl
 
 class PlayerManagersignals(QObject):
-    play_instant_player_signal = Signal()
-    force_stop_instant_player_signal = Signal()
+    # play_instant_player_signal = Signal()
+    # force_stop_instant_player_signal = Signal()
 
-    show_msg_signal = Signal(str, str, int)
+    # show_msg_signal = Signal(str, str, int)
 
 
     open_mic_signal = Signal()
@@ -22,9 +22,9 @@ class PlayerManagersignals(QObject):
 class PlayerManager:
 
     player_manager_signals = PlayerManagersignals()
-    play_instant_player = player_manager_signals.play_instant_player_signal
-    force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
-    show_msg_signal = player_manager_signals.show_msg_signal
+    # play_instant_player = player_manager_signals.play_instant_player_signal
+    # force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
+    # show_msg_signal = player_manager_signals.show_msg_signal
     
     open_mic_signal = player_manager_signals.open_mic_signal
     close_mic_signal = player_manager_signals.close_mic_signal
@@ -61,13 +61,16 @@ class PlayerManager:
 
     def on_state_changed(self, state):
         if state == QMediaPlayer.PausedState:
-            self.cleanup_timer.start()
-        elif state == QMediaPlayer.PlayingState:
-            if self.cleanup_timer.isActive():
-                self.cleanup_timer.stop()
-        elif state == QMediaPlayer.StoppedState:
-            self.cleanup_timer.stop()
             if self.current_command.requester == "AdanManager":
+                self.cleanup_timer.start()
+
+        elif state == QMediaPlayer.PlayingState:
+            if self.current_command.requester == "AdanManager" and self.cleanup_timer.isActive():
+                self.cleanup_timer.stop()
+
+        elif state == QMediaPlayer.StoppedState:
+            if self.current_command.requester == "AdanManager":
+                self.cleanup_timer.stop()
                 self._hide_emerg_frame()
             self._clear_command()
 
@@ -107,17 +110,11 @@ class PlayerManager:
             self._play(command) 
             self._show_emerg_frame()
         else:
-            if not self.is_adan_near:
-
-                if command.requester == "InstantPlayer":
-                    
-                    if self.current_command is None or self.current_command.requester == "NotificationsManager" or self.current_command.requester == "InstantPlayer":
-                        self._play(command)
-                    
-                    elif self.current_command.requester == "AdanManager":
-                        # show an error message
-                        pass
-
+            if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
+                self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
+            else :
+                self._play(command)
+                
     def isPlaying(self):
         return self.player.isPlaying()
     

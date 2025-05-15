@@ -100,7 +100,6 @@ class AppManager(QMainWindow):
         #  NEED TO BE CHECKED ------ TO BE COMPLETED ------
         self.player_manager.open_mic_signal.connect(lambda: self.zigbee_controller.run(True))
         self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
-        self.player_manager.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
         #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
 
         self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
@@ -113,22 +112,17 @@ class AppManager(QMainWindow):
 
         self.time_manager.get_time_formate()
         
-
-        self.time_manager.connect_to_time_updated_signal(self.msg_manager.handle_time_update)
-        
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
         self.adan_manager.request_settings()
 
         # WE ARE HERE ---------------- ------------------
 
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
-        self.instant_player.show_msg_signal.connect(self.msg_manager.show_main_page_msg)
 
 
         self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
         # self.notification_manager.force_stop_signal.connect(self.player_manager.force_stop_notification)
         self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
-        self.notification_manager.show_msg_signal.connect(self.msg_manager.show_noti_page_msg)
 
         self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
         self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)

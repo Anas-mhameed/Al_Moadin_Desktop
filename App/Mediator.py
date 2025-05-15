@@ -53,4 +53,6 @@ class Mediator:
         
         elif event == "current_adan_changed_to_previous":
             self.components["PlayerManager"].current_adan_changed_to_previous()
-            
+        
+        elif event == "cant_play_audio":
+            self.components["MsgManager"].show_auto_close_error(args[0], args[1])
