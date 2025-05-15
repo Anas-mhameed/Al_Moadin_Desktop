@@ -95,11 +95,11 @@ class AdanManager():
 
         self.next_adan = NextAdan(self.adans, next_adan_label, remaining_time_label)
         self.next_adan.update_adan_times_signal.connect(self.handle_new_day)
-        self.next_adan.possible_not_adan_time_signal.connect(self.possible_fake_prepare_emitted)
+        # self.next_adan.possible_not_adan_time_signal.connect(self.possible_fake_prepare_emitted)
         self.find_next_adan_signal.connect(self.next_adan.intiate_next_adan)
 
         self.next_adan.adan_time_signal.connect(self.start_adan)
-        self.next_adan.prepare_for_adan_signal.connect(self.prepare_for_adan)
+        # self.next_adan.prepare_for_adan_signal.connect(self.prepare_for_adan)
         self.next_adan.force_stop_adan.connect(self.force_stop_adan)
 
         self.update_ui()
@@ -124,6 +124,7 @@ class AdanManager():
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
+        self.next_adan.set_mediator(mediator)
 
     def force_stop_adan(self):
         self.force_stop_adan_signal.emit()
@@ -196,15 +197,15 @@ class AdanManager():
             command = PlayAudioCommand("AdanManager", adan_sound.get_file_path())
             self.player_manager.request_playback(command)
 
-    def possible_fake_prepare_emitted(self):
-        self.possible_not_adan_time_signal.emit()
+    # def possible_fake_prepare_emitted(self):
+    #     self.possible_not_adan_time_signal.emit()
+
+    # def prepare_for_adan(self):
+    #     self.prepare_for_adan_signal.emit()
 
     def get_next_adan_sound(self):
         name = self.next_adan.get_next_adan_name()
         return self.fajer_sound if name == "الفجر" else self.basic_sound
-
-    def prepare_for_adan(self):
-        self.prepare_for_adan_signal.emit()
 
     def change_fajer_sound(self, widget):
 

@@ -32,6 +32,8 @@ class NextAdan() :
 
         self.prepare_adan_signal_emitted = False
 
+        self.mediator = None
+
         self.curr_time = dt.datetime.now()
         self.curr_day = self.curr_time.strftime('%A')
 
@@ -117,27 +119,28 @@ class NextAdan() :
 
             return (remaining_time == zero_timedelta)
         
-
     def update_curr_time(self, new_curr_time):
         self.curr_time = new_curr_time
 
     def find_next_adan(self):
         self.next_adan = self.five_prayers[self.adan_index]
 
-    def handle_time_updated(self, curr_time):
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
 
+    def handle_time_updated(self, curr_time):
 
         self.update_curr_time(curr_time)
 
         if self.next_adan == None:
             self.intiate_next_adan()
 
-        if self.previous_adan:
-            if self.previous_adan == self.next_adan.get_adan_name():
+        if self.previous_adan and self.previous_adan == self.next_adan.get_adan_name():
 
-                self.previous_adan = self.five_prayers[(self.adan_index - 1) % 5 ].get_adan_name()
-                # emit signal to stop adan
-                self.force_stop_adan.emit()
+            self.previous_adan = self.five_prayers[(self.adan_index - 1) % 5 ].get_adan_name()
+
+            self.mediator.notify("NextAdan", "current_adan_changed_to_previous")
 
         self.calc_remaining_time()
 
@@ -151,15 +154,12 @@ class NextAdan() :
             self.intiate_next_adan()
             self.find_next_adan()
 
-            self.prepare_adan_signal_emitted = False
-
-
         elif self.compare_with_timedelta(0, 30) and not self.prepare_adan_signal_emitted:
-            #  emit prepare for adan signal
-            self.prepare_for_adan_signal.emit()
+            print("PREPARE EVENT SENT")
+            self.mediator.notify("NextAdan", "prepare_for_adan")
             self.prepare_adan_signal_emitted = True
         
         elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
-            
-            self.possible_not_adan_time_signal.emit()
+            print("ALLOW PLAYBACK EVENT SENT")
+            self.mediator.notify("NextAdan", "allow_playback")
             self.prepare_adan_signal_emitted = False 

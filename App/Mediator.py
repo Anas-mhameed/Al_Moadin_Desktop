@@ -38,13 +38,19 @@ class Mediator:
         elif event == "request_time_formate":
             self.components["GeneralSettings"].set_time_formate()
         
-        # elif event == "emergency_frame_timer_expired":
-        #     self.components["AdanManager"].emerg_frame_hide()
-
+        elif event == "prepare_for_adan":
+            self.components["PlayerManager"].prepare_for_adan()
+        
+        elif event == "allow_playback":
+            self.components["PlayerManager"].allow_playback()
+        
         elif event == "start_adan":
             self.components["MsgManager"].activate_emergency_frame_timer(args[0])
         
         elif event == "new_day_event":
             self.components["AdanManager"].handle_new_day(args[0])
             self.components["AdanManager"].handle_new_jomoaa()
+        
+        elif event == "current_adan_changed_to_previous":
+            self.components["PlayerManager"].current_adan_changed_to_previous()
             
