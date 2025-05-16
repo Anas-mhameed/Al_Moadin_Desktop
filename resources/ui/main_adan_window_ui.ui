@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1441</width>
-    <height>1168</height>
+    <width>1447</width>
+    <height>1184</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2484,53 +2484,30 @@ background-color: rgb(8, 148, 108);
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QPushButton" name="adansSoundButton">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>821</width>
-                          <height>45</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>941</width>
-                          <height>55</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Microsoft Uighur</family>
-                          <pointsize>22</pointsize>
-                          <weight>75</weight>
-                          <bold>true</bold>
-                         </font>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">QPushButton{
-border-radius: 10px;
-color: black;
-border: 3px solid black;
-background-color: rgb(255,255,255);
-}
-
-QPushButton:hover{
-background-color: rgb(53, 53, 53);
-color:white;
-}
-
-</string>
-                        </property>
+                       <widget class="QPushButton" name="pushButton_4">
                         <property name="text">
-                         <string>صوت الاذان</string>
+                         <string>PushButton</string>
                         </property>
-                        <property name="checkable">
-                         <bool>true</bool>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_3">
+                        <property name="text">
+                         <string>PushButton</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_2">
+                        <property name="text">
+                         <string>PushButton</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton">
+                        <property name="text">
+                         <string>PushButton</string>
                         </property>
                        </widget>
                       </item>
@@ -3441,7 +3418,7 @@ border:2px solid black;
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>137</width>
+                    <width>119</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -3706,8 +3683,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>100</width>
-                     <height>29</height>
+                     <width>1036</width>
+                     <height>381</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -5770,7 +5747,7 @@ QSpinBox::down-button:hover{
                              <widget class="QComboBox" name="before_adan_box">
                               <property name="minimumSize">
                                <size>
-                                <width>137</width>
+                                <width>119</width>
                                 <height>60</height>
                                </size>
                               </property>
@@ -6112,7 +6089,7 @@ QSpinBox::down-button:hover{
                              <widget class="QComboBox" name="after_adan_box">
                               <property name="minimumSize">
                                <size>
-                                <width>137</width>
+                                <width>119</width>
                                 <height>60</height>
                                </size>
                               </property>
@@ -6384,37 +6361,6 @@ QSpinBox::down-button:hover{
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QFrame" name="noti_msg_frame">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_37">
-                <item>
-                 <widget class="QLabel" name="noti_msg_label">
-                  <property name="font">
-                   <font>
-                    <family>Calibri</family>
-                    <pointsize>14</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color:rgb(213, 33, 10);</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
               </widget>
              </item>
              <item>

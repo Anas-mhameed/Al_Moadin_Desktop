@@ -90,7 +90,7 @@ class AppManager(QMainWindow):
         
         self.intiate_adans_state_button()
 
-        self.msg_manager = MsgManager(self.client_info_msg_frame, self.error_msg_label, self.info_msg_label, self.noti_msg_frame, self.noti_msg_label)
+        self.msg_manager = MsgManager()
         self.mediator.register("MsgManager", self.msg_manager)
 
         self.player_manager = PlayerManager(self, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
@@ -115,31 +115,25 @@ class AppManager(QMainWindow):
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
         self.adan_manager.request_settings()
 
-        # WE ARE HERE ---------------- ------------------
-
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
 
-
         self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
-        # self.notification_manager.force_stop_signal.connect(self.player_manager.force_stop_notification)
-        self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
+        
+        self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
 
+
+        # Here -----------------------------------------
         self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
         self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)
         self.adan_manager.set_sounds_source()
 
-        self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
-
-        # self.notification_manager.can_noti_play.connect(self.player_manager.can_noti_play)
-        
         self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
-        
-        self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
-        
-        def temp():
-            self.notification_manager.force_stop_signal.emit()
 
-        self.stop_notification_button.clicked.connect(temp)
+        #  ---------------------------------------------
+
+        self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
+        self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
+        self.stop_notification_button.clicked.connect(lambda: self.player_manager.stop_notification())
 
         self.start()
 
@@ -225,8 +219,8 @@ class AppManager(QMainWindow):
         self.noti_sort_box.setFont(kufi_font_18)
         self.noti_sort_box.view().setFont(kufi_font_18)
 
-        self.noti_msg_label = self.ui.findChild(QLabel, "noti_msg_label")
-        self.noti_msg_frame = self.ui.findChild(QFrame, "noti_msg_frame")
+        # self.noti_msg_label = self.ui.findChild(QLabel, "noti_msg_label")
+        # self.noti_msg_frame = self.ui.findChild(QFrame, "noti_msg_frame")
 
         self.create_noti_button = self.ui.findChild(QPushButton, "new_notification_buttton")
         self.create_noti_button.setFont(tajawal_bold_font_16)
@@ -301,14 +295,14 @@ class AppManager(QMainWindow):
         self.choose_notification_sound.clicked.connect(lambda : self.notification_manager.choose_sound(self))
         self.save_notification.clicked.connect(lambda: self.save_notification_handler())
 
-        self.client_info_msg_frame = self.ui.findChild(QFrame, "client_info_msg_frame")
-        self.client_info_msg_frame.hide()
+        # self.client_info_msg_frame = self.ui.findChild(QFrame, "client_info_msg_frame")
+        # self.client_info_msg_frame.hide()
 
-        self.error_msg_label = self.ui.findChild(QLabel, "error_msg_label")
-        self.info_msg_label = self.ui.findChild(QLabel, "info_msg_label")
+        # self.error_msg_label = self.ui.findChild(QLabel, "error_msg_label")
+        # self.info_msg_label = self.ui.findChild(QLabel, "info_msg_label")
 
-        self.error_msg_label.setFont(merhay_font_14)
-        self.info_msg_label.setFont(merhay_font_14)
+        # self.error_msg_label.setFont(merhay_font_14)
+        # self.info_msg_label.setFont(merhay_font_14)
 
 
         self.instant_player_play_button = self.ui.findChild(QPushButton,"instant_player_play_button")
@@ -349,13 +343,13 @@ class AppManager(QMainWindow):
         # preparing the AdanManager components
         self.adansSoundButtons = []
 
-        adans_sound_button = self.ui.findChild(QPushButton, "adansSoundButton")
+        # adans_sound_button = self.ui.findChild(QPushButton, "adansSoundButton")
         fajer_sound_button = self.ui.findChild(QPushButton, "fajerSoundButton")
         
-        adans_sound_button.setFont(tajawal_bold_font_18)
+        # adans_sound_button.setFont(tajawal_bold_font_18)
         fajer_sound_button.setFont(tajawal_bold_font_18)
 
-        self.adansSoundButtons.append(adans_sound_button)
+        # self.adansSoundButtons.append(adans_sound_button)
         self.adansSoundButtons.append(fajer_sound_button)
 
 
@@ -568,6 +562,7 @@ class AppManager(QMainWindow):
         self.duration_spinbox.setValue(0)
         self.set_curr_date_time(QDate.currentDate())
 
+    
     def cancel_noti_handle(self):
         self.change_page(1)
         self.reset_all_noti_data()
