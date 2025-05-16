@@ -1,3 +1,4 @@
+from enum import Enum
 from PySide6.QtWidgets import QFileDialog 
 
 def select_sound_file(widget):
@@ -7,3 +8,10 @@ def select_sound_file(widget):
             file_paths = file_dialog.selectedFiles()
             if file_paths:
                 return file_paths[0]
+
+class AdanIndex(Enum):
+    FAJER = 1
+    DOHOR = 2
+    ASER = 3
+    MAGRIB = 4
+    ISHAA = 5
