@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1447</width>
-    <height>1184</height>
+    <width>1391</width>
+    <height>1199</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -610,7 +610,7 @@ background-color: rgb(255, 255, 255);
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="spacing">
-           <number>0</number>
+           <number>15</number>
           </property>
           <property name="leftMargin">
            <number>0</number>
@@ -1596,25 +1596,122 @@ color: rgb(8, 148, 108);}
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame_23">
+           <widget class="QWidget" name="emergency_stop_widget" native="true">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_27">
+             <property name="spacing">
+              <number>15</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_25">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="emergency_stop_button">
+               <property name="minimumSize">
+                <size>
+                 <width>46</width>
+                 <height>46</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>46</width>
+                 <height>46</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+background-color:rgb(213, 33, 10);
+border-radius: 23px;
+border: none;
+}
+
+QPushButton:hover{
+background-color: rgb(200, 28, 9);
+}
+
+QPushButton:checked{
+	background-color: rgb(8, 185, 123);
+	background-color: rgb(6, 235, 102);
+}</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../resource_file.qrc">
+                 <normaloff>:/newPrefix/images/power_3039519.png</normaloff>:/newPrefix/images/power_3039519.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>46</width>
+                 <height>46</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="emergency_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Calibri</family>
+                 <pointsize>22</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QWidget{
+color: rgb(193, 18, 51);
+}</string>
+               </property>
+               <property name="text">
+                <string>لإيقاف الأذان إضغط هنا</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_26">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -1651,22 +1748,6 @@ color: rgb(8, 148, 108);}
               <number>0</number>
              </property>
              <item>
-              <spacer name="horizontalSpacer_18">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>140</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
               <widget class="QFrame" name="adans_frame">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -1702,125 +1783,6 @@ color: rgb(8, 148, 108);}
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
-                <item>
-                 <widget class="QWidget" name="emergency_stop_widget" native="true">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_27">
-                   <property name="spacing">
-                    <number>15</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <spacer name="horizontalSpacer_25">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="emergency_stop_button">
-                     <property name="minimumSize">
-                      <size>
-                       <width>46</width>
-                       <height>46</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>46</width>
-                       <height>46</height>
-                      </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">QPushButton{
-background-color:rgb(213, 33, 10);
-border-radius: 23px;
-border: none;
-}
-
-QPushButton:hover{
-background-color: rgb(200, 28, 9);
-}
-
-QPushButton:checked{
-	background-color: rgb(8, 185, 123);
-	background-color: rgb(6, 235, 102);
-}</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resource_file.qrc">
-                       <normaloff>:/newPrefix/images/power_3039519.png</normaloff>:/newPrefix/images/power_3039519.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>46</width>
-                       <height>46</height>
-                      </size>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="emergency_label">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Calibri</family>
-                       <pointsize>22</pointsize>
-                      </font>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">QWidget{
-color: rgb(193, 18, 51);
-}</string>
-                     </property>
-                     <property name="text">
-                      <string>لإيقاف الأذان إضغط هنا</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_26">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
                 <item>
                  <widget class="QWidget" name="widget" native="true">
                   <property name="sizePolicy">
@@ -1911,7 +1873,7 @@ background-color: rgb(8, 148, 108);
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QWidget" name="ishaaWidget" native="true">
+                       <widget class="QFrame" name="frame_43">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -1920,442 +1882,24 @@ background-color: rgb(8, 148, 108);
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>200</width>
-                          <height>150</height>
+                          <width>0</width>
+                          <height>0</height>
                          </size>
                         </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>250</width>
-                          <height>200</height>
-                         </size>
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
                         </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_9">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="ishaa_label">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Microsoft Uighur</family>
-                             <pointsize>39</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>العشاء</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="ishaa_adan_time">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Bahnschrift</family>
-                             <pointsize>24</pointsize>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>00:00 AM</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="ishaa_activate_button">
-                           <property name="font">
-                            <font>
-                             <family>Calibri</family>
-                             <pointsize>15</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>تفعيل الاذان</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QWidget" name="magrebWidget" native="true">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
                         </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>200</width>
-                          <height>150</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>250</width>
-                          <height>200</height>
-                         </size>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true"/>
-                        </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_8">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="magreb_label">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Microsoft Uighur</family>
-                             <pointsize>39</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>المغرب</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="magreb_adan_time">
-                           <property name="font">
-                            <font>
-                             <family>Baskerville Old Face</family>
-                             <pointsize>24</pointsize>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>00:00 AM</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="magreb_activate_button">
-                           <property name="font">
-                            <font>
-                             <family>Calibri</family>
-                             <pointsize>15</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>تفعيل الاذان</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QWidget" name="aserWidget" native="true">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>200</width>
-                          <height>150</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>250</width>
-                          <height>200</height>
-                         </size>
-                        </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_7">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="aser_label">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Microsoft Uighur</family>
-                             <pointsize>39</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>العصر</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="aser_adan_time">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Bahnschrift</family>
-                             <pointsize>24</pointsize>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>00:00 AM</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="aser_activate_button">
-                           <property name="font">
-                            <font>
-                             <family>Calibri</family>
-                             <pointsize>15</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>تفعيل الاذان</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QWidget" name="dohorWidget" native="true">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>200</width>
-                          <height>150</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>250</width>
-                          <height>200</height>
-                         </size>
-                        </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_6">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="dohor_label">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Microsoft Uighur</family>
-                             <pointsize>39</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>الظهر</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="dohor_adan_time">
-                           <property name="font">
-                            <font>
-                             <family>Bahnschrift</family>
-                             <pointsize>24</pointsize>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>00:00 AM</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="dohor_activate_button">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Calibri</family>
-                             <pointsize>15</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true"/>
-                           </property>
-                           <property name="text">
-                            <string>تفعيل الاذان</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                           <property name="autoDefault">
-                            <bool>false</bool>
-                           </property>
-                           <property name="default">
-                            <bool>false</bool>
-                           </property>
-                           <property name="flat">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QWidget" name="fajerWidget" native="true">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>200</width>
-                          <height>150</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>250</width>
-                          <height>200</height>
-                         </size>
-                        </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_5">
+                        <layout class="QVBoxLayout" name="verticalLayout_41">
                          <property name="spacing">
-                          <number>7</number>
+                          <number>5</number>
                          </property>
                          <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
                           <number>0</number>
                          </property>
                          <property name="rightMargin">
@@ -2365,9 +1909,164 @@ background-color: rgb(8, 148, 108);
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QLabel" name="fajer_label">
+                          <widget class="QWidget" name="ishaaWidget" native="true">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>250</width>
+                             <height>200</height>
+                            </size>
+                           </property>
+                           <layout class="QVBoxLayout" name="verticalLayout_9">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="ishaa_label">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Microsoft Uighur</family>
+                                <pointsize>39</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>العشاء</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="ishaa_adan_time">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Bahnschrift</family>
+                                <pointsize>24</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>00:00 AM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="ishaa_activate_button">
+                              <property name="font">
+                               <font>
+                                <family>Calibri</family>
+                                <pointsize>15</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>تفعيل الاذان</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSlider" name="horizontalSlider">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 2px; /* Set the line thickness */
+    background: #d9d9d9;
+    margin: 0px 0;
+}
+
+QSlider::handle:horizontal {
+    background: black;
+    border: 1px solid #5c5c5c;
+    width: 16px;
+    height: 16px;
+    margin: -7px 0; /* Adjusted to vertically center the handle on the thinner groove */
+    border-radius: 8px; /* Circular handle */
+}
+
+QSlider::add-page:horizontal {
+    background: #d9d9d9;
+}
+
+QSlider::sub-page:horizontal {
+    background: black;
+}
+</string>
+                           </property>
+                           <property name="maximum">
+                            <number>100</number>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="invertedAppearance">
+                            <bool>false</bool>
+                           </property>
+                           <property name="invertedControls">
+                            <bool>false</bool>
+                           </property>
+                           <property name="tickPosition">
+                            <enum>QSlider::NoTicks</enum>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="ishaaSoundButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -2375,172 +2074,13 @@ background-color: rgb(8, 148, 108);
                            <property name="font">
                             <font>
                              <family>Microsoft Uighur</family>
-                             <pointsize>39</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>الفجر</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="fajer_adan_time">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Bahnschrift</family>
-                             <pointsize>24</pointsize>
-                            </font>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">color:black;</string>
-                           </property>
-                           <property name="text">
-                            <string>00:00 AM</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="fajer_activate_button">
-                           <property name="font">
-                            <font>
-                             <family>Calibri</family>
-                             <pointsize>15</pointsize>
+                             <pointsize>22</pointsize>
                              <weight>75</weight>
                              <bold>true</bold>
                             </font>
                            </property>
-                           <property name="text">
-                            <string>تفعيل الاذان</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_17">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>45</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>55</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::NoFrame</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_33">
-                      <property name="spacing">
-                       <number>7</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_4">
-                        <property name="text">
-                         <string>PushButton</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_3">
-                        <property name="text">
-                         <string>PushButton</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_2">
-                        <property name="text">
-                         <string>PushButton</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton">
-                        <property name="text">
-                         <string>PushButton</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="fajerSoundButton">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>200</width>
-                          <height>45</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>230</width>
-                          <height>55</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Microsoft Uighur</family>
-                          <pointsize>22</pointsize>
-                          <weight>75</weight>
-                          <bold>true</bold>
-                         </font>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">QPushButton{
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton{
 border-radius: 10px;
 color: black;
 border: 3px solid black;
@@ -2553,38 +2093,919 @@ color:white;
 }
 
 </string>
+                           </property>
+                           <property name="text">
+                            <string>صوت اذان العشاء</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_42">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
                         </property>
-                        <property name="text">
-                         <string>صوت اذان الفجر</string>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
                         </property>
-                        <property name="checkable">
-                         <bool>true</bool>
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
                         </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_40">
+                         <property name="spacing">
+                          <number>5</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QWidget" name="magrebWidget" native="true">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>250</width>
+                             <height>200</height>
+                            </size>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true"/>
+                           </property>
+                           <layout class="QVBoxLayout" name="verticalLayout_8">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="magreb_label">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Microsoft Uighur</family>
+                                <pointsize>39</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>المغرب</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="magreb_adan_time">
+                              <property name="font">
+                               <font>
+                                <family>Bahnschrift</family>
+                                <pointsize>24</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>00:00 AM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="magreb_activate_button">
+                              <property name="font">
+                               <font>
+                                <family>Calibri</family>
+                                <pointsize>15</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>تفعيل الاذان</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSlider" name="horizontalSlider_2">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 2px; /* Set the line thickness */
+    background: #d9d9d9;
+    margin: 0px 0;
+}
+
+QSlider::handle:horizontal {
+    background: black;
+    border: 1px solid #5c5c5c;
+    width: 16px;
+    height: 16px;
+    margin: -7px 0; /* Adjusted to vertically center the handle on the thinner groove */
+    border-radius: 8px; /* Circular handle */
+}
+
+QSlider::add-page:horizontal {
+    background: #d9d9d9;
+}
+
+QSlider::sub-page:horizontal {
+    background: black;
+}
+</string>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="magribSoundButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Microsoft Uighur</family>
+                             <pointsize>22</pointsize>
+                             <weight>75</weight>
+                             <bold>true</bold>
+                            </font>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton{
+border-radius: 10px;
+color: black;
+border: 3px solid black;
+background-color: rgb(255,255,255);
+}
+
+QPushButton:hover{
+background-color: rgb(53, 53, 53);
+color:white;
+}
+
+</string>
+                           </property>
+                           <property name="text">
+                            <string>صوت اذان المغرب</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_41">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_39">
+                         <property name="spacing">
+                          <number>5</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QWidget" name="aserWidget" native="true">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>250</width>
+                             <height>200</height>
+                            </size>
+                           </property>
+                           <layout class="QVBoxLayout" name="verticalLayout_7">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="aser_label">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Microsoft Uighur</family>
+                                <pointsize>39</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>العصر</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="aser_adan_time">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Bahnschrift</family>
+                                <pointsize>24</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>00:00 AM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="aser_activate_button">
+                              <property name="font">
+                               <font>
+                                <family>Calibri</family>
+                                <pointsize>15</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>تفعيل الاذان</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSlider" name="horizontalSlider_3">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 2px; /* Set the line thickness */
+    background: #d9d9d9;
+    margin: 0px 0;
+}
+
+QSlider::handle:horizontal {
+    background: black;
+    border: 1px solid #5c5c5c;
+    width: 16px;
+    height: 16px;
+    margin: -7px 0; /* Adjusted to vertically center the handle on the thinner groove */
+    border-radius: 8px; /* Circular handle */
+}
+
+QSlider::add-page:horizontal {
+    background: #d9d9d9;
+}
+
+QSlider::sub-page:horizontal {
+    background: black;
+}
+</string>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="aserSoundButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Microsoft Uighur</family>
+                             <pointsize>22</pointsize>
+                             <weight>75</weight>
+                             <bold>true</bold>
+                            </font>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton{
+border-radius: 10px;
+color: black;
+border: 3px solid black;
+background-color: rgb(255,255,255);
+}
+
+QPushButton:hover{
+background-color: rgb(53, 53, 53);
+color:white;
+}
+
+</string>
+                           </property>
+                           <property name="text">
+                            <string>صوت اذان العصر</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_29">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_37">
+                         <property name="spacing">
+                          <number>5</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QWidget" name="dohorWidget" native="true">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>250</width>
+                             <height>200</height>
+                            </size>
+                           </property>
+                           <layout class="QVBoxLayout" name="verticalLayout_6">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="dohor_label">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Microsoft Uighur</family>
+                                <pointsize>39</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>الظهر</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="dohor_adan_time">
+                              <property name="font">
+                               <font>
+                                <family>Bahnschrift</family>
+                                <pointsize>24</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>00:00 AM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="dohor_activate_button">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Calibri</family>
+                                <pointsize>15</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true"/>
+                              </property>
+                              <property name="text">
+                               <string>تفعيل الاذان</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                              <property name="autoDefault">
+                               <bool>false</bool>
+                              </property>
+                              <property name="default">
+                               <bool>false</bool>
+                              </property>
+                              <property name="flat">
+                               <bool>false</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSlider" name="horizontalSlider_4">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 2px; /* Set the line thickness */
+    background: #d9d9d9;
+    margin: 0px 0;
+}
+
+QSlider::handle:horizontal {
+    background: black;
+    border: 1px solid #5c5c5c;
+    width: 16px;
+    height: 16px;
+    margin: -7px 0; /* Adjusted to vertically center the handle on the thinner groove */
+    border-radius: 8px; /* Circular handle */
+}
+
+QSlider::add-page:horizontal {
+    background: #d9d9d9;
+}
+
+QSlider::sub-page:horizontal {
+    background: black;
+}
+</string>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="dohorSoundButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Microsoft Uighur</family>
+                             <pointsize>22</pointsize>
+                             <weight>75</weight>
+                             <bold>true</bold>
+                            </font>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton{
+border-radius: 10px;
+color: black;
+border: 3px solid black;
+background-color: rgb(255,255,255);
+}
+
+QPushButton:hover{
+background-color: rgb(53, 53, 53);
+color:white;
+}
+
+</string>
+                           </property>
+                           <property name="text">
+                            <string>صوت اذان الظهر</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_15">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_33">
+                         <property name="spacing">
+                          <number>5</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QWidget" name="fajerWidget" native="true">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>250</width>
+                             <height>200</height>
+                            </size>
+                           </property>
+                           <layout class="QVBoxLayout" name="verticalLayout_5">
+                            <property name="spacing">
+                             <number>7</number>
+                            </property>
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>11</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QLabel" name="fajer_label">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Microsoft Uighur</family>
+                                <pointsize>39</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>الفجر</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="fajer_adan_time">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <family>Bahnschrift</family>
+                                <pointsize>24</pointsize>
+                               </font>
+                              </property>
+                              <property name="styleSheet">
+                               <string notr="true">color:black;</string>
+                              </property>
+                              <property name="text">
+                               <string>00:00 AM</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="fajer_activate_button">
+                              <property name="font">
+                               <font>
+                                <family>Calibri</family>
+                                <pointsize>15</pointsize>
+                                <weight>75</weight>
+                                <bold>true</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>تفعيل الاذان</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QSlider" name="horizontalSlider_5">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 2px; /* Set the line thickness */
+    background: #d9d9d9;
+    margin: 0px 0;
+}
+
+QSlider::handle:horizontal {
+    background: black;
+    border: 1px solid #5c5c5c;
+    width: 16px;
+    height: 16px;
+    margin: -7px 0; /* Adjusted to vertically center the handle on the thinner groove */
+    border-radius: 8px; /* Circular handle */
+}
+
+QSlider::add-page:horizontal {
+    background: #d9d9d9;
+}
+
+QSlider::sub-page:horizontal {
+    background: black;
+}
+</string>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="fajerSoundButton">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Microsoft Uighur</family>
+                             <pointsize>22</pointsize>
+                             <weight>75</weight>
+                             <bold>true</bold>
+                            </font>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">QPushButton{
+border-radius: 10px;
+color: black;
+border: 3px solid black;
+background-color: rgb(255,255,255);
+}
+
+QPushButton:hover{
+background-color: rgb(53, 53, 53);
+color:white;
+}
+
+</string>
+                           </property>
+                           <property name="text">
+                            <string>صوت اذان الفجر</string>
+                           </property>
+                           <property name="checkable">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
                      </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_22">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>100</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::NoFrame</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
                     </widget>
                    </item>
                   </layout>
@@ -2966,22 +3387,6 @@ background-color: rgb(235, 33, 11);
                 </item>
                </layout>
               </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_17">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>140</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </widget>
