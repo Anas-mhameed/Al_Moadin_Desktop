@@ -112,7 +112,7 @@ class DatabaseManager:
 
     def initialize_adans_sound(self):
         
-        data = [("fajer_adan", "resources/sounds/azan2.mp3"), ("dohor_adan", "resources/sounds/azan9.mp3"), ("aser_adan", "resources/sounds/azan9.mp3"), ("magrib_adan", "resources/sounds/azan9.mp3"), ("ishaa_adan", "resources/sounds/azan9.mp3") ]
+        data = [("fajer_adan", "resources/sounds/azan2.mp3"), ("dohor_adan", "resources/sounds/azan9.mp3"), ("aser_adan", "resources/sounds/azan9.mp3"), ("magreb_adan", "resources/sounds/azan9.mp3"), ("ishaa_adan", "resources/sounds/azan9.mp3") ]
         
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()

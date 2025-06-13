@@ -34,6 +34,7 @@ class Adan:
     # Sound-related methods
     def set_sound_path(self, path):
         self.sound_path = path
+        print(self.sound_path)
         
     def get_sound_path(self):
         return self.sound_path

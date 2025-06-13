@@ -128,6 +128,8 @@ class PlayerManager:
         self.current_command = command
         url = QUrl.fromLocalFile(command.file_path)
         
+        print(url)
+
         # Set the volume from the command
         volume = command.volume / 100.0  # Convert percentage to 0-1 range
         self.audio_output.setVolume(volume)

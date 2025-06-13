@@ -85,7 +85,8 @@ class AdanManager():
         # self.fajer_sound.track_media_duration(self.fajer_duration_changed)
 
         for button in adans_sound_buttons:
-            button.clicked.connect(lambda: self.change_adan_sound(button.objectName()))
+            button_name = button.objectName()
+            button.clicked.connect(lambda checked=False, btn_name=button_name: self.change_adan_sound(btn_name))
 
 
         self.adans = []
@@ -125,7 +126,7 @@ class AdanManager():
         self.mediator = mediator
         self.next_adan.set_mediator(mediator)
 
-    def calc_audio_duration(self, file_path, adan_name):
+    def calc_audio_duration(self, file_path, adan_index):
         temp_player = QMediaPlayer()
         audio_output = QAudioOutput()
         temp_player.setAudioOutput(audio_output)
@@ -136,7 +137,8 @@ class AdanManager():
                 temp_player.deleteLater()
                 audio_output.deleteLater()
 
-                self.mediator.notify(self, "audio_duration_changed", duration, adan_name)
+                # Now adan_index is already an integer (1-5)
+                self.mediator.notify(self, "audio_duration_changed", duration, adan_index)
 
         temp_player.durationChanged.connect(on_duration_changed)
         temp_player.setSource(QUrl.fromLocalFile(file_path))
@@ -241,16 +243,18 @@ class AdanManager():
             return
         
         path = resource_path(file_path)
-        
+
+        print(adan_name)
+
         # Map button names to AdanIndex values
         adan_index_map = {
             "fajerSoundButton": 1,  # FAJER
             "dohorSoundButton": 2,  # DOHOR
             "aserSoundButton": 3,   # ASER
-            "magribSoundButton": 4, # MAGRIB
+            "magrebSoundButton": 4, # MAGREB
             "ishaaSoundButton": 5   # ISHAA
         }
-        
+
         if adan_name == "fajerSoundButton":
             self.adans[0].set_sound_path(path)
             self.database_manager.update_adans_sound("fajer_adan", path)
@@ -263,17 +267,18 @@ class AdanManager():
             self.adans[2].set_sound_path(path)
             self.database_manager.update_adans_sound("aser_adan", path)
 
-        elif adan_name == "magribSoundButton":
+        elif adan_name == "magrebSoundButton":
             self.adans[3].set_sound_path(path)
             self.database_manager.update_adans_sound("magreb_adan", path)
 
         elif adan_name == "ishaaSoundButton":
             self.adans[4].set_sound_path(path)
             self.database_manager.update_adans_sound("ishaa_adan", path)
-        
+
         # Use the mapped index instead of the button name
-        if adan_name in adan_index_map:
-            self.calc_audio_duration(path, adan_index_map[adan_name])
+        
+        # if adan_name in adan_index_map:
+            # self.calc_audio_duration(path, adan_index_map[adan_name])
         
 
     def change_basic_sound(self, widget):
