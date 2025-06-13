@@ -10,7 +10,6 @@ class Notification():
         self.time = time
         self.duration = duration
         self.file_path = file_path
-        # self.date = date
     
     def update_time(self, time):
         self.time = time
@@ -92,7 +91,6 @@ class AdanNotification(Notification):
         super().update_time(new_time)
         self.adjust_datetime_minutes(self.seconds + self.adan_duration)
         self.update_ui()
-
 
     def noti_play_time(self):
         return self.adjusted_datetime 

@@ -1,10 +1,12 @@
 from AppManager import resource_path
 from PySide6.QtGui import QFontDatabase, QFont
+from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PySide6.QtCore import QUrl
 
 
 class Adan:
 
-    def __init__(self, adan_name_label, adan_time, time_label_ui, active=False):
+    def __init__(self, adan_name_label, adan_time, time_label_ui, active=False, sound_path=None):
         
         self.name_label = adan_name_label
         self.name = adan_name_label.text()
@@ -12,6 +14,10 @@ class Adan:
         self.time = adan_time
         self.time_label_ui = time_label_ui
         self.is_active = active
+        
+        # Sound properties
+        self.sound_path = sound_path if sound_path else ""
+        self.volume = 50  # Default volume 50%
 
         font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Noto_Kufi_Arabic/static/NotoKufiArabic-SemiBold.ttf"))
         self.kufi_semiBold_font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
@@ -24,6 +30,19 @@ class Adan:
         self.kufi_font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
         font = QFont(self.kufi_font_family, 24)
         self.time_label_ui.setFont(font)
+
+    # Sound-related methods
+    def set_sound_path(self, path):
+        self.sound_path = path
+        
+    def get_sound_path(self):
+        return self.sound_path
+        
+    def set_volume(self, volume):
+        self.volume = volume
+        
+    def get_volume(self):
+        return self.volume
 
         # self.update_ui()
     def get_adan_time(self):

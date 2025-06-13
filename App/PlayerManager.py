@@ -127,6 +127,11 @@ class PlayerManager:
     def _play(self, command):
         self.current_command = command
         url = QUrl.fromLocalFile(command.file_path)
+        
+        # Set the volume from the command
+        volume = command.volume / 100.0  # Convert percentage to 0-1 range
+        self.audio_output.setVolume(volume)
+        
         if self.player.source() == url:
             self.player.setPosition(0)
         else:
@@ -159,4 +164,8 @@ class PlayerManager:
 
     def current_adan_changed_to_previous(self):
         if self.current_command and self.current_command.requester == "AdanManager" and self.isPlaying():
+            self._stop_current()
+    
+    def stop_notification(self):
+        if self.current_command and self.current_command.requester == "NotificationManager" and self.isPlaying():
             self._stop_current()

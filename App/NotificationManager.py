@@ -10,6 +10,8 @@ import datetime as dt
 from PySide6.QtCore import QDate
 from PySide6.QtCore import QObject, Signal
 
+from PlayAudioCommand import PlayAudioCommand
+
 
 class NotificationSignal(QObject):
     
@@ -44,7 +46,7 @@ class NotificationManager:
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
         self.player_manager = player_manager
-        # self.messager = secondary_messager
+
         self.runnable_manager = runnable_manager
         self.sort_box = noti_sort_box
 
@@ -62,7 +64,6 @@ class NotificationManager:
 
         self.clear_layout()
         self.show_notifications()
-
 
     def handel_save_noti_button_clicked(self, day_of_week, adan_type, is_permenant, adan_index, seconds, date, duration):
         if self.is_empty_sound():
@@ -429,8 +430,8 @@ class NotificationManager:
     def finished_all_per_noti_today(self, compared_noti_time):
         return compared_noti_time < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)
 
-    def turn_on_off_noti(self, bool):
-        self.end_of_noti_today = bool
+    # def turn_on_off_noti(self, bool):
+    #     self.end_of_noti_today = bool
 
     def compare_datetimes(self, curr_time, noti):
         return noti.get_adjusted_datetime() - curr_time
@@ -466,7 +467,7 @@ class NotificationManager:
             if self.check_if_time_to_play(curr_time, self.next_noti):
                     if self.next_noti.activated():
                         # emit signal to player manager (can i play ?)
-                        self.can_noti_play.emit(self.next_noti.get_file_path())
+                        self.player_manager.request_playback(PlayAudioCommand("NotificationManager", self.next_noti.get_file_path()))
 
                     # find next notification
                     if self.curr_noti_type:
@@ -485,42 +486,48 @@ class NotificationManager:
 
                     self.find_next_noti()
 
-    def handle_fajer_duration_changed(self, new_duration):
+    def handle_adan_duration_changed(self, new_duration, adan_index):
 
-        self.update_adan_duration(0, new_duration)
+        self.update_adan_duration(adan_index, new_duration)
         
         for noti in self.permenant_notifications:
-            if noti.get_index() == 1:
+            if noti.get_index() == adan_index + 1:
                 if not noti.is_before_adan :
+                    
+                    new_duration = self.get_adan_duration(adan_index)
+                    
                     # update noti obj
-                    noti.update_adan_duration(self.get_adan_duration(0))
+                    noti.update_adan_duration()
                     # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(0))
+                    self.update_notification_in_db(noti, "adan_duration", new_duration)
         
         for noti in self.once_notifications:
-            if noti.get_index() == 1:
+            if noti.get_index() == adan_index + 1:
                 if not noti.is_before_adan :
-                    # update noti obj
-                    noti.update_adan_duration(self.get_adan_duration(0))
-                    # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(0))
+                    
+                    new_duration = self.get_adan_duration(adan_index)
 
-    def handle_basic_duration_changed(self, new_duration):
-        
-        self.update_adan_duration(1, new_duration)
+                    # update noti obj
+                    noti.update_adan_duration(new_duration)
+                    # update noti in db
+                    self.update_notification_in_db(noti, "adan_duration", new_duration)
 
-        for noti in self.permenant_notifications:
-            if not noti.is_before_adan :
-                if noti.get_index() != 1:
-                    # update noti obj
-                    noti.update_adan_duration(self.get_adan_duration(1))
-                    # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(1))
+    # def handle_basic_duration_changed(self, new_duration):
         
-        for noti in self.once_notifications:
-            if not noti.is_before_adan :
-                if noti.get_index() != 1:
-                    # update noti obj
-                    noti.update_adan_duration(self.get_adan_duration(1))
-                    # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(1))
+    #     self.update_adan_duration(1, new_duration)
+
+    #     for noti in self.permenant_notifications:
+    #         if not noti.is_before_adan :
+    #             if noti.get_index() != 1:
+    #                 # update noti obj
+    #                 noti.update_adan_duration(self.get_adan_duration(1))
+    #                 # update noti in db
+    #                 self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(1))
+        
+    #     for noti in self.once_notifications:
+    #         if not noti.is_before_adan :
+    #             if noti.get_index() != 1:
+    #                 # update noti obj
+    #                 noti.update_adan_duration(self.get_adan_duration(1))
+    #                 # update noti in db
+    #                 self.update_notification_in_db(noti, "adan_duration", self.get_adan_duration(1))

@@ -123,9 +123,11 @@ class AppManager(QMainWindow):
 
 
         # Here -----------------------------------------
-        self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
-        self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)
-        self.adan_manager.set_sounds_source()
+
+        # self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
+        # self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)
+
+        # self.adan_manager.set_sounds_source()
 
         self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
 
@@ -345,13 +347,27 @@ class AppManager(QMainWindow):
 
         # adans_sound_button = self.ui.findChild(QPushButton, "adansSoundButton")
         fajer_sound_button = self.ui.findChild(QPushButton, "fajerSoundButton")
+        dohor_sound_button = self.ui.findChild(QPushButton, "dohorSoundButton")
+        aser_sound_button = self.ui.findChild(QPushButton, "aserSoundButton")
+        magrib_sound_button = self.ui.findChild(QPushButton, "magribSoundButton")
+        ishaa_sound_button = self.ui.findChild(QPushButton, "ishaaSoundButton")
+        
         
         # adans_sound_button.setFont(tajawal_bold_font_18)
         fajer_sound_button.setFont(tajawal_bold_font_18)
+        dohor_sound_button.setFont(tajawal_bold_font_18)
+        aser_sound_button.setFont(tajawal_bold_font_18)
+        magrib_sound_button.setFont(tajawal_bold_font_18)
+        ishaa_sound_button.setFont(tajawal_bold_font_18)
+
 
         # self.adansSoundButtons.append(adans_sound_button)
         self.adansSoundButtons.append(fajer_sound_button)
-
+        self.adansSoundButtons.append(dohor_sound_button)
+        self.adansSoundButtons.append(aser_sound_button)
+        self.adansSoundButtons.append(magrib_sound_button)
+        self.adansSoundButtons.append(ishaa_sound_button)
+        
 
         adans_widget = self.ui.findChild(QWidget,"adansWidget") 
         if adans_widget:

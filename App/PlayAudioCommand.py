@@ -1,8 +1,5 @@
-from AudioPriority import AudioPriority
-
 class PlayAudioCommand:
-    def __init__(self, requester: str, file_path: str):
+    def __init__(self, requester: str, file_path: str, volume: int = 50):
         self.requester = requester
         self.file_path = file_path
-        # self.priority = priority
-
+        self.volume = volume

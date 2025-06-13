@@ -1,14 +1,17 @@
-from AudioPriority import AudioPriority
+from helper_functions import select_sound_file
+
 from PlayAudioCommand import PlayAudioCommand
-from Sound import Sound
+
 from NextAdan import NextAdan
 from AdanTimePrepare import AdanTimePrepare
 from Adan import Adan
-from PySide6.QtWidgets import QLabel, QPushButton
+from PySide6.QtWidgets import QLabel, QPushButton, QSlider
 from PySide6.QtCore import QObject, Signal
 import datetime as dt
 from ResourceFile import resource_path
 from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
+from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PySide6.QtCore import QUrl
 
 
 class AdanManagerSignals(QObject):
@@ -66,25 +69,24 @@ class AdanManager():
 
         self.time_formate = "%H:%M"
 
-        # self.wich_is_playing = None
+        self.main_widget = main_widget
 
         self.player_manager = player_manager
 
-        data = self.database_manager.get_adans_sound()
+        # data = self.database_manager.get_adans_sound()
 
-        # initiate default sounds 
-        self.fajer_sound = Sound(sound_file=resource_path(data[1][1]))
-        
-        self.basic_sound = Sound(sound_file=resource_path(data[0][1]))
+        # # initiate default sounds 
+        # self.fajer_sound = resource_path(data[0][1])
+        # self.dohor_sound = resource_path(data[1][1])
+        # self.aser_sound = resource_path(data[2][1])
+        # self.magreb_sound = resource_path(data[3][1])
+        # self.ishaa_sound = resource_path(data[4][1])
 
-        self.fajer_sound.track_media_duration(self.fajer_duration_changed)
-        self.basic_sound.track_media_duration(self.basic_duartion_changed)
+        # self.fajer_sound.track_media_duration(self.fajer_duration_changed)
 
         for button in adans_sound_buttons:
-            if button.objectName() == "fajerSoundButton" :
-                button.clicked.connect(lambda: self.change_fajer_sound(main_widget))
-            else:
-                button.clicked.connect(lambda: self.change_basic_sound(main_widget))
+            button.clicked.connect(lambda: self.change_adan_sound(button.objectName()))
+
 
         self.adans = []
         self.initiate_adans(five_prayers, shorok)
@@ -111,11 +113,8 @@ class AdanManager():
     def set_basic_sound_source(self):
         self.basic_sound.set_source()
 
-    def set_sounds_source(self):
-        self.set_fajer_sound_source()
-        self.set_basic_sound_source()
-
     def fajer_duration_changed(self):
+        
         self.fajer_duartion_signal.emit(self.fajer_sound.get_duration())
 
     def basic_duartion_changed(self):
@@ -125,6 +124,22 @@ class AdanManager():
         """Set the mediator for communication."""
         self.mediator = mediator
         self.next_adan.set_mediator(mediator)
+
+    def calc_audio_duration(self, file_path, adan_name):
+        temp_player = QMediaPlayer()
+        audio_output = QAudioOutput()
+        temp_player.setAudioOutput(audio_output)
+
+        def on_duration_changed(duration):
+            if duration > 0:
+                temp_player.durationChanged.disconnect(on_duration_changed)
+                temp_player.deleteLater()
+                audio_output.deleteLater()
+
+                self.mediator.notify(self, "audio_duration_changed", duration, adan_name)
+
+        temp_player.durationChanged.connect(on_duration_changed)
+        temp_player.setSource(QUrl.fromLocalFile(file_path))
 
     def force_stop_adan(self):
         self.force_stop_adan_signal.emit()
@@ -164,13 +179,26 @@ class AdanManager():
         adans_labels = ["fajer", "dohor", "aser", "magreb", "ishaa"]
         self.adan_time_prepare.get_current_day_adans()
         all_adans_time = self.adan_time_prepare.convert_to_dt()
+        
+        # Get sound data from database
+        sound_data = self.database_manager.get_adans_sound()
 
         for i in range(len(five_prayers)):
             adan = self.adan_creator(five_prayers[i], adans_labels[i], all_adans_time[2][i])
-
+            
+            # Set the sound path for each adan
+            adan.set_sound_path(resource_path(sound_data[i][1]))
+            
             self.adans.append(adan)
-            adan_button = five_prayers[i].findChild(QPushButton,f"{adans_labels[i]}_activate_button")
+            adan_button = five_prayers[i].findChild(QPushButton, f"{adans_labels[i]}_activate_button")
             adan_button.toggled.connect(adan.change_state)
+            
+            # Find and connect volume slider if it exists
+            volume_slider = five_prayers[i].findChild(QSlider, f"{adans_labels[i]}_volume_slider")
+            if volume_slider:
+                volume_slider.setValue(adan.get_volume())
+                volume_slider.valueChanged.connect(lambda value, a=adan: a.set_volume(value))
+                
         self.shorok = self.adan_creator(shorok, "shorok", all_adans_time[1])
 
     def adan_creator(self, ui_object, label_name, adan_time):
@@ -185,33 +213,68 @@ class AdanManager():
         self.next_adan.set_praper_for_adan_call(False)
 
     def start_adan(self, adan):
-        adan_sound = None
-        if adan.get_adan_name() == "الفجر":
-            adan_sound = self.fajer_sound
-        else:
-            adan_sound = self.basic_sound
-
         if adan.check_state():
-            # emit signal to player manager to play adan
-            self.play_adan_signal.emit(adan_sound.get_file_path())
-            command = PlayAudioCommand("AdanManager", adan_sound.get_file_path())
+            # Create a PlayAudioCommand with the adan's sound path
+            command = PlayAudioCommand("AdanManager", adan.get_sound_path())
+            # Pass the volume information as well
+            command.volume = adan.get_volume()
             self.player_manager.request_playback(command)
 
-    # def possible_fake_prepare_emitted(self):
-    #     self.possible_not_adan_time_signal.emit()
 
-    # def prepare_for_adan(self):
-    #     self.prepare_for_adan_signal.emit()
+    # def get_next_adan_sound(self):
+    #     name = self.next_adan.get_next_adan_name()
+    #     if name == "الفجر":
+    #         return self.fajer_sound
+    #     elif name == "الظهر":
+    #         return self.dohor_sound
+    #     elif name == "العصر":
+    #         return self.aser_sound
+    #     elif name == "المغرب":
+    #         return self.magreb_sound
+    #     else:
+    #         return self.ishaa_sound
 
-    def get_next_adan_sound(self):
-        name = self.next_adan.get_next_adan_name()
-        return self.fajer_sound if name == "الفجر" else self.basic_sound
+    def change_adan_sound(self, adan_name):
+    
+        file_path = select_sound_file(self.main_widget)
+        if not file_path:  # Check if a file was selected
+            return
+        
+        path = resource_path(file_path)
+        
+        # Map button names to AdanIndex values
+        adan_index_map = {
+            "fajerSoundButton": 1,  # FAJER
+            "dohorSoundButton": 2,  # DOHOR
+            "aserSoundButton": 3,   # ASER
+            "magribSoundButton": 4, # MAGRIB
+            "ishaaSoundButton": 5   # ISHAA
+        }
+        
+        if adan_name == "fajerSoundButton":
+            self.adans[0].set_sound_path(path)
+            self.database_manager.update_adans_sound("fajer_adan", path)
 
-    def change_fajer_sound(self, widget):
+        elif adan_name == "dohorSoundButton":
+            self.adans[1].set_sound_path(path)
+            self.database_manager.update_adans_sound("dohor_adan", path)
 
-        self.fajer_sound.select_sound_file(widget)
-        self.set_fajer_sound_source()
-        self.database_manager.update_adans_sound("fajer_adan", self.fajer_sound.get_file_path())
+        elif adan_name == "aserSoundButton":
+            self.adans[2].set_sound_path(path)
+            self.database_manager.update_adans_sound("aser_adan", path)
+
+        elif adan_name == "magribSoundButton":
+            self.adans[3].set_sound_path(path)
+            self.database_manager.update_adans_sound("magreb_adan", path)
+
+        elif adan_name == "ishaaSoundButton":
+            self.adans[4].set_sound_path(path)
+            self.database_manager.update_adans_sound("ishaa_adan", path)
+        
+        # Use the mapped index instead of the button name
+        if adan_name in adan_index_map:
+            self.calc_audio_duration(path, adan_index_map[adan_name])
+        
 
     def change_basic_sound(self, widget):
 
