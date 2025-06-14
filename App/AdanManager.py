@@ -16,7 +16,6 @@ from PySide6.QtCore import QUrl
 
 class AdanManagerSignals(QObject):
     
-    adan_time_changed = Signal(object)
     prepare_for_adan = Signal()
     get_settings_signal = Signal()
     adan_sound_changed = Signal()
@@ -39,7 +38,6 @@ class AdanManagerSignals(QObject):
 class AdanManager():
 
     adan_manager_signals = AdanManagerSignals()
-    adan_time_changed = adan_manager_signals.adan_time_changed 
     prepare_for_adan_signal = adan_manager_signals.prepare_for_adan
     get_settings_signal = adan_manager_signals.get_settings_signal
     
@@ -114,6 +112,10 @@ class AdanManager():
         """Set the mediator for communication."""
         self.mediator = mediator
         self.next_adan.set_mediator(mediator)
+
+    def get_adans_duration(self):
+        for adan in self.adans:
+            self.calc_audio_duration(adan.get_sound_path(), self.adans.index(adan) + 1)
 
     def calc_audio_duration(self, file_path, adan_index):
         temp_player = QMediaPlayer()
@@ -269,8 +271,8 @@ class AdanManager():
             self.database_manager.update_adans_sound("ishaa_adan", path)
 
         # calculating audio duration to alert notification manager
-        # if adan_name in adan_index_map:
-        #     self.calc_audio_duration(path, adan_index_map[adan_name])
+        if adan_name in adan_index_map:
+            self.calc_audio_duration(path, adan_index_map[adan_name])
         
 
     def change_basic_sound(self, widget):
@@ -348,8 +350,9 @@ class AdanManager():
         self.handle_summer_winter_helper(self.shorok, is_summer_time)
         self.handle_summer_winter_helper(self.jomoaa, is_summer_time)
 
-        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
-
+        # notify mediator to update notificatins
+        self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
+        
         self.find_next_adan_signal.emit()
 
         self.update_ui()
@@ -368,7 +371,8 @@ class AdanManager():
    
         self.helper(all_adans, new_quds_differ, is_summer_time)
 
-        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+        # notify mediator to update notificatins
+        self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
 
         self.find_next_adan_signal.emit()
 
@@ -407,8 +411,8 @@ class AdanManager():
         # send the new prayers to next adan
         self.next_adan.update_five_prayers(self.adans)
         
-        # emit a signal to update notificatins
-        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+        # notify mediator to update notificatins
+        self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
 
         self.next_adan.update_curr_day(new_day)
 
@@ -419,8 +423,8 @@ class AdanManager():
         #  update jomoaa ui
         self.update_jomoaa_ui()
         
-        # emit a signal to update notificatins
-        self.adan_time_changed.emit(self.get_adans_for_notification_manager())
+        # notify mediator to update notificatins
+        self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
     
 
     def update_time_formate(self, new_formate):

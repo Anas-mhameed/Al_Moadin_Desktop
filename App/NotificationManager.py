@@ -29,15 +29,18 @@ class NotificationManager:
     force_stop_signal = notification_signal.force_stop_signal
     show_msg_signal = notification_signal.show_msg_signal
 
-    def __init__(self, prayers_times, adans_duration, main_window, scrollArea_container, player_manager, runnable_manager, total_noti_label, noti_sort_box, *args, **kwargs):
+    def __init__(self, prayers_times, main_window, scrollArea_container, player_manager, runnable_manager, total_noti_label, noti_sort_box, *args, **kwargs):
 
         self.running_noti = ""
+
+        self.mediator = None
 
         self.next_noti = None
         self.curr_noti_type = -1
 
         self.prayers_times = prayers_times
-        self.adans_duration = adans_duration
+
+        self.adans_duration = [0, 0, 0, 0, 0, 0]
 
         self.main_window = main_window
         self.curr_time = dt.datetime.now()
@@ -64,6 +67,9 @@ class NotificationManager:
 
         self.clear_layout()
         self.show_notifications()
+
+    def request_adans_duration(self):
+        self.mediator.notify(self, "request_adans_duration")
 
     def handel_save_noti_button_clicked(self, day_of_week, adan_type, is_permenant, adan_index, seconds, date, duration):
         if self.is_empty_sound():
@@ -169,6 +175,10 @@ class NotificationManager:
         self.increase_total_noti_num()
 
         return True
+
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
 
     def change_noti_state_in_db(self, notification, new_state):
         def temp(func):
@@ -489,20 +499,22 @@ class NotificationManager:
     def handle_adan_duration_changed(self, new_duration, adan_index):
 
         self.update_adan_duration(adan_index, new_duration)
-        
+
         for noti in self.permenant_notifications:
             if noti.get_index() == adan_index + 1:
+
                 if not noti.is_before_adan :
                     
                     new_duration = self.get_adan_duration(adan_index)
                     
                     # update noti obj
-                    noti.update_adan_duration()
+                    noti.update_adan_duration(new_duration)
                     # update noti in db
                     self.update_notification_in_db(noti, "adan_duration", new_duration)
         
         for noti in self.once_notifications:
             if noti.get_index() == adan_index + 1:
+
                 if not noti.is_before_adan :
                     
                     new_duration = self.get_adan_duration(adan_index)

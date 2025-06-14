@@ -62,15 +62,22 @@ class Mediator:
         
         elif event == "request_play_adan":
             self.components["PlayerManager"].request_playback(args[0])
-
+        
         elif event == "audio_duration_changed":
             # args[1] is now an integer (1-5), no need to convert
             self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-4)
         
+        elif event == "adan_time_changed":
+            self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
+
         elif event == "adan_volume_changed":
             # args[0] is the adan name, args[1] is the new volume
             self.components["PlayerManager"].handle_adan_volume_change(args[0], args[1])
 
+        elif event == "request_adans_duration":
+            
+            adans_duration = self.components["AdanManager"].get_adans_duration()
+            # self.components["NotificationManager"].set_adans_duration(adans_duration)
 
 
 

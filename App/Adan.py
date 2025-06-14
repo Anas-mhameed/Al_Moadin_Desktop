@@ -31,10 +31,8 @@ class Adan:
         font = QFont(self.kufi_font_family, 24)
         self.time_label_ui.setFont(font)
 
-    # Sound-related methods
     def set_sound_path(self, path):
         self.sound_path = path
-        print(self.sound_path)
         
     def get_sound_path(self):
         return self.sound_path
@@ -45,7 +43,6 @@ class Adan:
     def get_volume(self):
         return self.volume
 
-        # self.update_ui()
     def get_adan_time(self):
         return self.time
     

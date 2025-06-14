@@ -113,12 +113,15 @@ class AppManager(QMainWindow):
         self.time_manager.get_time_formate()
         
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
-        self.adan_manager.request_settings()
 
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
 
-        self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), [0,0], self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
-        
+        self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
+        self.mediator.register("NotificationManager", self.notification_manager)
+
+        self.adan_manager.request_settings()
+        self.notification_manager.request_adans_duration()
+
         self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
 
 
@@ -129,7 +132,7 @@ class AppManager(QMainWindow):
 
         # self.adan_manager.set_sounds_source()
 
-        self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
+        # self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
 
         #  ---------------------------------------------
 
