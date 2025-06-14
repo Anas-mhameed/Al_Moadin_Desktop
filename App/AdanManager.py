@@ -209,7 +209,6 @@ class AdanManager():
             command = PlayAudioCommand("AdanManager", adan.get_sound_path())
             # Pass the volume information as well
             command.volume = adan.get_volume()
-            # self.player_manager.request_playback(command)
             self.mediator.notify(self, "request_play_adan", command)
 
     # def get_next_adan_sound(self):
