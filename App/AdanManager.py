@@ -73,17 +73,6 @@ class AdanManager():
 
         self.player_manager = player_manager
 
-        # data = self.database_manager.get_adans_sound()
-
-        # # initiate default sounds 
-        # self.fajer_sound = resource_path(data[0][1])
-        # self.dohor_sound = resource_path(data[1][1])
-        # self.aser_sound = resource_path(data[2][1])
-        # self.magreb_sound = resource_path(data[3][1])
-        # self.ishaa_sound = resource_path(data[4][1])
-
-        # self.fajer_sound.track_media_duration(self.fajer_duration_changed)
-
         for button in adans_sound_buttons:
             button_name = button.objectName()
             button.clicked.connect(lambda checked=False, btn_name=button_name: self.change_adan_sound(btn_name))
@@ -196,7 +185,7 @@ class AdanManager():
             adan_button.toggled.connect(adan.change_state)
             
             # Find and connect volume slider if it exists
-            volume_slider = five_prayers[i].findChild(QSlider, f"{adans_labels[i]}_volume_slider")
+            volume_slider = self.main_widget.findChild(QSlider, f"{adans_labels[i]}_volume_slider")
             if volume_slider:
                 volume_slider.setValue(adan.get_volume())
                 volume_slider.valueChanged.connect(lambda value, a=adan: a.set_volume(value))
@@ -220,8 +209,8 @@ class AdanManager():
             command = PlayAudioCommand("AdanManager", adan.get_sound_path())
             # Pass the volume information as well
             command.volume = adan.get_volume()
-            self.player_manager.request_playback(command)
-
+            # self.player_manager.request_playback(command)
+            self.mediator.notify(self, "request_play_adan", command)
 
     # def get_next_adan_sound(self):
     #     name = self.next_adan.get_next_adan_name()

@@ -60,6 +60,9 @@ class Mediator:
         elif event == "cant_play_audio":
             self.components["MsgManager"].show_auto_close_error(args[0], args[1])
         
+        elif event == "request_play_adan":
+            self.components["PlayerManager"].request_playback(args[0])
+
         elif event == "audio_duration_changed":
             # args[1] is now an integer (1-5), no need to convert
             self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-4)
