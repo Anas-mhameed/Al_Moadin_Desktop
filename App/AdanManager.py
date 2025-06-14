@@ -71,7 +71,7 @@ class AdanManager():
 
         self.main_widget = main_widget
 
-        self.player_manager = player_manager
+        # self.player_manager = player_manager
 
         for button in adans_sound_buttons:
             button_name = button.objectName()
@@ -188,9 +188,17 @@ class AdanManager():
             volume_slider = self.main_widget.findChild(QSlider, f"{adans_labels[i]}_volume_slider")
             if volume_slider:
                 volume_slider.setValue(adan.get_volume())
-                volume_slider.valueChanged.connect(lambda value, a=adan: a.set_volume(value))
+                volume_slider.valueChanged.connect(lambda value, a=adan, idx=i: self.handle_volume_change(value, a, idx))
                 
         self.shorok = self.adan_creator(shorok, "shorok", all_adans_time[1])
+
+    def handle_volume_change(self, value, adan, adan_index):
+        # Update the volume in the Adan object
+        adan.set_volume(value)
+        
+        # Use mediator to notify PlayerManager about volume change
+        if self.mediator:
+            self.mediator.notify(self, "adan_volume_changed", adan.get_adan_name(), value)
 
     def adan_creator(self, ui_object, label_name, adan_time):
         adan_name_label = ui_object.findChild(QLabel, f"{label_name}_label")
@@ -199,16 +207,15 @@ class AdanManager():
 
         return Adan(adan_name_label, adan_time, adan_time_label)
 
-    def set_not_adan_time(self):
-        self.player_manager.set_is_adan_playing(False)
-        self.next_adan.set_praper_for_adan_call(False)
+    # def set_not_adan_time(self):
+    #     self.player_manager.set_is_adan_playing(False)
+    #     self.next_adan.set_praper_for_adan_call(False)
 
     def start_adan(self, adan):
         if adan.check_state():
             # Create a PlayAudioCommand with the adan's sound path
-            command = PlayAudioCommand("AdanManager", adan.get_sound_path())
-            # Pass the volume information as well
-            command.volume = adan.get_volume()
+            command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
+            # Pass the command to the mediator
             self.mediator.notify(self, "request_play_adan", command)
 
     # def get_next_adan_sound(self):
@@ -231,8 +238,6 @@ class AdanManager():
             return
         
         path = resource_path(file_path)
-
-        print(adan_name)
 
         # Map button names to AdanIndex values
         adan_index_map = {
@@ -263,10 +268,9 @@ class AdanManager():
             self.adans[4].set_sound_path(path)
             self.database_manager.update_adans_sound("ishaa_adan", path)
 
-        # Use the mapped index instead of the button name
-        
+        # calculating audio duration to alert notification manager
         # if adan_name in adan_index_map:
-            # self.calc_audio_duration(path, adan_index_map[adan_name])
+        #     self.calc_audio_duration(path, adan_index_map[adan_name])
         
 
     def change_basic_sound(self, widget):

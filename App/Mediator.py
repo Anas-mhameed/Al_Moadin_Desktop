@@ -66,5 +66,11 @@ class Mediator:
         elif event == "audio_duration_changed":
             # args[1] is now an integer (1-5), no need to convert
             self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-4)
+        
+        elif event == "adan_volume_changed":
+            # args[0] is the adan name, args[1] is the new volume
+            self.components["PlayerManager"].handle_adan_volume_change(args[0], args[1])
+
+
 
 

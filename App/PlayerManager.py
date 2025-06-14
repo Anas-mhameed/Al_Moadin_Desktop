@@ -127,8 +127,6 @@ class PlayerManager:
     def _play(self, command):
         self.current_command = command
         url = QUrl.fromLocalFile(command.file_path)
-        
-        print(url)
 
         # Set the volume from the command
         volume = command.volume / 100.0  # Convert percentage to 0-1 range
@@ -171,3 +169,18 @@ class PlayerManager:
     def stop_notification(self):
         if self.current_command and self.current_command.requester == "NotificationManager" and self.isPlaying():
             self._stop_current()
+
+    def handle_adan_volume_change(self, adan_name, volume):
+        """Handle volume change for a specific adan"""
+        # Check if an adan is currently playing and if it's the one being changed
+        if (self.current_command is not None and 
+            self.current_command.requester == "AdanManager" and 
+            self.player.playbackState() in [QMediaPlayer.PlayingState, QMediaPlayer.PausedState] and
+            self.current_command.adan_name == adan_name):
+            
+            # Update the volume
+            volume_value = volume / 100.0
+            self.audio_output.setVolume(volume_value)
+            
+            # Also update the volume in the current command
+            self.current_command.volume = volume
