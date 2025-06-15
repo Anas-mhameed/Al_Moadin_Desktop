@@ -57,15 +57,15 @@ class Mediator:
         elif event == "current_adan_changed_to_previous":
             self.components["PlayerManager"].current_adan_changed_to_previous()
         
-        elif event == "cant_play_audio":
+        elif event == "cant_play_audio" or event == "error_saving_notification":
             self.components["MsgManager"].show_auto_close_error(args[0], args[1])
         
-        elif event == "request_play_adan":
+        elif event == "request_playback":
             self.components["PlayerManager"].request_playback(args[0])
         
         elif event == "audio_duration_changed":
-            # args[1] is now an integer (1-5), no need to convert
-            self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-4)
+            # args[1] is now an integer (1-6), no need to convert
+            self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-5)
         
         elif event == "adan_time_changed":
             self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
@@ -75,9 +75,7 @@ class Mediator:
             self.components["PlayerManager"].handle_adan_volume_change(args[0], args[1])
 
         elif event == "request_adans_duration":
+            self.components["AdanManager"].get_adans_duration()
             
-            adans_duration = self.components["AdanManager"].get_adans_duration()
-            # self.components["NotificationManager"].set_adans_duration(adans_duration)
-
 
 

@@ -102,7 +102,7 @@ class AppManager(QMainWindow):
         self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
         #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
 
-        self.adan_manager = AdanManager(self, self.player_manager, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
+        self.adan_manager = AdanManager(self, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
 
         self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
@@ -116,7 +116,7 @@ class AppManager(QMainWindow):
 
         self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
 
-        self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), self, self.scrollAreaContainer, self.player_manager, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
+        self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), self, self.scrollAreaContainer, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
         self.mediator.register("NotificationManager", self.notification_manager)
 
         self.adan_manager.request_settings()

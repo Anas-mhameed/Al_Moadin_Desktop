@@ -55,7 +55,7 @@ class AdanManager():
 
     possible_not_adan_time_signal = adan_manager_signals.possible_not_adan_time_signal
 
-    def __init__(self, main_widget, player_manager, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label):
+    def __init__(self, main_widget, five_prayers, shorok, jomoaa, adans_sound_buttons, next_adan_label, remaining_time_label):
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
@@ -68,8 +68,6 @@ class AdanManager():
         self.time_formate = "%H:%M"
 
         self.main_widget = main_widget
-
-        # self.player_manager = player_manager
 
         for button in adans_sound_buttons:
             button_name = button.objectName()
@@ -85,28 +83,19 @@ class AdanManager():
 
         self.next_adan = NextAdan(self.adans, next_adan_label, remaining_time_label)
         self.next_adan.update_adan_times_signal.connect(self.handle_new_day)
-        # self.next_adan.possible_not_adan_time_signal.connect(self.possible_fake_prepare_emitted)
         self.find_next_adan_signal.connect(self.next_adan.intiate_next_adan)
 
         self.next_adan.adan_time_signal.connect(self.start_adan)
-        # self.next_adan.prepare_for_adan_signal.connect(self.prepare_for_adan)
         self.next_adan.force_stop_adan.connect(self.force_stop_adan)
 
         self.update_ui()
         self.update_jomoaa_ui()
 
-    def set_fajer_sound_source(self):
-        self.fajer_sound.set_source()
+    # def set_fajer_sound_source(self):
+    #     self.fajer_sound.set_source()
 
-    def set_basic_sound_source(self):
-        self.basic_sound.set_source()
-
-    def fajer_duration_changed(self):
-        
-        self.fajer_duartion_signal.emit(self.fajer_sound.get_duration())
-
-    def basic_duartion_changed(self):
-        self.basic_duartion_signal.emit(self.basic_sound.get_duration())
+    # def set_basic_sound_source(self):
+    #     self.basic_sound.set_source()
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
@@ -116,6 +105,9 @@ class AdanManager():
     def get_adans_duration(self):
         for adan in self.adans:
             self.calc_audio_duration(adan.get_sound_path(), self.adans.index(adan) + 1)
+        
+        #  should send jomoaa sound file
+        self.calc_audio_duration(self.adans[1].get_sound_path(), 6)
 
     def calc_audio_duration(self, file_path, adan_index):
         temp_player = QMediaPlayer()
@@ -130,6 +122,11 @@ class AdanManager():
 
                 # Now adan_index is already an integer (1-5)
                 self.mediator.notify(self, "audio_duration_changed", duration, adan_index)
+
+                # this should be remove when jomoaa sound file is added to ui
+                if adan_index == 2:
+                    self.mediator.notify(self, "audio_duration_changed", duration, 6)
+                
 
         temp_player.durationChanged.connect(on_duration_changed)
         temp_player.setSource(QUrl.fromLocalFile(file_path))
@@ -167,7 +164,6 @@ class AdanManager():
         if self.mediator:
             self.mediator.notify(self, "request_general_settings")
 
-
     def initiate_adans(self, five_prayers, shorok):
         adans_labels = ["fajer", "dohor", "aser", "magreb", "ishaa"]
         self.adan_time_prepare.get_current_day_adans()
@@ -183,16 +179,23 @@ class AdanManager():
             adan.set_sound_path(resource_path(sound_data[i][1]))
             
             self.adans.append(adan)
-            adan_button = five_prayers[i].findChild(QPushButton, f"{adans_labels[i]}_activate_button")
-            adan_button.toggled.connect(adan.change_state)
             
-            # Find and connect volume slider if it exists
-            volume_slider = self.main_widget.findChild(QSlider, f"{adans_labels[i]}_volume_slider")
-            if volume_slider:
-                volume_slider.setValue(adan.get_volume())
-                volume_slider.valueChanged.connect(lambda value, a=adan, idx=i: self.handle_volume_change(value, a, idx))
-                
+            self.connect_adan_to_activate_button(five_prayers[i], adan, adans_labels[i])
+            
+            self.connect_adan_to_slider(adan, adans_labels[i], i)
+   
         self.shorok = self.adan_creator(shorok, "shorok", all_adans_time[1])
+
+    def connect_adan_to_activate_button(self, prayer, adan, adan_label):
+        adan_button = prayer.findChild(QPushButton, f"{adan_label}_activate_button")
+        adan_button.toggled.connect(adan.change_state)
+
+    def connect_adan_to_slider(self, adan, adan_label, adan_index):
+        # Find and connect volume slider if it exists
+        volume_slider = self.main_widget.findChild(QSlider, f"{adan_label}_volume_slider")
+        if volume_slider:
+            volume_slider.setValue(adan.get_volume())
+            volume_slider.valueChanged.connect(lambda value, a=adan, idx=adan_index: self.handle_volume_change(value, a, idx))
 
     def handle_volume_change(self, value, adan, adan_index):
         # Update the volume in the Adan object
@@ -218,7 +221,7 @@ class AdanManager():
             # Create a PlayAudioCommand with the adan's sound path
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             # Pass the command to the mediator
-            self.mediator.notify(self, "request_play_adan", command)
+            self.mediator.notify(self, "request_playback", command)
 
     # def get_next_adan_sound(self):
     #     name = self.next_adan.get_next_adan_name()
@@ -274,12 +277,11 @@ class AdanManager():
         if adan_name in adan_index_map:
             self.calc_audio_duration(path, adan_index_map[adan_name])
         
+    # def change_basic_sound(self, widget):
 
-    def change_basic_sound(self, widget):
-
-        self.basic_sound.select_sound_file(widget)
-        self.set_basic_sound_source()
-        self.database_manager.update_adans_sound("basic_adan", self.basic_sound.get_file_path())
+    #     self.basic_sound.select_sound_file(widget)
+    #     self.set_basic_sound_source()
+    #     self.database_manager.update_adans_sound("basic_adan", self.basic_sound.get_file_path())
             
     def helper(self, adans, new_quds_diff, is_summer):
 
@@ -426,7 +428,6 @@ class AdanManager():
         # notify mediator to update notificatins
         self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
     
-
     def update_time_formate(self, new_formate):
         self.time_formate = new_formate
 

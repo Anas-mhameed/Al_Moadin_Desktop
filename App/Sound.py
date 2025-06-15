@@ -1,6 +1,5 @@
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog 
-from PySide6.QtCore import QTimer
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import QObject, Signal
 
@@ -34,7 +33,6 @@ class Sound:
         self.media_player.mediaStatusChanged.connect(self.emit_end_of_media)
         self.media_player.playbackStateChanged.connect(self.emit_stopped_media)
         self.media_player.mediaStatusChanged.connect(self.on_media_loaded)
-
 
     def emit_end_of_media(self, status):
         if status == QMediaPlayer.MediaStatus.EndOfMedia:
@@ -146,10 +144,3 @@ class Sound:
     
     def check_path_is_empty(self):
         return True if self.file_path == "" else False
-
-    # def play_for_duration(self):
-    #     # Set the media source (example: "audio.mp3")
-    #     self.play()
-
-    #     # Set a timer to stop the playback after the specified duration
-    #     QTimer.singleShot(self.duration, self.stop)
