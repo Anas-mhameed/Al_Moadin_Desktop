@@ -33,7 +33,10 @@ class NotificationManager:
 
         self.prayers_times = prayers_times
 
-        self.adans_duration = [0, 0, 0, 0, 0, 0]
+        # Initialize adans_duration with 5 elements (0-4 indices)
+        # Index 0: Fajer, 1: Dohor, 2: Aser, 3: Magreb, 4: Ishaa
+        # Note: Jomoaa (index 6 in notifications) uses the same duration as Dohor (index 1)
+        self.adans_duration = [0, 0, 0, 0, 0]
 
         self.main_window = main_window
         self.curr_time = dt.datetime.now()
@@ -78,14 +81,42 @@ class NotificationManager:
         self.curr_time = updated_time
     
     def update_adan_duration(self, index, new_duration):
+        """
+        Update the duration of an Adan sound.
+        
+        Args:
+            index (int): The index of the Adan (0-4)
+            new_duration (int): The new duration in milliseconds
+        """
+        if 0 <= index < len(self.adans_duration):
             self.adans_duration[index] = new_duration
+        else:
+            print(f"Invalid Adan index for duration update: {index}")
 
     def get_adan_duration(self, index):
-
-            duration_in_seconds = self.adans_duration[index] // 1000
-            total_seconds = duration_in_seconds +  1
-
+        """
+        Get the duration of an Adan sound.
+        
+        Args:
+            index (int): The index of the Adan (1-6 for notifications)
+            
+        Returns:
+            int: The duration in seconds
+        """
+        # Convert notification index (1-6) to duration index (0-4)
+        duration_index = index - 1
+        
+        # Special case: Jomoaa (index 6) uses the same duration as Dohor (index 2)
+        if index == 6:
+            duration_index = 1  # Dohor's index in adans_duration
+        
+        if 0 <= duration_index < len(self.adans_duration):
+            duration_in_seconds = self.adans_duration[duration_index] // 1000
+            total_seconds = duration_in_seconds + 1
             return total_seconds
+        else:
+            print(f"Invalid Adan index for getting duration: {index} (converted to {duration_index})")
+            return 0
 
     def get_notification_from_db(self):
             # dan_index Integer, minutes REAL, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer
@@ -107,21 +138,29 @@ class NotificationManager:
                 self.intialize_notification(is_permenant, noti_type, adan_index, minutes, date, duration, file_path, is_active)
         
     def create_notification(self, is_before_adan, is_permenant, *args):
-        
+        print()
+        print()
+        print(" from create_notification")
+        print(f"adan index: {args[0]}")
+        print()
+        print()
+
         date = None
 
         if not is_permenant:
             date = args[2]
         
-        time = self.get_adan_time(args[0])
-        
+        # args[0] is the adan_index (1-6)
         adan_index = args[0]
+        time = self.get_adan_time(adan_index)
+        
         minutes = args[1]
         duration = args[3]
 
         duration_in_seconds = 0
 
-        if not is_before_adan :
+        if not is_before_adan:
+            # Get duration based on notification index (1-6)
             duration_in_seconds = self.get_adan_duration(adan_index)
 
         new_notification = AdanNotification(is_before_adan, time, adan_index, minutes, self.file_path, date, duration, duration_in_seconds)
@@ -131,11 +170,10 @@ class NotificationManager:
         if validation_res[0]:
             self.position_notification(new_notification, is_permenant)
         else:
-
             self.show_msg_signal.emit(validation_res[1], 4)
             return False
         
-        date_in_db =  date.toString("yyyy-MM-dd") if date else None
+        date_in_db = date.toString("yyyy-MM-dd") if date else None
 
         self.save_notification_in_db((adan_index, minutes, date_in_db, duration, self.file_path, is_permenant, is_before_adan, 1, duration_in_seconds))
 
@@ -304,19 +342,21 @@ class NotificationManager:
                 item.widget().hide()
 
     def intialize_notification(self, is_permenant, is_before_adan, adan_index, seconds, date, duration, file_path, is_active):
+        print()
+        print()
+        print(" from intialize_notification ")
+        print(f"adan index: {adan_index}")
+        print()
+        print()
         
+        # adan_index is 1-6 (1-based)
         time = self.get_adan_time(adan_index)
 
         duration_in_seconds = 0
 
-        if not is_before_adan :
-
-            if adan_index == 1 :
-                # fajer noti
-                duration_in_seconds = self.get_adan_duration(0)
-            else:
-                # basic adan noti
-                duration_in_seconds = self.get_adan_duration(1)
+        if not is_before_adan:
+            # Get duration based on notification index (1-6)
+            duration_in_seconds = self.get_adan_duration(adan_index)
 
         new_notification = AdanNotification(is_before_adan, time, adan_index, seconds, file_path, date, duration, duration_in_seconds)
 
@@ -387,7 +427,25 @@ class NotificationManager:
             self.prayers_times = new_adan_times
     
     def get_adan_time(self, adan_index):
-            return self.prayers_times[adan_index - 1]
+        """
+        Get the time of an Adan.
+        
+        Args:
+            adan_index (int): The index of the Adan (1-6)
+            
+        Returns:
+            datetime: The time of the Adan
+        """
+        # Handle special case for Jomoaa (index 6)
+        prayers_index = adan_index - 1
+        if adan_index == 6:
+            prayers_index = 1  # Dohor's index in prayers_times
+        
+        if 0 <= prayers_index < len(self.prayers_times):
+            return self.prayers_times[prayers_index]
+        else:
+            print(f"Invalid Adan index for getting time: {adan_index} (converted to {prayers_index})")
+            return None
     
     def choose_sound(self, widget):
             self.file_path = select_sound_file(widget)
@@ -469,29 +527,47 @@ class NotificationManager:
                         self.find_next_noti()
     
     def handle_adan_duration_changed(self, new_duration, adan_index):
+        """
+        Handle when an Adan duration has changed.
+        
+        Args:
+            new_duration (int): The new duration in milliseconds
+            adan_index (int): The index of the Adan (0-4)
+        """
+        print()
+        print()
+        print(" from handle_adan_duration_changed ")
+        print(f"adan index: {adan_index}")
+        print()
+        print()
 
         self.update_adan_duration(adan_index, new_duration)
 
+        # Update all notifications that use this Adan
+        # Convert from duration index (0-4) to notification index (1-5)
+        notification_index = adan_index + 1
+        
+        # Also update Jomoaa notifications if Dohor duration changed
+        jomoaa_needs_update = (adan_index == 1)  # Dohor's index in adans_duration
+        
         for noti in self.permenant_notifications:
-            if noti.get_index() == adan_index + 1:
-
-                if not noti.is_before_adan :
-                    
-                    new_duration = self.get_adan_duration(adan_index)
+            if noti.get_index() == notification_index or (jomoaa_needs_update and noti.get_index() == 6):
+                if not noti.is_before_adan:
+                    # Get the appropriate duration based on notification index
+                    new_duration_seconds = self.get_adan_duration(noti.get_index())
                     
                     # update noti obj
-                    noti.update_adan_duration(new_duration)
+                    noti.update_adan_duration(new_duration_seconds)
                     # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", new_duration)
+                    self.update_notification_in_db(noti, "adan_duration", new_duration_seconds)
         
         for noti in self.once_notifications:
-            if noti.get_index() == adan_index + 1:
-
-                if not noti.is_before_adan :
-                    
-                    new_duration = self.get_adan_duration(adan_index)
+            if noti.get_index() == notification_index or (jomoaa_needs_update and noti.get_index() == 6):
+                if not noti.is_before_adan:
+                    # Get the appropriate duration based on notification index
+                    new_duration_seconds = self.get_adan_duration(noti.get_index())
 
                     # update noti obj
-                    noti.update_adan_duration(new_duration)
+                    noti.update_adan_duration(new_duration_seconds)
                     # update noti in db
-                    self.update_notification_in_db(noti, "adan_duration", new_duration)
+                    self.update_notification_in_db(noti, "adan_duration", new_duration_seconds)

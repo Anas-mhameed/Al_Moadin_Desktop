@@ -106,8 +106,8 @@ class AdanManager():
         for adan in self.adans:
             self.calc_audio_duration(adan.get_sound_path(), self.adans.index(adan) + 1)
         
-        #  should send jomoaa sound file
-        self.calc_audio_duration(self.adans[1].get_sound_path(), 6)
+        # #  should send jomoaa sound file
+        # self.calc_audio_duration(self.adans[1].get_sound_path(), 6)
 
     def calc_audio_duration(self, file_path, adan_index):
         temp_player = QMediaPlayer()

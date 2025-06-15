@@ -64,8 +64,10 @@ class Mediator:
             self.components["PlayerManager"].request_playback(args[0])
         
         elif event == "audio_duration_changed":
-            # args[1] is now an integer (1-6), no need to convert
-            self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)  # Adjust index (0-5)
+            # args[0] is the duration
+            # args[1] is the adan index (1-5)
+            # NotificationManager expects a 0-based index (0-4)
+            self.components["NotificationManager"].handle_adan_duration_changed(args[0], args[1] - 1)
         
         elif event == "adan_time_changed":
             self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
