@@ -91,12 +91,6 @@ class AdanManager():
         self.update_ui()
         self.update_jomoaa_ui()
 
-    # def set_fajer_sound_source(self):
-    #     self.fajer_sound.set_source()
-
-    # def set_basic_sound_source(self):
-    #     self.basic_sound.set_source()
-
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
@@ -124,8 +118,8 @@ class AdanManager():
                 self.mediator.notify(self, "audio_duration_changed", duration, adan_index)
 
                 # this should be remove when jomoaa sound file is added to ui
-                if adan_index == 2:
-                    self.mediator.notify(self, "audio_duration_changed", duration, 6)
+                # if adan_index == 2:
+                #     self.mediator.notify(self, "audio_duration_changed", duration, 6)
                 
 
         temp_player.durationChanged.connect(on_duration_changed)
@@ -212,29 +206,12 @@ class AdanManager():
 
         return Adan(adan_name_label, adan_time, adan_time_label)
 
-    # def set_not_adan_time(self):
-    #     self.player_manager.set_is_adan_playing(False)
-    #     self.next_adan.set_praper_for_adan_call(False)
-
     def start_adan(self, adan):
         if adan.check_state():
             # Create a PlayAudioCommand with the adan's sound path
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             # Pass the command to the mediator
             self.mediator.notify(self, "request_playback", command)
-
-    # def get_next_adan_sound(self):
-    #     name = self.next_adan.get_next_adan_name()
-    #     if name == "الفجر":
-    #         return self.fajer_sound
-    #     elif name == "الظهر":
-    #         return self.dohor_sound
-    #     elif name == "العصر":
-    #         return self.aser_sound
-    #     elif name == "المغرب":
-    #         return self.magreb_sound
-    #     else:
-    #         return self.ishaa_sound
 
     def change_adan_sound(self, adan_name):
     
@@ -276,13 +253,7 @@ class AdanManager():
         # calculating audio duration to alert notification manager
         if adan_name in adan_index_map:
             self.calc_audio_duration(path, adan_index_map[adan_name])
-        
-    # def change_basic_sound(self, widget):
-
-    #     self.basic_sound.select_sound_file(widget)
-    #     self.set_basic_sound_source()
-    #     self.database_manager.update_adans_sound("basic_adan", self.basic_sound.get_file_path())
-            
+                
     def helper(self, adans, new_quds_diff, is_summer):
 
         temp = new_quds_diff

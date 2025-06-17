@@ -103,10 +103,10 @@ class NotificationManager:
         Returns:
             int: The duration in seconds
         """
-        # Convert notification index (1-6) to duration index (0-4)
+        # Convert notification index (1-6) to duration index (0-5)
         duration_index = index - 1
         
-        # Special case: Jomoaa (index 6) uses the same duration as Dohor (index 2)
+        # Special case: Jomoaa (index 6) uses the same duration as Dohor (index 1)
         if index == 6:
             duration_index = 1  # Dohor's index in adans_duration
         
@@ -154,6 +154,7 @@ class NotificationManager:
         adan_index = args[0]
         time = self.get_adan_time(adan_index)
         
+
         minutes = args[1]
         duration = args[3]
 
@@ -438,8 +439,8 @@ class NotificationManager:
         """
         # Handle special case for Jomoaa (index 6)
         prayers_index = adan_index - 1
-        if adan_index == 6:
-            prayers_index = 1  # Dohor's index in prayers_times
+        # if adan_index == 6:
+        #     prayers_index = 1  # Dohor's index in prayers_times
         
         if 0 <= prayers_index < len(self.prayers_times):
             return self.prayers_times[prayers_index]
@@ -533,14 +534,9 @@ class NotificationManager:
         Args:
             new_duration (int): The new duration in milliseconds
             adan_index (int): The index of the Adan (0-4)
-        """
-        print()
-        print()
-        print(" from handle_adan_duration_changed ")
-        print(f"adan index: {adan_index}")
-        print()
-        print()
 
+            act like jomoaa and dohor is the same
+        """
         self.update_adan_duration(adan_index, new_duration)
 
         # Update all notifications that use this Adan
