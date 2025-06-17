@@ -6,55 +6,65 @@ class DatabaseManager:
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(DatabaseManager, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(DatabaseManager, cls).__new__(cls)
+            cls._instance._initialized = False  # Add initialization flag
         return cls._instance
 
     def __init__(self):
-        if hasattr(self, '_initialized') and self._initialized:
-            return  # Prevent reinitialization
+        # Only initialize once
+        if not self._initialized:
+            self.db_name = 'adanProgram.db'
 
-        self.db_name = 'adanProgram.db'
+            # create/connect to the database
+            con = sqlite3.connect(self.db_name)
+            cur = con.cursor()
+            
+            # create general settings table if not exists
+            cur.execute("CREATE TABLE if not exists general_settings(name TEXT, value TEXT)")
+            con.commit()
+            
+            # create notification table
+            cur.execute("CREATE TABLE if not exists notification (adan_index Integer, seconds Integer, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer, active Integer, adan_duration Integer)")
+            con.commit()
 
-        # create/connect to the database
-        con = sqlite3.connect(self.db_name)
-        cur = con.cursor()
-        
-        # create general settings table if not exists
-        cur.execute("CREATE TABLE if not exists general_settings(name TEXT, value TEXT)")
-        con.commit()
-        
-        # create notification table
-        cur.execute("CREATE TABLE if not exists notification (adan_index Integer, seconds Integer, date TEXT, duartion Integer, file_path TEXT, is_permanant Integer, noti_type Integer, active Integer, adan_duration Integer)")
-        con.commit()
+            cur.execute("CREATE TABLE if not exists adans_state (adan_index Integer, is_active Integer)")
+            con.commit()
+            
+            # Add volume column to adans_sound table if it doesn't exist
+            try:
+                cur.execute("SELECT volume FROM adans_sound LIMIT 1")
+            except sqlite3.OperationalError:
+                try:
+                    # Table exists but column doesn't, add it
+                    cur.execute("ALTER TABLE adans_sound ADD COLUMN volume INTEGER DEFAULT 50")
+                    con.commit()
+                except sqlite3.OperationalError:
+                    # Table doesn't exist, create it
+                    cur.execute("CREATE TABLE if not exists adans_sound (adan TEXT, sound TEXT, volume INTEGER DEFAULT 50)")
+                    con.commit()
+            
+            cur.execute("CREATE TABLE if not exists tokens (token TEXT)")
+            con.commit()
 
-        cur.execute("CREATE TABLE if not exists adans_state (adan_index Integer, is_active Integer)")
-        con.commit()
-        
-        cur.execute("CREATE TABLE if not exists adans_sound (adan TEXT, sound TEXT)")
-        con.commit()
+            cur.execute('''CREATE TABLE if not exists app_version (id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)''')
+            con.commit()
 
-        cur.execute("CREATE TABLE if not exists tokens (token TEXT)")
-        con.commit()
+            con.close()
+            
+            # add default values if table is empty
+            if self.check_if_table_is_empty('general_settings'):
+                self.initialize_general_settings()
+            
+            if self.check_if_table_is_empty('app_version'):
+                self.initialize_app_version()
+            
+            if self.check_if_table_is_empty('adans_state'):
+                self.initialize_adans_state()
+            
+            if self.check_if_table_is_empty('adans_sound'):
+                self.initialize_adans_sound()
 
-        cur.execute('''CREATE TABLE if not exists app_version (id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)''')
-        con.commit()
-
-        con.close()
-        
-        # add default values if table is empty
-        if self.check_if_table_is_empty('general_settings'):
-            self.initialize_general_settings()
-        
-        if self.check_if_table_is_empty('app_version'):
-            self.initialize_app_version()
-        
-        if self.check_if_table_is_empty('adans_state'):
-            self.initialize_adans_state()
-        
-        if self.check_if_table_is_empty('adans_sound'):
-            self.initialize_adans_sound()
-
-        self._initialized = True  # Mark the instance as initialized
+            self._initialized = True  # Mark the instance as initialized
 
     def get_token(self):
         con = sqlite3.connect(self.db_name)
@@ -111,13 +121,19 @@ class DatabaseManager:
         return 
 
     def initialize_adans_sound(self):
-        
-        data = [("fajer_adan", "resources/sounds/azan2.mp3"), ("dohor_adan", "resources/sounds/azan9.mp3"), ("aser_adan", "resources/sounds/azan9.mp3"), ("magreb_adan", "resources/sounds/azan9.mp3"), ("ishaa_adan", "resources/sounds/azan9.mp3") ]
+        # Include default volume values (50%)
+        data = [
+            ("fajer_adan", "resources/sounds/azan2.mp3", 50), 
+            ("dohor_adan", "resources/sounds/azan9.mp3", 50), 
+            ("aser_adan", "resources/sounds/azan9.mp3", 50), 
+            ("magreb_adan", "resources/sounds/azan9.mp3", 50), 
+            ("ishaa_adan", "resources/sounds/azan9.mp3", 50)
+        ]
         
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.executemany("INSERT INTO adans_sound VALUES(?, ?)", data)
+        cur.executemany("INSERT INTO adans_sound VALUES(?, ?, ?)", data)
 
         con.commit()
         con.close()
@@ -131,15 +147,25 @@ class DatabaseManager:
         records = res.fetchall()
 
         con.close()
+        
+        for record in records:
+            print(record)
 
         return records
 
-    def update_adans_sound(self, row_name, new_val):
-        
+    def update_adans_sound(self, row_name, new_val=None, new_volume=None):
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("UPDATE adans_sound SET sound = ? WHERE adan = ?", (new_val, row_name))
+        if new_val is not None and new_volume is not None:
+            # Update both sound path and volume
+            cur.execute("UPDATE adans_sound SET sound = ?, volume = ? WHERE adan = ?", (new_val, new_volume, row_name))
+        elif new_val is not None:
+            # Update only sound path
+            cur.execute("UPDATE adans_sound SET sound = ? WHERE adan = ?", (new_val, row_name))
+        elif new_volume is not None:
+            # Update only volume
+            cur.execute("UPDATE adans_sound SET volume = ? WHERE adan = ?", (new_volume, row_name))
 
         con.commit()
         con.close()

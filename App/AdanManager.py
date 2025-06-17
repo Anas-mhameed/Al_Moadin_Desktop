@@ -129,7 +129,6 @@ class AdanManager():
         self.force_stop_adan_signal.emit()
 
     def request_settings(self):
-        # self.get_settings_signal.emit()
         if self.mediator:
             self.mediator.notify(self, "request_general_settings")
 
@@ -172,6 +171,10 @@ class AdanManager():
             # Set the sound path for each adan
             adan.set_sound_path(resource_path(sound_data[i][1]))
             
+            # Set the volume for each adan (default to 50 if not available)
+            volume = sound_data[i][2] if len(sound_data[i]) > 2 else 50
+            adan.set_volume(volume)
+            
             self.adans.append(adan)
             
             self.connect_adan_to_activate_button(five_prayers[i], adan, adans_labels[i])
@@ -188,12 +191,26 @@ class AdanManager():
         # Find and connect volume slider if it exists
         volume_slider = self.main_widget.findChild(QSlider, f"{adan_label}_volume_slider")
         if volume_slider:
+            # Set the slider value to the adan's volume
             volume_slider.setValue(adan.get_volume())
             volume_slider.valueChanged.connect(lambda value, a=adan, idx=adan_index: self.handle_volume_change(value, a, idx))
 
     def handle_volume_change(self, value, adan, adan_index):
         # Update the volume in the Adan object
         adan.set_volume(value)
+        
+        # Map adan index to database row name
+        adan_db_names = [
+            "fajer_adan",
+            "dohor_adan",
+            "aser_adan",
+            "magreb_adan",
+            "ishaa_adan"
+        ]
+        
+        # Save the volume to the database
+        if 0 <= adan_index < len(adan_db_names):
+            self.database_manager.update_adans_sound(adan_db_names[adan_index], new_volume=value)
         
         # Use mediator to notify PlayerManager about volume change
         if self.mediator:
