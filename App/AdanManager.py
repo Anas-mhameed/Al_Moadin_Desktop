@@ -250,22 +250,31 @@ class AdanManager():
         if adan_name == "fajerSoundButton":
             self.adans[0].set_sound_path(path)
             self.database_manager.update_adans_sound("fajer_adan", path)
+            adan_display_name = "الفجر"
 
         elif adan_name == "dohorSoundButton":
             self.adans[1].set_sound_path(path)
             self.database_manager.update_adans_sound("dohor_adan", path)
+            adan_display_name = "الظهر"
 
         elif adan_name == "aserSoundButton":
             self.adans[2].set_sound_path(path)
             self.database_manager.update_adans_sound("aser_adan", path)
+            adan_display_name = "العصر"
 
         elif adan_name == "magrebSoundButton":
             self.adans[3].set_sound_path(path)
             self.database_manager.update_adans_sound("magreb_adan", path)
+            adan_display_name = "المغرب"
 
         elif adan_name == "ishaaSoundButton":
             self.adans[4].set_sound_path(path)
             self.database_manager.update_adans_sound("ishaa_adan", path)
+            adan_display_name = "العشاء"
+
+        # Show success message
+        if self.mediator:
+            self.mediator.notify(self, "sound_updated_successfully", f"تم تحديث صوت أذان {adan_display_name} بنجاح")
 
         # calculating audio duration to alert notification manager
         if adan_name in adan_index_map:

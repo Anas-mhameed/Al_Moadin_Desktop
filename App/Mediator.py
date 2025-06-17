@@ -50,6 +50,10 @@ class Mediator:
         elif event == "start_adan":
             self.components["MsgManager"].activate_emergency_frame_timer(args[0])
         
+        elif event == "sound_updated_successfully":
+            # args[0] is the success message
+            self.components["MsgManager"].show_auto_close_info("تم التحديث", args[0])
+
         elif event == "new_day_event":
             self.components["AdanManager"].handle_new_day(args[0])
             self.components["AdanManager"].handle_new_jomoaa()
