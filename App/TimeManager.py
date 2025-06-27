@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import  QObject, Signal
+from PySide6.QtCore import  QObject, Signal, QTimer
 from Time import Time
 from AdanTimePrepare import AdanTimePrepare
 from GeneralSettings import GeneralSettings
+import time
 
 
 class TimeManager():
@@ -45,5 +46,18 @@ class TimeManager():
         # self.time.get_formate()
 
     def run(self):
-        #  should run in different thread!!!
+        # Get the current time
+        start_time = time.time()
+        
+        # Run the time update
         self.time.run()
+        
+        # Calculate how long the update took
+        elapsed = time.time() - start_time
+        
+        # Adjust the next timer interval to maintain 1-second precision
+        # If the update took 0.1 seconds, wait 0.9 seconds for the next update
+        next_interval = max(0, 1.0 - elapsed)
+        
+        # Schedule the next update with the adjusted interval
+        QTimer.singleShot(int(next_interval * 1000), self.run)

@@ -203,8 +203,6 @@ class Time():
         if is_new_day:
             self.update_day_date_hijri()
 
-            #  emit new day signal
-            # self.new_day_signal.emit(self.day)
             if self.mediator:
                 self.mediator.notify(self, "new_day_event", self.day)
 

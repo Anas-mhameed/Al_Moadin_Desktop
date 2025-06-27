@@ -140,7 +140,7 @@ class AppManager(QMainWindow):
         self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
         self.stop_notification_button.clicked.connect(lambda: self.player_manager.stop_notification())
 
-        self.start()
+        self.run()
 
     def setup_ui(self):
         
@@ -737,10 +737,10 @@ class AppManager(QMainWindow):
         return self.time_formate_buttons
 
     # start function
-    def start(self):
-        timer = QTimer(self)
-        timer.timeout.connect(lambda: self.run())
-        timer.start(1000)
+    # def start(self):
+    #     timer = QTimer(self)
+    #     timer.timeout.connect(lambda: self.run())
+    #     timer.start(1000)
     
     def run(self):
         self.time_manager.run()

@@ -61,6 +61,8 @@ class NextAdan() :
 
     def intiate_next_adan(self):
 
+
+
         for adan in self.five_prayers:
                 
             next_time = adan.get_adan_time()
@@ -115,8 +117,8 @@ class NextAdan() :
             temp_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1, microseconds= remaining_time.microseconds)
             return (self.remaining_time > zero_timedelta ) and (self.remaining_time < temp_timedelta)
         else:
-
-
+            print(remaining_time)
+            print(zero_timedelta)
             return (remaining_time == zero_timedelta)
         
     def update_curr_time(self, new_curr_time):
@@ -147,6 +149,7 @@ class NextAdan() :
         self.update_ui()
 
         if self.compare_with_timedelta(0):
+            print("start adan")
             # emit a signal to start adan
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
@@ -155,11 +158,9 @@ class NextAdan() :
             self.find_next_adan()
 
         elif self.compare_with_timedelta(0, 30) and not self.prepare_adan_signal_emitted:
-            print("PREPARE EVENT SENT")
             self.mediator.notify("NextAdan", "prepare_for_adan")
             self.prepare_adan_signal_emitted = True
         
         elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
-            print("ALLOW PLAYBACK EVENT SENT")
             self.mediator.notify("NextAdan", "allow_playback")
             self.prepare_adan_signal_emitted = False 
