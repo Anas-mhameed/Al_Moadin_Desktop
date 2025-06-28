@@ -5,7 +5,7 @@ from Adan import Adan
 class AdanSignal(QObject):
 
     adan_time = Signal(Adan)
-    prepare_for_adan = Signal()
+    # prepare_for_adan = Signal()
     force_stop_adan = Signal()
     open_mic = Signal()
     possible_not_adan_time_signal = Signal()
@@ -18,7 +18,7 @@ class NextAdan() :
 
     adan_signal = AdanSignal()
     adan_time_signal = adan_signal.adan_time
-    prepare_for_adan_signal = adan_signal.prepare_for_adan
+    # prepare_for_adan_signal = adan_signal.prepare_for_adan
     force_stop_adan = adan_signal.force_stop_adan
     possible_not_adan_time_signal = adan_signal.possible_not_adan_time_signal
     update_adan_times_signal = adan_signal.update_adan_times_signal
@@ -31,6 +31,8 @@ class NextAdan() :
         self.previous_adan = None
 
         self.prepare_adan_signal_emitted = False
+
+        self.pre_adan_sound_emitted = False
 
         self.mediator = None
 
@@ -117,8 +119,6 @@ class NextAdan() :
             temp_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1, microseconds= remaining_time.microseconds)
             return (self.remaining_time > zero_timedelta ) and (self.remaining_time < temp_timedelta)
         else:
-            print(remaining_time)
-            print(zero_timedelta)
             return (remaining_time == zero_timedelta)
         
     def update_curr_time(self, new_curr_time):
@@ -164,3 +164,10 @@ class NextAdan() :
         elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
             self.mediator.notify("NextAdan", "allow_playback")
             self.prepare_adan_signal_emitted = False 
+        
+        if self.compare_with_timedelta(5, 10) and not self.pre_adan_sound_emitted:
+            self.mediator.notify("NextAdan", "start_pre_adan_sound")
+            self.pre_adan_sound_emitted = True    
+
+        elif not self.compare_with_timedelta(5, 10) and self.pre_adan_sound_emitted:
+            self.pre_adan_sound_emitted = False

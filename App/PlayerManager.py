@@ -41,19 +41,22 @@ class PlayerManager:
         self.player.mediaStatusChanged.connect(lambda status : self._on_status_changed(status))
         self.player.playbackStateChanged.connect(self.on_state_changed)
 
+        self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
+
         self.emerg_frame = emerg_frame
         self.emerg_label = emerg_label
         self.emerg_btn = emerg_btn
         self.emerg_btn.clicked.connect(lambda: self._emergency_stop())
 
         self.cleanup_timer = QTimer()
-        self.cleanup_timer.setInterval(20 * 1000)  # 40 secounds
+        self.cleanup_timer.setInterval(20 * 1000)  # 20 secounds
         self.cleanup_timer.setSingleShot(True)
         self.cleanup_timer.timeout.connect(self._stop_current)
 
         self.is_adan_playing = False
         self.is_notification_playing = False
         self.is_instant_player_playing = False
+        self.is_pre_adan_sound_activated = False
 
         self.msg_box = QMessageBox()
 
@@ -105,14 +108,30 @@ class PlayerManager:
         """Set the mediator for communication."""
         self.mediator = mediator
 
+    def set_pre_adan_sound_state(self, state):
+        self.is_pre_adan_sound_activated = state
+
+    def start_pre_adan_sound(self):
+        if self.is_pre_adan_sound_activated:
+            self.request_playback(PlayAudioCommand("NextAdan", self.pre_adan_sound_path, 50))
+
     def request_playback(self, command: PlayAudioCommand):
         if command.requester == "AdanManager":
+            # if somthing is playing, stop it
+
             self._play(command) 
             self._show_emerg_frame()
+    
+        elif command.requester == "NextAdan" and self.is_adan_near:
+            self._play(command)
+
         else:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
             else :
+                print("im here")
+                if self.isPlaying():
+                    self._stop_current()
                 self._play(command)
                 
     def isPlaying(self):
@@ -125,18 +144,27 @@ class PlayerManager:
         self.player.pause()
 
     def _play(self, command):
-        self.current_command = command
-        url = QUrl.fromLocalFile(command.file_path)
+        print("who is playing ?", self.current_command)
+        print("who wants to play ?", command)
 
+        self.current_command = command
+        print(1)
+        url = QUrl.fromLocalFile(command.file_path)
+        print(2)
         # Set the volume from the command
         volume = command.volume / 100.0  # Convert percentage to 0-1 range
         self.audio_output.setVolume(volume)
         
         if self.player.source() == url:
             self.player.setPosition(0)
+            print(3)
         else:
+            print(3.5)
             self.player.setSource(url)
+            print(4)
+
         self.player.play()
+        print(5)
 
     def _stop_current(self):
         self.player.stop()
@@ -165,7 +193,7 @@ class PlayerManager:
     def current_adan_changed_to_previous(self):
         if self.current_command and self.current_command.requester == "AdanManager" and self.isPlaying():
             self._stop_current()
-    
+
     def stop_notification(self):
         if self.current_command and self.current_command.requester == "NotificationManager" and self.isPlaying():
             self._stop_current()

@@ -15,21 +15,15 @@ class Mediator:
         if event == "quds_diff_time_changed":
             self.components["AdanManager"].handle_quds_diff_change(args[0], args[1])
         
-        
         elif event == "summer_timing_changed":
             self.components["AdanManager"].handle_summer_winter_change(args[0])
         
-        
         elif event == "time_formate_changed":
-
             self.components["TimeManager"].update_time_formate(args[0])
             self.components["AdanManager"].handle_new_time_formate(args[1])
         
-        
         elif event == "request_general_settings":
-
             settings = self.components["GeneralSettings"].collect_settings()
-
 
             self.components["AdanManager"].handle_quds_diff_change(settings['quds_diff_time'], settings['is_summer_formate'])
             self.components["AdanManager"].handle_summer_winter_change(settings['is_summer_formate'])
@@ -37,7 +31,8 @@ class Mediator:
 
             self.components["TimeManager"].update_time_formate(settings['time_formate'][0])
 
-        
+            self.components["PlayerManager"].set_pre_adan_sound_state(settings['is_pre_adan_sound_activated'])
+
         elif event == "request_time_formate":
             self.components["GeneralSettings"].set_time_formate()
         
@@ -65,6 +60,9 @@ class Mediator:
             self.components["MsgManager"].show_auto_close_error(args[0], args[1])
         
         elif event == "request_playback":
+            print()
+            print("inside mediator")
+            print(args[0])
             self.components["PlayerManager"].request_playback(args[0])
         
         elif event == "audio_duration_changed":
@@ -82,6 +80,9 @@ class Mediator:
 
         elif event == "request_adans_duration":
             self.components["AdanManager"].get_adans_duration()
-            
+        
+        elif event == "start_pre_adan_sound":
+            self.components["PlayerManager"].start_pre_adan_sound()
 
-
+        elif event == "pre_adan_sound_state_changed":
+            self.components["PlayerManager"].set_pre_adan_sound_state(args[0])

@@ -215,6 +215,7 @@ class DatabaseManager:
             ('quds_time_diff', '0'),
             ('is_summer_time', '1'),
             ('time_formate', '1'),
+            ('is_pre_adan_sound_activated', '0')
         ]
 
         cur.executemany("INSERT INTO general_settings VALUES(?, ?)", data)

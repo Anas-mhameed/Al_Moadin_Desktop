@@ -464,7 +464,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -3948,8 +3948,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>100</width>
-                     <height>31</height>
+                     <width>986</width>
+                     <height>381</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -5113,6 +5113,49 @@ border: 4px solid black;
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="pre_adan_sound_checkbox">
+               <property name="font">
+                <font>
+                 <family>Microsoft Uighur</family>
+                 <pointsize>28</pointsize>
+                </font>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+    border: 1px solid gray;
+    background-color: white;
+}
+
+QCheckBox::indicator:checked {
+    image: none;
+    background-color: white;
+    border: 2px solid black;
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/newPrefix/images/check_mark.png); 
+}</string>
+               </property>
+               <property name="text">
+                <string>جهاز مستشعر الصوت</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>80</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QFrame" name="frame_25">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -5125,6 +5168,11 @@ border: 4px solid black;
                  <width>16777215</width>
                  <height>60</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Montserrat Subrayada</family>
+                </font>
                </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>

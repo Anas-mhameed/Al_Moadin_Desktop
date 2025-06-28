@@ -1,6 +1,7 @@
 from Runnable import Runnable
 from PySide6.QtCore import QObject, Signal
 from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
+from PySide6.QtCore import Qt
 
 class SettingsSignals(QObject):
     
@@ -23,7 +24,7 @@ class GeneralSettings():
     summer_timing_changed = settings_signals.summer_timing_signal
     quds_diff_changed = settings_signals.quds_diff_signal
 
-    def __init__(self, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
+    def __init__(self, pre_adan_sound_checkbox, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
@@ -35,6 +36,7 @@ class GeneralSettings():
         self.quds_time_diff_input = quds_time_diff_input
         self.summer_winter_buttons = winter_summer_buttons
         self.time_formate_buttons = time_formate_buttons
+        self.pre_adan_sound_checkbox = pre_adan_sound_checkbox
 
         self.runnable_manager = runnable_manager
 
@@ -53,7 +55,10 @@ class GeneralSettings():
 
         self.time_formate = ("%H:%M:%S", "%H:%M")
 
-        # self.set_time_formate()
+        self.is_pre_adan_sound_activated = bool(int(data[5][1]))
+        print(f"General Settings pre adan sound activated ? {self.is_pre_adan_sound_activated}")
+        # intiate pre adan sound checkbox to db value
+        self.pre_adan_sound_checkbox.setChecked(self.is_pre_adan_sound_activated)
 
         # intiate quds time diff to db value
         self.quds_time_diff_input.setValue(self.quds_time_diff)
@@ -68,10 +73,6 @@ class GeneralSettings():
 
         self.time_formate_buttons[1].setChecked(self.is_24_formate)
 
-        # self.is_24_formate = self.summer_winter_buttons[1].isChecked()
-
-        # self.time_handling_functions = []
-
         self.masjed_name_input.textChanged.connect(lambda: self.update_masjed_name())
         self.city_input.textChanged.connect(lambda: self.update_city())
         self.quds_time_diff_input.valueChanged.connect(lambda: self.change_quds_diff())
@@ -79,6 +80,7 @@ class GeneralSettings():
         self.summer_winter_buttons[1].clicked.connect(lambda: self.switch_summer_winter(index=1))
         self.time_formate_buttons[0].clicked.connect(lambda: self.change_time_formate(0))
         self.time_formate_buttons[1].clicked.connect(lambda: self.change_time_formate(1))
+        self.pre_adan_sound_checkbox.toggled.connect(lambda checked: self.change_pre_adan_sound(checked))
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
@@ -194,6 +196,12 @@ class GeneralSettings():
         if self.mediator:
             self.mediator.notify(self, "time_formate_changed", self.time_formate[0], self.time_formate[1])
         
+    def change_pre_adan_sound(self, checked):
+        self.is_pre_adan_sound_activated = checked
+
+        self.save_to_db('is_pre_adan_sound_activated', '1' if checked else '0')
+        if self.mediator:
+            self.mediator.notify(self, "pre_adan_sound_state_changed", checked)
 
     def update_ui(self):
         self.masjed_name_label.setText(f"{self.msjed_name} - {self.city}")
@@ -203,6 +211,7 @@ class GeneralSettings():
             'is_summer_formate' : self.is_summer_time,
             'quds_diff_time' : self.quds_time_diff,
             'time_formate' : self.time_formate,
+            'is_pre_adan_sound_activated' : self.is_pre_adan_sound_activated
             }
         return settings
 
