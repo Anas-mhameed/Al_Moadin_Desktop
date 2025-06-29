@@ -3,20 +3,7 @@ from PlayAudioCommand import PlayAudioCommand
 from helper_functions import select_sound_file
 from PySide6.QtCore import QObject, Signal
 
-class InstantPlayersignals(QObject):
-    
-    can_I_play_signal = Signal()
-    finished_signal = Signal()
-
-    show_msg_signal = Signal(str, str, int)
-
-
 class InstantPlayer:
-
-    instant_player_signals = InstantPlayersignals()
-    can_I_play = instant_player_signals.can_I_play_signal
-    finished_signal = instant_player_signals.finished_signal
-    show_msg_signal = instant_player_signals.show_msg_signal
 
     def __init__(self, main_widget, player_manager, choose_file_button, delete_file_button, position_controller, play_button, pause_button, resume_button, stop_button):
 
@@ -65,14 +52,6 @@ class InstantPlayer:
 
     def ask_player_manager_to_play(self):
         self.player_manager.request_playback(PlayAudioCommand("InstantPlayer", self.file_path))
-        # if self.file_path == "" :
-            
-        #     msg = "لا يوجد ملف صوتي"  
-
-        #     self.show_msg_signal.emit(msg, "", 3)     
-
-        # else:
-        #     self.can_I_play.emit()
 
     def ask_to_pause(self):
         self.player_manager.pause_instant_player()
