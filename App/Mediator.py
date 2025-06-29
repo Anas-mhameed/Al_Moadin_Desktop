@@ -24,9 +24,9 @@ class Mediator:
         
         elif event == "request_general_settings":
             settings = self.components["GeneralSettings"].collect_settings()
-
-            self.components["AdanManager"].handle_quds_diff_change(settings['quds_diff_time'], settings['is_summer_formate'])
+            
             self.components["AdanManager"].handle_summer_winter_change(settings['is_summer_formate'])
+            self.components["AdanManager"].handle_quds_diff_change(settings['quds_diff_time'], settings['is_summer_formate'])
             self.components["AdanManager"].handle_new_time_formate(settings['time_formate'][1])
 
             self.components["TimeManager"].update_time_formate(settings['time_formate'][0])
