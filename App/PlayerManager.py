@@ -58,6 +58,9 @@ class PlayerManager:
         self.is_instant_player_playing = False
         self.is_pre_adan_sound_activated = False
 
+        self.pending_command = None
+        self.waiting_to_set_source = False
+
         self.msg_box = QMessageBox()
 
         self.sound_lst = []
@@ -70,6 +73,16 @@ class PlayerManager:
         elif state == QMediaPlayer.PlayingState:
             if self.current_command.requester == "AdanManager" and self.cleanup_timer.isActive():
                 self.cleanup_timer.stop()
+
+        elif self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
+            if self.pending_command:
+                command = self.pending_command
+                self.pending_command = None
+                self.waiting_to_set_source = False
+
+                # Delay playback slightly to avoid FFmpeg/Qt bug
+                QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
+                # self._play(command)
 
         elif state == QMediaPlayer.StoppedState:
             if self.current_command.requester == "AdanManager":
@@ -129,10 +142,12 @@ class PlayerManager:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
             else :
-                print("im here")
                 if self.isPlaying():
+                    self.pending_command = command
+                    self.waiting_to_set_source = True
                     self._stop_current()
-                self._play(command)
+                else:
+                    self._play(command)
                 
     def isPlaying(self):
         return self.player.isPlaying()
@@ -144,27 +159,19 @@ class PlayerManager:
         self.player.pause()
 
     def _play(self, command):
-        print("who is playing ?", self.current_command)
-        print("who wants to play ?", command)
 
         self.current_command = command
-        print(1)
         url = QUrl.fromLocalFile(command.file_path)
-        print(2)
         # Set the volume from the command
         volume = command.volume / 100.0  # Convert percentage to 0-1 range
         self.audio_output.setVolume(volume)
         
         if self.player.source() == url:
             self.player.setPosition(0)
-            print(3)
         else:
-            print(3.5)
             self.player.setSource(url)
-            print(4)
 
         self.player.play()
-        print(5)
 
     def _stop_current(self):
         self.player.stop()
