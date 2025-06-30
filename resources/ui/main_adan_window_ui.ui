@@ -464,7 +464,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -3948,8 +3948,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>986</width>
-                     <height>381</height>
+                     <width>100</width>
+                     <height>31</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -4056,8 +4056,20 @@ background-color: rgb(198, 35, 20);
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_32">
+          <property name="topMargin">
+           <number>44</number>
+          </property>
+          <property name="rightMargin">
+           <number>58</number>
+          </property>
           <item>
            <widget class="QLabel" name="quraan_coming_soon_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <family>Microsoft Uighur</family>
@@ -4068,12 +4080,113 @@ background-color: rgb(198, 35, 20);
              <string notr="true">color:black;</string>
             </property>
             <property name="text">
-             <string>قريبا ...</string>
+             <string>القرءان</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignCenter</set>
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_17">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_29">
+             <item>
+              <spacer name="horizontalSpacer_17">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QListWidget" name="quraan_list_widget">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>480</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>480</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+    QListWidget {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    QListWidget::item {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        color: #333;
+    }
+
+    QListWidget::item:selected {
+        background-color: #cce5ff;
+        color: #000;
+    }
+
+    QListWidget::item:hover {
+        background-color: #e6f2ff;
+    }
+
+</string>
+               </property>
+               <property name="verticalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
+               </property>
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustIgnored</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
