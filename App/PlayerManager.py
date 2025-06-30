@@ -1,7 +1,4 @@
 from PlayAudioCommand import PlayAudioCommand
-
-from Sound import Sound
-
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import QTimer
@@ -219,3 +216,7 @@ class PlayerManager:
             
             # Also update the volume in the current command
             self.current_command.volume = volume
+
+    def stop_quraan_audio(self):
+        if self.current_command and self.current_command.requester == "QuraanPageManager" and self.isPlaying():
+            self._stop_current()

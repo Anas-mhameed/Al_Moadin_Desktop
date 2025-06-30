@@ -60,9 +60,6 @@ class Mediator:
             self.components["MsgManager"].show_auto_close_error(args[0], args[1])
         
         elif event == "request_playback":
-            print()
-            print("inside mediator")
-            print(args[0])
             self.components["PlayerManager"].request_playback(args[0])
         
         elif event == "audio_duration_changed":
@@ -86,3 +83,6 @@ class Mediator:
 
         elif event == "pre_adan_sound_state_changed":
             self.components["PlayerManager"].set_pre_adan_sound_state(args[0])
+
+        elif event == "stop_quraan_audio":
+            self.components["PlayerManager"].stop_quraan_audio()
