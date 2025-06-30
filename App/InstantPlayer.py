@@ -1,7 +1,5 @@
-from AudioPriority import AudioPriority
 from PlayAudioCommand import PlayAudioCommand
 from helper_functions import select_sound_file
-from PySide6.QtCore import QObject, Signal
 
 class InstantPlayer:
 

@@ -279,7 +279,98 @@ class AdanManager():
         # calculating audio duration to alert notification manager
         if adan_name in adan_index_map:
             self.calc_audio_duration(path, adan_index_map[adan_name])
-                
+
+    def change_pre_adan_sound(self):
+        """Allow user to select a pre-adhan sound file"""
+        print("DEBUG: change_pre_adan_sound called")
+
+        try:
+            file_path = select_sound_file(self.main_widget)
+            print(f"DEBUG: Selected file path: {file_path}")
+
+            if not file_path:  # Check if a file was selected
+                print("DEBUG: No file selected, returning early")
+                return
+
+            path = resource_path(file_path)
+            print(f"DEBUG: Resource path: {path}")
+
+            # Update pre-adhan sound in database
+            print("DEBUG: Updating database...")
+            self.database_manager.update_pre_adan_sound(file_path=path)
+            print("DEBUG: Database updated successfully")
+
+            # Show success message
+            print(f"DEBUG: Mediator exists: {self.mediator is not None}")
+            if self.mediator:
+                print("DEBUG: Calling mediator.notify...")
+                self.mediator.notify(self, "sound_updated_successfully", "تم تحديث صوت ما قبل الأذان بنجاح")
+                print("DEBUG: Mediator.notify completed")
+            else:
+                print("DEBUG: Mediator is None!")
+
+        except Exception as e:
+            print(f"DEBUG: Exception occurred: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def test_pre_adan_mediator(self):
+        """Test method to verify mediator notification works"""
+        print("DEBUG: test_pre_adan_mediator called")
+        print(f"DEBUG: Mediator exists: {self.mediator is not None}")
+        if self.mediator:
+            print("DEBUG: Calling mediator.notify for test...")
+            self.mediator.notify(self, "sound_updated_successfully", "اختبار إشعار صوت ما قبل الأذان")
+            print("DEBUG: Test mediator.notify completed")
+        else:
+            print("DEBUG: Mediator is None in test!")
+
+    def set_pre_adan_sound_direct(self, file_path):
+        """Set pre-adhan sound directly without file dialog (for testing)"""
+        print(f"DEBUG: set_pre_adan_sound_direct called with: {file_path}")
+
+        try:
+            if not file_path:
+                print("DEBUG: No file path provided")
+                return
+
+            path = resource_path(file_path)
+            print(f"DEBUG: Resource path: {path}")
+
+            # Update pre-adhan sound in database
+            print("DEBUG: Updating database...")
+            self.database_manager.update_pre_adan_sound(file_path=path)
+            print("DEBUG: Database updated successfully")
+
+            # Show success message
+            print(f"DEBUG: Mediator exists: {self.mediator is not None}")
+            if self.mediator:
+                print("DEBUG: Calling mediator.notify...")
+                self.mediator.notify(self, "sound_updated_successfully", "تم تحديث صوت ما قبل الأذان بنجاح")
+                print("DEBUG: Mediator.notify completed")
+            else:
+                print("DEBUG: Mediator is None!")
+
+        except Exception as e:
+            print(f"DEBUG: Exception occurred: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def toggle_pre_adan_sound(self, enabled):
+        """Enable or disable pre-adhan sound"""
+        self.database_manager.update_pre_adan_sound(is_enabled=enabled)
+
+        status = "تم تفعيل" if enabled else "تم إلغاء"
+        if self.mediator:
+            self.mediator.notify(self, "sound_updated_successfully", f"{status} صوت ما قبل الأذان")
+
+    def set_pre_adan_volume(self, volume):
+        """Set pre-adhan sound volume"""
+        self.database_manager.update_pre_adan_sound(volume=volume)
+
+        if self.mediator:
+            self.mediator.notify(self, "sound_updated_successfully", f"تم تحديث مستوى صوت ما قبل الأذان إلى {volume}%")
+
     def helper(self, adans, new_quds_diff, is_summer):
 
         temp = new_quds_diff

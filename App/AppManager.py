@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QComboBox,
     QCalendarWidget,
     QScrollArea,
+    QCheckBox,
+    QListWidget,
     )
 from ResourceFile import resource_path
 from PySide6.QtGui import QFontDatabase, QFont
@@ -33,7 +35,7 @@ from ZigbeeController import ZigbeeController
 from ProgramUpdater import ProgramUpdater
 from DatabaseManager import DatabaseManager
 from Mediator import Mediator
-
+from QuraanPageManager import QuraanPageManager
 
 class AppManager(QMainWindow):
 
@@ -105,7 +107,7 @@ class AppManager(QMainWindow):
         self.adan_manager = AdanManager(self, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
 
-        self.general_settings = GeneralSettings(self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
+        self.general_settings = GeneralSettings(self.pre_adan_sound_checkbox, self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
         self.mediator.register("GeneralSettings", self.general_settings)
 
         self.time_manager = TimeManager(self.mediator, self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label)
@@ -124,6 +126,8 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
 
+        self.quraan_list_manager = QuraanPageManager(self.quraan_list_widget)
+        self.mediator.register("QuraanPageManager", self.quraan_list_manager)
 
         # Here -----------------------------------------
 
@@ -143,7 +147,7 @@ class AppManager(QMainWindow):
         self.run()
 
     def setup_ui(self):
-        
+
         Rubik_font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Rubik/static/Rubik-SemiBold.ttf"))
         Rubik_SemiBold_font_family = QFontDatabase.applicationFontFamilies(Rubik_font_id)[0]
         Rubik_SemiBold_font_38 = QFont(Rubik_SemiBold_font_family, 38)
@@ -181,6 +185,10 @@ class AppManager(QMainWindow):
         ChivoMono_VariableFont_wght_font_family = QFontDatabase.applicationFontFamilies(Chivo_Mono_font_id)[0]
         ChivoMono_VariableFont_wght_font_80 = QFont(ChivoMono_VariableFont_wght_font_family, 80)
         ChivoMono_VariableFont_wght_font_80.setWeight(QFont.Bold)
+
+        self.quraan_list_widget = self.ui.findChild(QListWidget, "quraan_list_widget")
+        
+        self.pre_adan_sound_checkbox = self.ui.findChild(QCheckBox, "pre_adan_sound_checkbox")
 
         self.menu_title_label = self.ui.findChild(QLabel, "menuTitleLabel")
         self.menu_title_label.setFont(tajawal_bold_font_20)

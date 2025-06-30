@@ -56,7 +56,7 @@ class GeneralSettings():
         self.time_formate = ("%H:%M:%S", "%H:%M")
 
         self.is_pre_adan_sound_activated = bool(int(data[5][1]))
-        print(f"General Settings pre adan sound activated ? {self.is_pre_adan_sound_activated}")
+        
         # intiate pre adan sound checkbox to db value
         self.pre_adan_sound_checkbox.setChecked(self.is_pre_adan_sound_activated)
 
