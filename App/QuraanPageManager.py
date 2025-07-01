@@ -16,15 +16,6 @@ class QuraanPageManager(QWidget):
 
         self.populate_list()
 
-        # Connect the signal
-        # self.list_widget.itemDoubleClicked.connect(self.play_selected_audio)
-
-    # def populate_list(self):
-    #     audio_files = get_audio_files(self.audio_dir)
-    #     self.list_widget.clear()
-        
-    #     for filename in audio_files:
-    #         self.list_widget.addItem(QListWidgetItem(filename))
 
     def populate_list(self):
         audio_files = get_audio_files(self.audio_dir)
@@ -46,11 +37,11 @@ class QuraanPageManager(QWidget):
 
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, widget)
-
-    
+ 
     def play_audio(self, filename, widget):
         full_path = os.path.join(self.audio_dir, filename)
-        command = PlayAudioCommand("QuraanPageManager",full_path)
+
+        command = PlayAudioCommand("QuraanPageManager", full_path, index=self.get_item_index_by_widget(widget))
 
         self.mediator.notify(self, "request_playback", command)       
 
@@ -60,9 +51,22 @@ class QuraanPageManager(QWidget):
         self.current_widget = widget
         widget.set_active_style()
 
+    def get_item_index_by_widget(self, widget: QWidget) -> int:
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            if self.list_widget.itemWidget(item) == widget:
+                return i
+        return -1  # Not found
+
+    def set_inactive_style_by_index(self, index: int):
+        item = self.list_widget.item(index)
+        widget = self.list_widget.itemWidget(item)
+        if widget:
+            widget.set_inactive_style()
+
     def stop_audio(self, widget):
-        self.mediator.notify(self, "stop_quraan_audio")
-        widget.set_inactive_style()
+        index = self.get_item_index_by_widget(widget)
+        self.mediator.notify(self, "stop_quraan_audio", index)
 
         if self.current_widget == widget:
             self.current_widget = None

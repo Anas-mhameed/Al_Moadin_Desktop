@@ -85,4 +85,7 @@ class Mediator:
             self.components["PlayerManager"].set_pre_adan_sound_state(args[0])
 
         elif event == "stop_quraan_audio":
-            self.components["PlayerManager"].stop_quraan_audio()
+            self.components["PlayerManager"].stop_quraan_audio(args[0])
+        
+        elif event == "quraan_audio_finished":
+            self.components["QuraanPageManager"].set_inactive_style_by_index(args[0])

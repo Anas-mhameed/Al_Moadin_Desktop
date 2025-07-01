@@ -14,9 +14,6 @@ class AudioItemWidget(QWidget):
         Tajawal_font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Tajawal/Tajawal-Bold.ttf"))
         tajawal_bold_font_family = QFontDatabase.applicationFontFamilies(Tajawal_font_id)[0]
         tajawal_bold_font_18 = QFont(tajawal_bold_font_family, 18)
-
-        # self.setMinimumHeight(50)
-        # self.setMinimumWidth(300)  
         
         self.setStyleSheet("background-color: blue;")
 
@@ -49,10 +46,8 @@ class AudioItemWidget(QWidget):
 
     def play(self):
         self.play_callback(self.filename, self)
-        # print("playing ...")
 
     def stop(self):
-        # print("stoping ...")
         self.stop_callback(self)
 
     def sizeHint(self):
@@ -65,7 +60,6 @@ class AudioItemWidget(QWidget):
                 border: none;  /* Optional: remove button border */
             }
         """)
-
 
     def set_active_style(self):
         self.setStyleSheet("""

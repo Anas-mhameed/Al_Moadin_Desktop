@@ -79,12 +79,13 @@ class PlayerManager:
 
                 # Delay playback slightly to avoid FFmpeg/Qt bug
                 QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
-                # self._play(command)
 
         elif state == QMediaPlayer.StoppedState:
             if self.current_command.requester == "AdanManager":
                 self.cleanup_timer.stop()
                 self._hide_emerg_frame()
+            elif self.current_command.requester == "QuraanPageManager":
+                self.mediator.notify(self, "quraan_audio_finished", self.current_command.index)
             self._clear_command()
 
     def _clear_command(self):
@@ -217,6 +218,6 @@ class PlayerManager:
             # Also update the volume in the current command
             self.current_command.volume = volume
 
-    def stop_quraan_audio(self):
-        if self.current_command and self.current_command.requester == "QuraanPageManager" and self.isPlaying():
+    def stop_quraan_audio(self, index):
+        if self.current_command and self.current_command.requester == "QuraanPageManager" and self.current_command.index == index and self.isPlaying():
             self._stop_current()
