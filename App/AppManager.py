@@ -126,7 +126,7 @@ class AppManager(QMainWindow):
 
         self.time_manager.connect_to_time_updated_signal(self.notification_manager.handel_time_changed)
 
-        self.quraan_list_manager = QuraanPageManager(self.quraan_list_widget)
+        self.quraan_list_manager = QuraanPageManager(self.quraan_list_widget, self.adan_sounds_list_widget, self.fajer_sounds_list_widget)
         self.mediator.register("QuraanPageManager", self.quraan_list_manager)
 
         # Here -----------------------------------------
@@ -176,6 +176,7 @@ class AppManager(QMainWindow):
         Vazirmatn_font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Vazirmatn/static/Vazirmatn-Bold.ttf"))
         Vazirmatn_Bold_font_family = QFontDatabase.applicationFontFamilies(Vazirmatn_font_id)[0]
         Vazirmatn_Bold_font_34 = QFont(Vazirmatn_Bold_font_family, 34)
+        Vazirmatn_Bold_font_28 = QFont(Vazirmatn_Bold_font_family, 28)
 
         Readex_Pro_font_id = QFontDatabase.addApplicationFont(resource_path("resources/fonts/Readex_Pro/static/ReadexPro-Regular.ttf"))
         ReadexPro_font_family = QFontDatabase.applicationFontFamilies(Readex_Pro_font_id)[0]
@@ -186,6 +187,8 @@ class AppManager(QMainWindow):
         ChivoMono_VariableFont_wght_font_80 = QFont(ChivoMono_VariableFont_wght_font_family, 80)
         ChivoMono_VariableFont_wght_font_80.setWeight(QFont.Bold)
 
+        self.adan_sounds_list_widget = self.ui.findChild(QListWidget, "adan_sounds_list_widget")
+        self.fajer_sounds_list_widget = self.ui.findChild(QListWidget, "fajer_sounds_list_widget")
         self.quraan_list_widget = self.ui.findChild(QListWidget, "quraan_list_widget")
         
         self.pre_adan_sound_checkbox = self.ui.findChild(QCheckBox, "pre_adan_sound_checkbox")
@@ -497,7 +500,10 @@ class AppManager(QMainWindow):
         self.once_noti_label.setFont(kufi_font_18)
 
         self.quraan_coming_soon_label = self.ui.findChild(QLabel, "quraan_coming_soon_label")
-        self.quraan_coming_soon_label.setFont(Vazirmatn_Bold_font_34)
+        self.quraan_coming_soon_label.setFont(Vazirmatn_Bold_font_28)
+
+        self.ui.findChild(QLabel, "fajer_sounds_label").setFont(Vazirmatn_Bold_font_28)
+        self.ui.findChild(QLabel, "adan_sounds_label").setFont(Vazirmatn_Bold_font_28)
 
     def intiate_adans_state_button(self):
         data = self.database_manager.get_adans_state()

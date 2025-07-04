@@ -5,9 +5,12 @@ from ResourceFile import resource_path
 import os
 
 class AudioItemWidget(QWidget):
-    def __init__(self, filename, play_callback, stop_callback):
+    def __init__(self, filename, audio_dir, category,  play_callback, stop_callback):
         super().__init__()
         self.filename = filename
+        self.audio_dir = audio_dir
+        self.category = category
+        
         self.play_callback = play_callback
         self.stop_callback = stop_callback
 
@@ -45,7 +48,7 @@ class AudioItemWidget(QWidget):
         self.set_inactive_style()
 
     def play(self):
-        self.play_callback(self.filename, self)
+        self.play_callback(self)
 
     def stop(self):
         self.stop_callback(self)

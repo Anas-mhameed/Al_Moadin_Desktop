@@ -85,7 +85,7 @@ class PlayerManager:
                 self.cleanup_timer.stop()
                 self._hide_emerg_frame()
             elif self.current_command.requester == "QuraanPageManager":
-                self.mediator.notify(self, "quraan_audio_finished", self.current_command.index)
+                self.mediator.notify(self, "quraan_audio_finished", self.current_command.index, self.current_command.adan_name)
             self._clear_command()
 
     def _clear_command(self):
@@ -218,6 +218,6 @@ class PlayerManager:
             # Also update the volume in the current command
             self.current_command.volume = volume
 
-    def stop_quraan_audio(self, index):
-        if self.current_command and self.current_command.requester == "QuraanPageManager" and self.current_command.index == index and self.isPlaying():
+    def stop_quraan_audio(self, index, category):
+        if self.current_command and self.current_command.requester == "QuraanPageManager" and self.current_command.index == index and self.current_command.adan_name == category and self.isPlaying():
             self._stop_current()

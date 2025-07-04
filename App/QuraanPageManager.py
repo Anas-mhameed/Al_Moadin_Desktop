@@ -5,21 +5,38 @@ from PlayAudioCommand import PlayAudioCommand
 from AudioItemWidget import AudioItemWidget
 from PySide6.QtCore import QSize, QUrl
 
+CATEGORIES = {
+    "QURAAN": "quraan",
+    "ADAN": "adan",
+    "FAJER": "fajer"
+}
+
 class QuraanPageManager(QWidget):
-    def __init__(self, list_widget: QListWidget):
+    def __init__(self, quraan_list_widget: QListWidget, adan_sounds_list_widget: QListWidget, fajer_sounds_list_widget: QListWidget):
         super().__init__()
 
-        self.audio_dir = './sounds'
-        self.list_widget = list_widget
-        self.list_widget.setSpacing(5)
+        self.quraan_audio_dir = './sounds'
+        self.quraan_list_widget = quraan_list_widget
+        self.quraan_list_widget.setSpacing(5)
         self.current_widget = None  # To track what's playing
 
-        self.populate_list()
+        self.adan_audio_dir = './adan-sounds'
+        self.adan_sounds_list_widget = adan_sounds_list_widget
+        self.adan_sounds_list_widget.setSpacing(5)
+        # how to track current widget
 
+        self.fajer_audio_dir = './fajer-sounds'
+        self.fajer_sounds_list_widget = fajer_sounds_list_widget
+        self.fajer_sounds_list_widget.setSpacing(5)
+        # how to track current widget
 
-    def populate_list(self):
-        audio_files = get_audio_files(self.audio_dir)
-        self.list_widget.clear()
+        self.populate_list(self.quraan_audio_dir, self.quraan_list_widget, CATEGORIES["QURAAN"])
+        self.populate_list(self.adan_audio_dir, self.adan_sounds_list_widget, CATEGORIES["ADAN"])
+        self.populate_list(self.fajer_audio_dir, self.fajer_sounds_list_widget, CATEGORIES["FAJER"])
+
+    def populate_list(self, audio_dir, list_widget: QListWidget, category: str):
+        audio_files = get_audio_files(audio_dir)
+        list_widget.clear()
 
         for filename in audio_files:
 
@@ -28,6 +45,8 @@ class QuraanPageManager(QWidget):
 
             widget = AudioItemWidget(
                 filename,
+                audio_dir = audio_dir,
+                category = category,
                 play_callback=self.play_audio,
                 stop_callback=self.stop_audio
             )
@@ -35,13 +54,13 @@ class QuraanPageManager(QWidget):
             # Ask the widget for its preferred size
             item.setSizeHint(widget.sizeHint())
 
-            self.list_widget.addItem(item)
-            self.list_widget.setItemWidget(item, widget)
+            list_widget.addItem(item)
+            list_widget.setItemWidget(item, widget)
  
-    def play_audio(self, filename, widget):
-        full_path = os.path.join(self.audio_dir, filename)
+    def play_audio(self, widget: AudioItemWidget):
+        full_path = os.path.join(widget.audio_dir, widget.filename)
 
-        command = PlayAudioCommand("QuraanPageManager", full_path, index=self.get_item_index_by_widget(widget))
+        command = PlayAudioCommand("QuraanPageManager", full_path, index=self.get_item_index_by_widget(widget, widget.category), adan_name=widget.category)
 
         self.mediator.notify(self, "request_playback", command)       
 
@@ -51,22 +70,42 @@ class QuraanPageManager(QWidget):
         self.current_widget = widget
         widget.set_active_style()
 
-    def get_item_index_by_widget(self, widget: QWidget) -> int:
-        for i in range(self.list_widget.count()):
-            item = self.list_widget.item(i)
-            if self.list_widget.itemWidget(item) == widget:
+    def get_item_index_by_widget(self, widget: QWidget, category: str) -> int:
+        
+        if category == CATEGORIES["QURAAN"]:
+            list_widget = self.quraan_list_widget
+        elif category == CATEGORIES["ADAN"]:
+            list_widget = self.adan_sounds_list_widget
+        elif category == CATEGORIES["FAJER"]:
+            list_widget = self.fajer_sounds_list_widget
+        else:
+            return -1
+
+        for i in range(list_widget.count()):
+            item = list_widget.item(i)
+            if list_widget.itemWidget(item) == widget:
                 return i
         return -1  # Not found
 
-    def set_inactive_style_by_index(self, index: int):
-        item = self.list_widget.item(index)
-        widget = self.list_widget.itemWidget(item)
+    def set_inactive_style_by_index(self, index: int, category: str):
+    
+        if category == CATEGORIES["QURAAN"]:
+            list_widget = self.quraan_list_widget
+        elif category == CATEGORIES["ADAN"]:
+            list_widget = self.adan_sounds_list_widget
+        elif category == CATEGORIES["FAJER"]:
+            list_widget = self.fajer_sounds_list_widget
+        else:
+            return
+
+        item = list_widget.item(index)
+        widget = list_widget.itemWidget(item)
         if widget:
             widget.set_inactive_style()
 
     def stop_audio(self, widget):
-        index = self.get_item_index_by_widget(widget)
-        self.mediator.notify(self, "stop_quraan_audio", index)
+        index = self.get_item_index_by_widget(widget, widget.category)
+        self.mediator.notify(self, "stop_quraan_audio", index, widget.category)
 
         if self.current_widget == widget:
             self.current_widget = None
