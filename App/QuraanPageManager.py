@@ -62,13 +62,12 @@ class QuraanPageManager(QWidget):
 
         command = PlayAudioCommand("QuraanPageManager", full_path, index=self.get_item_index_by_widget(widget, widget.category), adan_name=widget.category)
 
-        self.mediator.notify(self, "request_playback", command)       
-
         if self.current_widget and self.current_widget != widget:
             self.current_widget.set_inactive_style()
 
         self.current_widget = widget
-        widget.set_active_style()
+
+        self.mediator.notify(self, "request_playback", command)       
 
     def get_item_index_by_widget(self, widget: QWidget, category: str) -> int:
         
@@ -102,6 +101,12 @@ class QuraanPageManager(QWidget):
         widget = list_widget.itemWidget(item)
         if widget:
             widget.set_inactive_style()
+
+    def successful_play(self):
+        self.current_widget.set_active_style()
+
+    def failed_play(self):
+        self.current_widget = None
 
     def stop_audio(self, widget):
         index = self.get_item_index_by_widget(widget, widget.category)

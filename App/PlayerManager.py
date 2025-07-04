@@ -139,6 +139,7 @@ class PlayerManager:
         else:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
+                self.mediator.notify(self, "failed_to_play")
             else :
                 if self.isPlaying():
                     self.pending_command = command
@@ -146,6 +147,8 @@ class PlayerManager:
                     self._stop_current()
                 else:
                     self._play(command)
+
+                self.mediator.notify(self, "successfully_played")
                 
     def isPlaying(self):
         return self.player.isPlaying()
