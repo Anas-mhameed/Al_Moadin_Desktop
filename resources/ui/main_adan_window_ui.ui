@@ -464,7 +464,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -3948,8 +3948,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>31</width>
-                     <height>381</height>
+                     <width>100</width>
+                     <height>31</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -4136,17 +4136,12 @@ background-color: rgb(198, 35, 20);
     QListWidget::item {
         padding: 10px;
         margin: 5px;
-        border-radius: 5px;
         color: #333;
+		border-bottom: 3px solid black;
     }
-
-    QListWidget::item:selected {
-        background-color: #cce5ff;
-        color: #000;
-    }
-
-    QListWidget::item:hover {
-        background-color: #e6f2ff;
+	
+	QListWidget::item:hover {
+ 		background-color: #ffffff;
     }
 
 </string>
@@ -4227,17 +4222,12 @@ background-color: rgb(198, 35, 20);
     QListWidget::item {
         padding: 10px;
         margin: 5px;
-        border-radius: 5px;
         color: #333;
+		border-bottom: 3px solid black;
     }
-
-    QListWidget::item:selected {
-        background-color: #cce5ff;
-        color: #000;
-    }
-
-    QListWidget::item:hover {
-        background-color: #e6f2ff;
+	
+	QListWidget::item:hover {
+ 		background-color: #ffffff;
     }
 
 </string>
@@ -4340,17 +4330,12 @@ background-color: rgb(198, 35, 20);
     QListWidget::item {
         padding: 10px;
         margin: 5px;
-        border-radius: 5px;
         color: #333;
+		border-bottom: 3px solid black;
     }
-
-    QListWidget::item:selected {
-        background-color: #cce5ff;
-        color: #000;
-    }
-
-    QListWidget::item:hover {
-        background-color: #e6f2ff;
+	
+	QListWidget::item:hover {
+ 		background-color: #ffffff;
     }
 
 </string>
