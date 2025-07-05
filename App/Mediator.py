@@ -95,3 +95,6 @@ class Mediator:
         
         elif event == "failed_to_play":
             self.components["QuraanPageManager"].failed_play()
+        
+        elif event == "set_adan_sound":
+            self.components["AdanManager"].update_sound(args[0], args[1])

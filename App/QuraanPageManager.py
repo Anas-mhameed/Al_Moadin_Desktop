@@ -4,6 +4,7 @@ import os
 from PlayAudioCommand import PlayAudioCommand
 from AudioItemWidget import AudioItemWidget
 from PySide6.QtCore import QSize, QUrl
+from AdanAssignmentDialog import AdanAssignmentDialog
 
 CATEGORIES = {
     "QURAAN": "quraan",
@@ -31,10 +32,10 @@ class QuraanPageManager(QWidget):
         # how to track current widget
 
         self.populate_list(self.quraan_audio_dir, self.quraan_list_widget, CATEGORIES["QURAAN"])
-        self.populate_list(self.adan_audio_dir, self.adan_sounds_list_widget, CATEGORIES["ADAN"])
-        self.populate_list(self.fajer_audio_dir, self.fajer_sounds_list_widget, CATEGORIES["FAJER"])
+        self.populate_list(self.adan_audio_dir, self.adan_sounds_list_widget, CATEGORIES["ADAN"], addtional_button_icon = "resources/images/icons8-tool-100.png", assingn_callback = self.open_select_adans_dialog)
+        self.populate_list(self.fajer_audio_dir, self.fajer_sounds_list_widget, CATEGORIES["FAJER"], addtional_button_icon = "resources/images/icons8-tool-100.png", assingn_callback = self.open_select_adans_dialog)
 
-    def populate_list(self, audio_dir, list_widget: QListWidget, category: str):
+    def populate_list(self, audio_dir, list_widget: QListWidget, category: str, addtional_button_icon = None, assingn_callback = None):
         audio_files = get_audio_files(audio_dir)
         list_widget.clear()
 
@@ -48,7 +49,9 @@ class QuraanPageManager(QWidget):
                 audio_dir = audio_dir,
                 category = category,
                 play_callback=self.play_audio,
-                stop_callback=self.stop_audio
+                stop_callback=self.stop_audio,   
+                addtional_button_icon = addtional_button_icon,
+                assingn_callback = assingn_callback,
             )
 
             # Ask the widget for its preferred size
@@ -114,6 +117,15 @@ class QuraanPageManager(QWidget):
 
         if self.current_widget == widget:
             self.current_widget = None
+
+    def open_select_adans_dialog(self, audio_dir, audio_file):
+        full_path = os.path.join(audio_dir, audio_file)
+        dialog = AdanAssignmentDialog(full_path, self.update_sound, is_fajer_adan = audio_dir == self.fajer_audio_dir)
+        dialog.exec_()
+
+    def update_sound(self, file_path, indexs ):
+        for index in indexs:
+            self.mediator.notify(self, "set_adan_sound", index, file_path)
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""

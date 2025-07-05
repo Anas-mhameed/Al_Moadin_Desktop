@@ -13,6 +13,13 @@ from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtCore import QUrl
 
+adan_db_names = [
+            "fajer_adan",
+            "dohor_adan",
+            "aser_adan",
+            "magreb_adan",
+            "ishaa_adan"
+        ]
 
 class AdanManagerSignals(QObject):
     
@@ -200,13 +207,13 @@ class AdanManager():
         adan.set_volume(value)
         
         # Map adan index to database row name
-        adan_db_names = [
-            "fajer_adan",
-            "dohor_adan",
-            "aser_adan",
-            "magreb_adan",
-            "ishaa_adan"
-        ]
+        # adan_db_names = [
+        #     "fajer_adan",
+        #     "dohor_adan",
+        #     "aser_adan",
+        #     "magreb_adan",
+        #     "ishaa_adan"
+        # ]
         
         # Save the volume to the database
         if 0 <= adan_index < len(adan_db_names):
@@ -225,6 +232,8 @@ class AdanManager():
 
     def start_adan(self, adan):
         if adan.check_state():
+            print("from adanManager")
+            print(adan.get_sound_path())
             # Create a PlayAudioCommand with the adan's sound path
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             # Pass the command to the mediator
@@ -248,28 +257,33 @@ class AdanManager():
         }
 
         if adan_name == "fajerSoundButton":
-            self.adans[0].set_sound_path(path)
-            self.database_manager.update_adans_sound("fajer_adan", path)
+            self.update_sound(0, path)
+            # self.adans[0].set_sound_path(path)
+            # self.database_manager.update_adans_sound("fajer_adan", path)
             adan_display_name = "الفجر"
 
         elif adan_name == "dohorSoundButton":
-            self.adans[1].set_sound_path(path)
-            self.database_manager.update_adans_sound("dohor_adan", path)
+            self.update_sound(1, path)
+            # self.adans[1].set_sound_path(path)
+            # self.database_manager.update_adans_sound("dohor_adan", path)
             adan_display_name = "الظهر"
 
         elif adan_name == "aserSoundButton":
-            self.adans[2].set_sound_path(path)
-            self.database_manager.update_adans_sound("aser_adan", path)
+            self.update_sound(2, path)
+            # self.adans[2].set_sound_path(path)
+            # self.database_manager.update_adans_sound("aser_adan", path)
             adan_display_name = "العصر"
 
         elif adan_name == "magrebSoundButton":
-            self.adans[3].set_sound_path(path)
-            self.database_manager.update_adans_sound("magreb_adan", path)
+            self.update_sound(3, path)
+            # self.adans[3].set_sound_path(path)
+            # self.database_manager.update_adans_sound("magreb_adan", path)
             adan_display_name = "المغرب"
 
         elif adan_name == "ishaaSoundButton":
-            self.adans[4].set_sound_path(path)
-            self.database_manager.update_adans_sound("ishaa_adan", path)
+            self.update_sound(4, path)
+            # self.adans[4].set_sound_path(path)
+            # self.database_manager.update_adans_sound("ishaa_adan", path)
             adan_display_name = "العشاء"
 
         # Show success message
@@ -279,6 +293,11 @@ class AdanManager():
         # calculating audio duration to alert notification manager
         if adan_name in adan_index_map:
             self.calc_audio_duration(path, adan_index_map[adan_name])
+
+    def update_sound(self, adan_index, file_path):
+        self.adans[adan_index].set_sound_path(file_path)
+        self.database_manager.update_adans_sound(adan_db_names[adan_index], file_path)
+
 
     def change_pre_adan_sound(self):
         """Allow user to select a pre-adhan sound file"""
@@ -370,6 +389,8 @@ class AdanManager():
 
         if self.mediator:
             self.mediator.notify(self, "sound_updated_successfully", f"تم تحديث مستوى صوت ما قبل الأذان إلى {volume}%")
+
+
 
     def helper(self, adans, new_quds_diff, is_summer):
 
