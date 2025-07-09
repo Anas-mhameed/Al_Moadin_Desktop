@@ -86,6 +86,9 @@ class PlayerManager:
                 self._hide_emerg_frame()
             elif self.current_command.requester == "QuraanPageManager":
                 self.mediator.notify(self, "quraan_audio_finished", self.current_command.index, self.current_command.adan_name)
+            elif self.current_command.requester == "NotificationManager":
+                if hasattr(self, 'duration_timer') and self.duration_timer.isActive():
+                    self.duration_timer.stop()
             self._clear_command()
 
     def _clear_command(self):
@@ -139,7 +142,8 @@ class PlayerManager:
         else:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
-                self.mediator.notify(self, "failed_to_play")
+                if self.current_command and self.current_command.requester == "QuraanPageManager":
+                    self.mediator.notify(self, "failed_to_play")
             else :
                 if self.isPlaying():
                     self.pending_command = command
@@ -147,8 +151,9 @@ class PlayerManager:
                     self._stop_current()
                 else:
                     self._play(command)
-
-                self.mediator.notify(self, "successfully_played")
+                
+                if self.current_command and self.current_command.requester == "QuraanPageManager":
+                    self.mediator.notify(self, "successfully_played")
                 
     def isPlaying(self):
         return self.player.isPlaying()
@@ -160,6 +165,9 @@ class PlayerManager:
         self.player.pause()
 
     def _play(self, command):
+
+        if hasattr(self, 'duration_timer') and self.duration_timer.isActive():
+            self.duration_timer.stop()
 
         self.current_command = command
         url = QUrl.fromLocalFile(command.file_path)
@@ -173,6 +181,14 @@ class PlayerManager:
             self.player.setSource(url)
 
         self.player.play()
+
+        if self.current_command.duration and self.current_command.duration > 0:
+            if not hasattr(self, 'duration_timer'):
+                self.duration_timer = QTimer(self.main_window)
+                self.duration_timer.setSingleShot(True)
+                self.duration_timer.timeout.connect(self.stop_notification)
+
+            self.duration_timer.start(self.current_command.duration * 1000) 
 
     def _stop_current(self):
         self.player.stop()

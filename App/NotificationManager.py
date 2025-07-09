@@ -115,7 +115,6 @@ class NotificationManager:
             total_seconds = duration_in_seconds + 1
             return total_seconds
         else:
-            print(f"Invalid Adan index for getting duration: {index} (converted to {duration_index})")
             return 0
 
     def get_notification_from_db(self):
@@ -150,7 +149,7 @@ class NotificationManager:
         
 
         minutes = args[1]
-        duration = args[3]
+        duration = args[3] * 60 # from minutes to seconds
 
         duration_in_seconds = 0
 
@@ -337,12 +336,6 @@ class NotificationManager:
                 item.widget().hide()
 
     def intialize_notification(self, is_permenant, is_before_adan, adan_index, seconds, date, duration, file_path, is_active):
-        print()
-        print()
-        print(" from intialize_notification ")
-        print(f"adan index: {adan_index}")
-        print()
-        print()
         
         # adan_index is 1-6 (1-based)
         time = self.get_adan_time(adan_index)
@@ -439,7 +432,6 @@ class NotificationManager:
         if 0 <= prayers_index < len(self.prayers_times):
             return self.prayers_times[prayers_index]
         else:
-            print(f"Invalid Adan index for getting time: {adan_index} (converted to {prayers_index})")
             return None
     
     def choose_sound(self, widget):
@@ -489,37 +481,43 @@ class NotificationManager:
                 self.next_noti = None
     
     def handel_time_changed(self, curr_time):
-            
-            # update self.curr_time
-            self.update_curr_time(curr_time)
+        # update self.curr_time
+        self.update_curr_time(curr_time)
 
-            # find next noti if not exist 
-            if not self.next_noti:
-                self.intiate_index()
+        # find next noti if not exist 
+        if not self.next_noti:
+            self.intiate_index()
+            self.find_next_noti()
+
+        if self.next_noti:  
+            if self.check_if_time_to_play(curr_time, self.next_noti):
+                if self.next_noti.activated():
+                    # Create command with duration
+                    command = PlayAudioCommand(
+                        "NotificationManager", 
+                        self.next_noti.get_file_path(),
+                        duration=self.next_noti.get_duration()
+                    )
+                    
+                    # ask player manager to play
+                    self.mediator.notify(self, "request_playback", command)
+
+                # find next notification
+                if self.curr_noti_type:
+                    # remove noti from once lst
+                    self.once_notifications.pop(0)
+                    self.decrease_total_noti_num()
+                    self.delete_notification_from_db(self.next_noti)
+                    self.clear_layout()
+                    self.show_notifications()
+
+                else:
+                    # increase the permenant index by 1
+                    self.permenant_noti_index += 1 
+                    if self.permenant_noti_index == len(self.permenant_notifications):
+                        self.permenant_noti_index = 0
+
                 self.find_next_noti()
-
-            if self.next_noti:  
-                if self.check_if_time_to_play(curr_time, self.next_noti):
-                        if self.next_noti.activated():
-                            # emit signal to player manager (can i play ?)
-                            self.mediator.notify(self, "request_playback", PlayAudioCommand("NotificationManager", self.next_noti.get_file_path()))
-
-                        # find next notification
-                        if self.curr_noti_type:
-                            # remove noti from once lst
-                            self.once_notifications.pop(0)
-                            self.decrease_total_noti_num()
-                            self.delete_notification_from_db(self.next_noti)
-                            self.clear_layout()
-                            self.show_notifications()
-
-                        else:
-                            # increase the permenant index by 1
-                            self.permenant_noti_index += 1 
-                            if self.permenant_noti_index == len(self.permenant_notifications):
-                                self.permenant_noti_index = 0
-
-                        self.find_next_noti()
     
     def handle_adan_duration_changed(self, new_duration, adan_index):
         """
