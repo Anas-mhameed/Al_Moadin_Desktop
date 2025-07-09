@@ -138,13 +138,7 @@ class NotificationManager:
                 self.intialize_notification(is_permenant, noti_type, adan_index, minutes, date, duration, file_path, is_active)
         
     def create_notification(self, is_before_adan, is_permenant, *args):
-        print()
-        print()
-        print(" from create_notification")
-        print(f"adan index: {args[0]}")
-        print()
-        print()
-
+        
         date = None
 
         if not is_permenant:
