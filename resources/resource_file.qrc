@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/mute.png</file>
+    <file>images/volume.png</file>
     <file>images/check_mark.png</file>
     <file>images/mosque.png</file>
     <file>images/button_88647.png</file>

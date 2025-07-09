@@ -1,6 +1,6 @@
 import os
 from PySide6.QtUiTools import QUiLoader
-import resources_rc
+import resources_rc as resources_rc
 from PySide6.QtWidgets import (
     QMainWindow, 
     QStackedWidget, 
