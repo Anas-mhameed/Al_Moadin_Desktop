@@ -95,7 +95,7 @@ class AppManager(QMainWindow):
         self.msg_manager = MsgManager()
         self.mediator.register("MsgManager", self.msg_manager)
 
-        self.player_manager = PlayerManager(self.player_volume_off_on_btn, self, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        self.player_manager = PlayerManager(self.player_volume_off_on_btn, self)
         self.mediator.register("PlayerManager", self.player_manager)
   
 
@@ -337,14 +337,6 @@ class AppManager(QMainWindow):
 
         self.instant_player_choose_file_button.setFont(tajawal_bold_font_14)
         self.instant_player_delete_file_button.setFont(tajawal_bold_font_14)        
-
-        self.emergency_frame = self.ui.findChild(QWidget, "emergency_stop_widget")
-        self.emergency_frame.hide()
-
-        self.emergency_label = self.ui.findChild(QLabel, "emergency_label")
-        self.emergency_label.setFont(kufi_bold_font_18)
-
-        self.emergency_stop_button = self.ui.findChild(QPushButton, "emergency_stop_button")
 
         self.stacked_widget = self.ui.findChild(QStackedWidget, "stackedWidget")
         self.stacked_widget.setCurrentIndex(0)
