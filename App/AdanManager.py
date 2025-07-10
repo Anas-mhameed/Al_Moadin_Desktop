@@ -232,8 +232,6 @@ class AdanManager():
 
     def start_adan(self, adan):
         if adan.check_state():
-            print("from adanManager")
-            print(adan.get_sound_path())
             # Create a PlayAudioCommand with the adan's sound path
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             # Pass the command to the mediator

@@ -27,7 +27,7 @@ class PlayerManager:
     open_mic_signal = player_manager_signals.open_mic_signal
     close_mic_signal = player_manager_signals.close_mic_signal
 
-    def __init__(self, volume_off_on_btn, main_window, emerg_frame, emerg_label, emerg_btn):
+    def __init__(self, volume_off_on_btn, main_window):
         
         self.mediator = None
         self.is_adan_near = False
@@ -46,16 +46,6 @@ class PlayerManager:
         self.is_player_muted = False
 
         self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
-
-        self.emerg_frame = emerg_frame
-        self.emerg_label = emerg_label
-        self.emerg_btn = emerg_btn
-        self.emerg_btn.clicked.connect(lambda: self._emergency_stop())
-
-        self.cleanup_timer = QTimer()
-        self.cleanup_timer.setInterval(20 * 1000)  # 20 secounds
-        self.cleanup_timer.setSingleShot(True)
-        self.cleanup_timer.timeout.connect(self._stop_current)
 
         self.is_adan_playing = False
         self.is_notification_playing = False
@@ -80,15 +70,7 @@ class PlayerManager:
             self.volume_off_on_btn.setIcon(QIcon("resources/images/volume.png"))
 
     def on_state_changed(self, state):
-        if state == QMediaPlayer.PausedState:
-            if self.current_command.requester == "AdanManager":
-                self.cleanup_timer.start()
-
-        elif state == QMediaPlayer.PlayingState:
-            if self.current_command.requester == "AdanManager" and self.cleanup_timer.isActive():
-                self.cleanup_timer.stop()
-
-        elif self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
+        if self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
             if self.pending_command:
                 command = self.pending_command
                 self.pending_command = None
@@ -98,10 +80,7 @@ class PlayerManager:
                 QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
 
         elif state == QMediaPlayer.StoppedState:
-            if self.current_command.requester == "AdanManager":
-                self.cleanup_timer.stop()
-                self._hide_emerg_frame()
-            elif self.current_command.requester == "QuraanPageManager":
+            if self.current_command.requester == "QuraanPageManager":
                 self.mediator.notify(self, "quraan_audio_finished", self.current_command.index, self.current_command.adan_name)
             elif self.current_command.requester == "NotificationManager":
                 if hasattr(self, 'duration_timer') and self.duration_timer.isActive():
@@ -113,28 +92,11 @@ class PlayerManager:
         
     # def _stop_adan(self):
     #     self._stop_current()
-    #     self._hide_emerg_frame()
 
     def _on_status_changed(self, status):
         if status == QMediaPlayer.EndOfMedia:
             pass
-
-    def _emergency_stop(self):
-        if self.emerg_btn.isChecked():
-            self._pause()
-            self.emerg_label.setText("لاستكمال الأذان إضغط هنا ")
-        else:
-            self._resume()
-            self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
-
-    def _show_emerg_frame(self):
-        self.emerg_frame.show()
-
-    def _hide_emerg_frame(self):
-        self.emerg_frame.hide()
-        self.emerg_label.setText("لإيقاف الأذان إضغط هنا")
-        self.emerg_btn.setChecked(False)
-
+ 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
@@ -148,10 +110,7 @@ class PlayerManager:
 
     def request_playback(self, command: PlayAudioCommand):
         if command.requester == "AdanManager":
-            # if somthing is playing, stop it
-
-            self._play(command) 
-            self._show_emerg_frame()
+            self._play(command)
     
         elif command.requester == "NextAdan" and self.is_adan_near:
             self._play(command)
