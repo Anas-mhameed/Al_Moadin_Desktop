@@ -8,21 +8,12 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon
 
 class PlayerManagersignals(QObject):
-    # play_instant_player_signal = Signal()
-    # force_stop_instant_player_signal = Signal()
-
-    # show_msg_signal = Signal(str, str, int)
-
-
     open_mic_signal = Signal()
     close_mic_signal = Signal()
 
 class PlayerManager:
 
     player_manager_signals = PlayerManagersignals()
-    # play_instant_player = player_manager_signals.play_instant_player_signal
-    # force_stop_instant_player = player_manager_signals.force_stop_instant_player_signal
-    # show_msg_signal = player_manager_signals.show_msg_signal
     
     open_mic_signal = player_manager_signals.open_mic_signal
     close_mic_signal = player_manager_signals.close_mic_signal
