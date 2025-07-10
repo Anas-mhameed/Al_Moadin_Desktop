@@ -1661,125 +1661,6 @@ color: rgb(8, 148, 108);}
            </widget>
           </item>
           <item>
-           <widget class="QWidget" name="emergency_stop_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_27">
-             <property name="spacing">
-              <number>15</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <spacer name="horizontalSpacer_25">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="emergency_stop_button">
-               <property name="minimumSize">
-                <size>
-                 <width>46</width>
-                 <height>46</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>46</width>
-                 <height>46</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{
-background-color:rgb(213, 33, 10);
-border-radius: 23px;
-border: none;
-}
-
-QPushButton:hover{
-background-color: rgb(200, 28, 9);
-}
-
-QPushButton:checked{
-	background-color: rgb(8, 185, 123);
-	background-color: rgb(6, 235, 102);
-}</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="../resource_file.qrc">
-                 <normaloff>:/newPrefix/images/power_3039519.png</normaloff>:/newPrefix/images/power_3039519.png</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>46</width>
-                 <height>46</height>
-                </size>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="emergency_label">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Calibri</family>
-                 <pointsize>22</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QWidget{
-color: rgb(193, 18, 51);
-}</string>
-               </property>
-               <property name="text">
-                <string>لإيقاف الأذان إضغط هنا</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_26">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
            <widget class="QWidget" name="adansWidget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -4013,8 +3894,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>986</width>
-                     <height>381</height>
+                     <width>100</width>
+                     <height>31</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
