@@ -56,7 +56,10 @@ class PlayerManager:
             self.is_player_muted = True
             self.volume_off_on_btn.setIcon(QIcon("resources/images/mute.png"))
         else:
-            self.audio_output.setVolume(1.0)
+            if self.current_command:
+                self.audio_output.setVolume(self.current_command.volume / 100.0)
+            else:
+                self.audio_output.setVolume(1.0)
             self.is_player_muted = False
             self.volume_off_on_btn.setIcon(QIcon("resources/images/volume.png"))
 
