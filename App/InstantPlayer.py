@@ -49,7 +49,8 @@ class InstantPlayer:
         btn.setEnabled(False)
 
     def ask_player_manager_to_play(self):
-        self.player_manager.request_playback(PlayAudioCommand("InstantPlayer", self.file_path))
+        if self.file_path != "":
+            self.player_manager.request_playback(PlayAudioCommand("InstantPlayer", self.file_path))
 
     def ask_to_pause(self):
         self.player_manager.pause_instant_player()
