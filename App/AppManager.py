@@ -95,7 +95,7 @@ class AppManager(QMainWindow):
         self.msg_manager = MsgManager()
         self.mediator.register("MsgManager", self.msg_manager)
 
-        self.player_manager = PlayerManager(self, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
+        self.player_manager = PlayerManager(self.player_volume_off_on_btn, self, self.emergency_frame, self.emergency_label, self.emergency_stop_button)
         self.mediator.register("PlayerManager", self.player_manager)
   
 
@@ -186,6 +186,8 @@ class AppManager(QMainWindow):
         ChivoMono_VariableFont_wght_font_family = QFontDatabase.applicationFontFamilies(Chivo_Mono_font_id)[0]
         ChivoMono_VariableFont_wght_font_80 = QFont(ChivoMono_VariableFont_wght_font_family, 80)
         ChivoMono_VariableFont_wght_font_80.setWeight(QFont.Bold)
+
+        self.player_volume_off_on_btn = self.ui.findChild(QPushButton, "player_volume_off_on_btn")
 
         self.adan_sounds_list_widget = self.ui.findChild(QListWidget, "adan_sounds_list_widget")
         self.fajer_sounds_list_widget = self.ui.findChild(QListWidget, "fajer_sounds_list_widget")

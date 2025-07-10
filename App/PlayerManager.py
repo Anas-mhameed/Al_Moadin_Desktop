@@ -5,6 +5,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget  # Needed to keep audio backend happy
 from PySide6.QtCore import QUrl
+from PySide6.QtGui import QIcon
 
 class PlayerManagersignals(QObject):
     # play_instant_player_signal = Signal()
@@ -26,7 +27,7 @@ class PlayerManager:
     open_mic_signal = player_manager_signals.open_mic_signal
     close_mic_signal = player_manager_signals.close_mic_signal
 
-    def __init__(self, main_window, emerg_frame, emerg_label, emerg_btn):
+    def __init__(self, volume_off_on_btn, main_window, emerg_frame, emerg_label, emerg_btn):
         
         self.mediator = None
         self.is_adan_near = False
@@ -37,6 +38,12 @@ class PlayerManager:
         self.player.setAudioOutput(self.audio_output)
         self.player.mediaStatusChanged.connect(lambda status : self._on_status_changed(status))
         self.player.playbackStateChanged.connect(self.on_state_changed)
+
+        self.volume_off_on_btn = volume_off_on_btn
+        self.volume_off_on_btn.setChecked(False)
+        self.volume_off_on_btn.toggled.connect(self.toggle_volume)
+
+        self.is_player_muted = False
 
         self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
 
@@ -61,6 +68,16 @@ class PlayerManager:
         self.msg_box = QMessageBox()
 
         self.sound_lst = []
+    
+    def toggle_volume(self, checked):
+        if checked:
+            self.audio_output.setVolume(0.0)
+            self.is_player_muted = True
+            self.volume_off_on_btn.setIcon(QIcon("resources/images/mute.png"))
+        else:
+            self.audio_output.setVolume(1.0)
+            self.is_player_muted = False
+            self.volume_off_on_btn.setIcon(QIcon("resources/images/volume.png"))
 
     def on_state_changed(self, state):
         if state == QMediaPlayer.PausedState:
@@ -172,7 +189,7 @@ class PlayerManager:
         self.current_command = command
         url = QUrl.fromLocalFile(command.file_path)
         # Set the volume from the command
-        volume = command.volume / 100.0  # Convert percentage to 0-1 range
+        volume = 0.0 if self.is_player_muted else command.volume / 100.0  # Convert percentage to 0-1 range
         self.audio_output.setVolume(volume)
         
         if self.player.source() == url:
