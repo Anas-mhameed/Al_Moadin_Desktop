@@ -3025,7 +3025,7 @@ QPushButton:hover {
                      </property>
                      <layout class="QHBoxLayout" name="horizontalLayout_30">
                       <item>
-                       <widget class="QSlider" name="instant_play_volume_controller">
+                       <widget class="QSlider" name="instant_play_position_controller">
                         <property name="minimumSize">
                          <size>
                           <width>0</width>

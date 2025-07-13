@@ -1,9 +1,11 @@
 from PlayAudioCommand import PlayAudioCommand
 from helper_functions import select_sound_file
 
+from PySide6.QtWidgets import QSlider
+
 class InstantPlayer:
 
-    def __init__(self, main_widget, player_manager, choose_file_button, delete_file_button, position_controller, play_button, pause_button, resume_button, stop_button):
+    def __init__(self, main_widget, player_manager, choose_file_button, delete_file_button, position_controller : QSlider, play_button, pause_button, resume_button, stop_button):
 
         self.player_manager = player_manager
 
@@ -32,9 +34,14 @@ class InstantPlayer:
         self.resume_button.clicked.connect(lambda: self.ask_to_resume())
         self.stop_button.clicked.connect(lambda: self.ask_to_stop())
 
-        self.position_controller.sliderMoved.connect(lambda: self.handle_position_change())
+        self.position_controller.sliderMoved.connect(self.handle_position_change)
         self.position_controller.sliderPressed.connect(self.stop_slider_update)
         self.position_controller.sliderReleased.connect(self.resume_slider_update)
+
+    def set_duration(self, duration_ms):
+        duration_sec = duration_ms // 1000
+        self.position_controller.setRange(0, duration_sec)
+
 
     def choose_sound(self, widget):
         self.file_path = select_sound_file(widget)
@@ -61,31 +68,21 @@ class InstantPlayer:
     def ask_to_stop(self):
         self.player_manager.stop_instant_player()
 
-    def handle_position_change(self):
-        self.position = self.position_controller.value()
-        if len(self.sound_lst) != 0:
-            self.sound_lst[0].set_position(self.position)
 
-    def set_position_controller(self, value):
-        self.position_controller.setValue(value)
 
-    def set_position_controller_range(self):
-        if len(self.sound_lst) == 0:
-            duration = 100
-        else:
-            duration = self.sound_lst[0].get_duration()
-
-        self.position_controller.setRange(0, duration)
+    def set_position_controller(self, position_ms):
+        position_sec = position_ms // 1000
+        if not getattr(self, 'slider_was_down', False):
+            self.position_controller.setValue(position_sec)
 
     def stop_slider_update(self):
-        if len(self.sound_lst) != 0 :
-            """Stop updating the slider during manual user interaction."""
-            try:
-                self.sound_lst[0].disconnect_media_position(self.set_position_controller)
-            except Exception as e:
-                print(e)
+        self.slider_was_down = True  # Flag to ignore updates
 
     def resume_slider_update(self):
-        if len(self.sound_lst) != 0:
-            """Resume updating the slider after manual user interaction."""
-            self.sound_lst[0].track_media_position(self.set_position_controller)
+        self.slider_was_down = False
+    
+    def handle_position_change(self):
+        # Called while slider is being dragged
+        position_sec = self.position_controller.value()
+        position_ms = position_sec * 1000
+        self.player_manager.set_position(position_ms)

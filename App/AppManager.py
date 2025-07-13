@@ -116,7 +116,9 @@ class AppManager(QMainWindow):
         
         self.time_manager.connect_to_time_updated_signal(self.adan_manager.next_adan.handle_time_updated)
 
-        self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.volume_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+        self.instant_player = InstantPlayer(self, self.player_manager, self.instant_player_choose_file_button, self.instant_player_delete_file_button, self.position_controller, self.instant_player_play_button, self.instant_player_pause_button, self.instant_player_resume_button, self.instant_player_stop_button)
+        self.player_manager.duration_signal.connect(self.instant_player.set_duration)
+        self.player_manager.position_signal.connect(self.instant_player.set_position_controller)
 
         self.notification_manager = NotificationManager(self.adan_manager.get_adans_for_notification_manager(), self, self.scrollAreaContainer, self.runnable_manager,  self.total_notification_label, self.noti_sort_box)
         self.mediator.register("NotificationManager", self.notification_manager)
@@ -327,7 +329,7 @@ class AppManager(QMainWindow):
         self.instant_player_pause_button = self.ui.findChild(QPushButton,"instant_player_pause_button")
         self.instant_player_resume_button = self.ui.findChild(QPushButton,"instant_player_resume_button")
         self.instant_player_stop_button = self.ui.findChild(QPushButton,"instant_player_stop_button")
-        self.volume_controller = self.ui.findChild(QSlider,"instant_play_volume_controller")
+        self.position_controller = self.ui.findChild(QSlider,"instant_play_position_controller")
 
         tajawal_bold_font_14 = QFont(tajawal_bold_font_family, 14)
         tajawal_bold_font_14.setBold(True)

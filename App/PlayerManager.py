@@ -10,6 +10,8 @@ from PySide6.QtGui import QIcon
 class PlayerManagersignals(QObject):
     open_mic_signal = Signal()
     close_mic_signal = Signal()
+    position_signal = Signal(int)
+    duration_signal = Signal(int)
 
 class PlayerManager:
 
@@ -17,9 +19,11 @@ class PlayerManager:
     
     open_mic_signal = player_manager_signals.open_mic_signal
     close_mic_signal = player_manager_signals.close_mic_signal
+    position_signal = player_manager_signals.position_signal
+    duration_signal = player_manager_signals.duration_signal
 
     def __init__(self, volume_off_on_btn, main_window):
-        
+
         self.mediator = None
         self.is_adan_near = False
         self.main_window = main_window
@@ -38,10 +42,16 @@ class PlayerManager:
 
         self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
 
-        self.is_adan_playing = False
-        self.is_notification_playing = False
-        self.is_instant_player_playing = False
         self.is_pre_adan_sound_activated = False
+
+        # self.is_adan_playing = False
+        # self.is_notification_playing = False
+        # self.is_instant_player_playing = False
+        
+        self.position_timer = QTimer()
+        self.position_timer.timeout.connect(self._emit_position)
+
+        self.player.durationChanged.connect(self._emit_duration)
 
         self.pending_command = None
         self.waiting_to_set_source = False
@@ -50,6 +60,19 @@ class PlayerManager:
 
         self.sound_lst = []
     
+    def set_position(self, position_ms: int):
+        if self.current_command and self.current_command.requester == "InstantPlayer":
+            self.player.setPosition(position_ms)
+
+    def _emit_position(self):
+        if self.current_command and self.current_command.requester == "InstantPlayer" and self.isPlaying():
+            pos = self.player.position() # in ms
+            self.position_signal.emit(pos)
+
+    def _emit_duration(self, duartion):
+        if self.current_command and self.current_command.requester == "InstantPlayer":
+            self.duration_signal.emit(duartion) # in ms
+
     def toggle_volume(self, checked):
         if checked:
             self.audio_output.setVolume(0.0)
@@ -79,6 +102,9 @@ class PlayerManager:
             elif self.current_command.requester == "NotificationManager":
                 if hasattr(self, 'duration_timer') and self.duration_timer.isActive():
                     self.duration_timer.stop()
+            elif self.current_command.requester == "InstantPlayer":
+                self.position_timer.stop()
+                self.position_signal.emit(0)
             self._clear_command()
 
     def _clear_command(self):
@@ -88,7 +114,7 @@ class PlayerManager:
     #     self._stop_current()
 
     def _on_status_changed(self, status):
-        if status == QMediaPlayer.EndOfMedia:
+        if status == QMediaPlayer.LoadedMedia:
             pass
  
     def set_mediator(self, mediator):
@@ -114,7 +140,7 @@ class PlayerManager:
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
                 if self.current_command and self.current_command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "failed_to_play")
-            else :
+            else:
                 if self.isPlaying():
                     self.pending_command = command
                     self.waiting_to_set_source = True
@@ -124,6 +150,9 @@ class PlayerManager:
                 
                 if self.current_command and self.current_command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "successfully_played")
+                
+                elif self.current_command and self.current_command.requester == "InstantPlayer":
+                    self.position_timer.start(200)
                 
     def isPlaying(self):
         return self.player.isPlaying()
