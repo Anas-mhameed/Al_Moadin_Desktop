@@ -3,7 +3,6 @@ from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import QTimer
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
-from PySide6.QtMultimediaWidgets import QVideoWidget  # Needed to keep audio backend happy
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon
 
@@ -31,7 +30,6 @@ class PlayerManager:
         self.player = QMediaPlayer()
         self.audio_output = QAudioOutput()
         self.player.setAudioOutput(self.audio_output)
-        self.player.mediaStatusChanged.connect(lambda status : self._on_status_changed(status))
         self.player.playbackStateChanged.connect(self.on_state_changed)
 
         self.volume_off_on_btn = volume_off_on_btn
@@ -43,10 +41,6 @@ class PlayerManager:
         self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
 
         self.is_pre_adan_sound_activated = False
-
-        # self.is_adan_playing = False
-        # self.is_notification_playing = False
-        # self.is_instant_player_playing = False
         
         self.position_timer = QTimer()
         self.position_timer.timeout.connect(self._emit_position)
@@ -87,25 +81,6 @@ class PlayerManager:
             self.volume_off_on_btn.setIcon(QIcon("resources/images/volume.png"))
 
     def on_state_changed(self, state):
-        # if self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
-        #     if self.pending_command:
-        #         command = self.pending_command
-        #         self.pending_command = None
-        #         self.waiting_to_set_source = False
-
-        #         # Delay playback slightly to avoid FFmpeg/Qt bug
-        #         QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
-
-        # Store command info before potentially clearing it
-        current_requester = None
-        current_index = -1
-        current_adan_name = None
-        
-        if self.current_command:
-            current_requester = self.current_command.requester
-            current_index = getattr(self.current_command, 'index', -1)
-            current_adan_name = getattr(self.current_command, 'adan_name', None)
-
         if state == QMediaPlayer.StoppedState:
             if self.current_command.requester == "QuraanPageManager":
                 self.mediator.notify(self, "quraan_audio_finished", self.current_command.index, self.current_command.adan_name)
@@ -128,13 +103,6 @@ class PlayerManager:
 
     def _clear_command(self):
         self.current_command = None # indicates that no one is playing
-        
-    # def _stop_adan(self):
-    #     self._stop_current()
-
-    def _on_status_changed(self, status):
-        if status == QMediaPlayer.LoadedMedia:
-            pass
  
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
@@ -160,7 +128,7 @@ class PlayerManager:
                 if command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "failed_to_play")
             else:
-                if self.isPlaying():
+                if self.isPlaying() or self.isPaused():
                     self.pending_command = command
                     self.waiting_to_set_source = True
                     self._stop_current()
@@ -176,6 +144,9 @@ class PlayerManager:
     def isPlaying(self):
         return self.player.isPlaying()
     
+    def isPaused(self):
+        return self.player.playbackState() == QMediaPlayer.PausedState
+
     def _resume(self):
         self.player.play()
 

@@ -11,7 +11,7 @@ class InstantPlayer:
 
         self.main_widget = main_widget
 
-        self.file_path = ""
+        self.file_path = None
 
         self.sound_lst = []
         
@@ -47,7 +47,7 @@ class InstantPlayer:
         self.file_path = select_sound_file(widget)
     
     def delete_sound(self):
-        self.file_path = ""
+        self.file_path = None
     
     def enable(self, btn):
         btn.setEnabled(True)
@@ -56,7 +56,7 @@ class InstantPlayer:
         btn.setEnabled(False)
 
     def ask_player_manager_to_play(self):
-        if self.file_path != "":
+        if self.file_path:
             self.player_manager.request_playback(PlayAudioCommand("InstantPlayer", self.file_path))
 
     def ask_to_pause(self):
