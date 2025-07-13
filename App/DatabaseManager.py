@@ -147,9 +147,6 @@ class DatabaseManager:
         records = res.fetchall()
 
         con.close()
-        
-        for record in records:
-            print(record)
 
         return records
 

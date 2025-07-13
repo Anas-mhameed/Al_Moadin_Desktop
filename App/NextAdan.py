@@ -149,7 +149,6 @@ class NextAdan() :
         self.update_ui()
 
         if self.compare_with_timedelta(0):
-            print("start adan")
             # emit a signal to start adan
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()

@@ -18,7 +18,6 @@ class ProgramUpdater:
         url = f"https://api.github.com/repos/{self.GITHUB_REPO}/releases/latest"
         try:
             response = requests.get(url)
-            print(f"response status code: {response.status_code}")
 
             return response.json()
         
