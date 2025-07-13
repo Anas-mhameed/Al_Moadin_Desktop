@@ -11,7 +11,6 @@ def get_audio_files(directory, extensions=None):
             files.append(file)
     return files
 
-
 def select_sound_file(widget):
         file_dialog = QFileDialog(widget)
         file_dialog.setNameFilter("Sound Files (*.wav *.mp3 *.ogg)")

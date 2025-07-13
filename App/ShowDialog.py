@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QDialog
+from PySide6.QtWidgets import QLabel, QPushButton, QDialog
 from ResourceFile import resource_path
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile

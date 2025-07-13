@@ -2,7 +2,6 @@ import requests
 from Runnable import Runnable
 from time import sleep
 
-
 class ZigbeeController:
 
     def __init__(self, token, runnable_manager):
@@ -55,7 +54,6 @@ class ZigbeeController:
             self.entity_id = switch_entities[0]["entity_id"]
         else:
             print("Failed to prepare entity!")
-
 
     def turn_on_mic(self):
         url = "http://127.0.0.1:8123/api/services/switch/turn_on"

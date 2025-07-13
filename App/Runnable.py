@@ -43,11 +43,3 @@ class RunnableManager(QObject):
     
     def active_workers(self):
         return self.pool.activeThreadCount()
-
-# 0 => save in db
-# 60 => reset ui
-# duartion => turn off sound
-# 30 => close ui
-# 
-# 
-# 

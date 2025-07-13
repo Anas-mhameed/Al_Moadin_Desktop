@@ -1,7 +1,5 @@
-from PySide6.QtCore import QObject, Signal
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMessageBox
-
 
 class MsgManager():
 
@@ -9,10 +7,6 @@ class MsgManager():
         
         self.active_boxes = []
         self.mediator = None
-
-        self.emergency_counter = -1
-        self.main_page_counter = -1
-        self.noti_page_counter = -1
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""

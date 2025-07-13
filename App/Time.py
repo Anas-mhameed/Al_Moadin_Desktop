@@ -32,10 +32,6 @@ class TimeSignal(QObject):
 
     time_updated = Signal(dt.datetime)
     new_day = Signal(str)
-    # new_jomoaa = Signal()
-
-    # get_formate_signal = Signal()
-    check_for_new_release = Signal()
 
     def __init__(self):
         super().__init__()
@@ -45,10 +41,6 @@ class Time():
     time_signal = TimeSignal()
 
     time_updated = time_signal.time_updated
-    new_day_signal = time_signal.new_day
-    # new_jomoaa = time_signal.new_jomoaa
-    # get_formate_signal = time_signal.get_formate_signal
-    check_for_new_release = time_signal.check_for_new_release
 
     def __init__(self, mediator, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
 

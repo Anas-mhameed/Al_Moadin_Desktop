@@ -32,7 +32,6 @@ from Runnable import RunnableManager, Runnable
 from NotificationManager import NotificationManager
 from SpinBoxTrack import SpinBoxTrack
 from ZigbeeController import ZigbeeController
-from ProgramUpdater import ProgramUpdater
 from DatabaseManager import DatabaseManager
 from Mediator import Mediator
 from QuraanPageManager import QuraanPageManager
@@ -65,8 +64,6 @@ class AppManager(QMainWindow):
         # Initialize DatabaseManager as a singleton
         self.database_manager = DatabaseManager()
         self.runnable_manager = RunnableManager()
-
-        # self.program_updater = ProgramUpdater()
 
         self.database_manager.initialize_app_version()
 

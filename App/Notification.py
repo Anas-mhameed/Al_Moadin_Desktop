@@ -1,8 +1,8 @@
 # from abc import ABC, abstractmethod
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
 from PySide6.QtWidgets import QWidget
+from helper_functions import select_sound_file
 from ShowDialog import ShowDialog
-from Sound import Sound
 
 class Notification():
 
@@ -104,11 +104,6 @@ class AdanNotification(Notification):
         month = self.time.month
         year = self.time.year
 
-        # if self.date:
-        #     day = self.date.day()
-        #     month = self.date.month()
-        #     year = self.date.year()
-
         # total_minutes = original_minutes
         total_minutes = original_minutes
 
@@ -206,9 +201,8 @@ class AdanNotification(Notification):
         self.show_dialog.show()
 
     def edit_file_path(self):
-        sound = Sound()
-        sound.select_sound_file(QWidget())
-        return sound.get_file_path()
+        file_path = select_sound_file(QWidget())
+        return file_path
 
     def save_updates(self, new_file_path):
         if new_file_path != "":

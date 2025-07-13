@@ -38,6 +38,8 @@ class NotificationManager:
         # Note: Jomoaa (index 6 in notifications) uses the same duration as Dohor (index 1)
         self.adans_duration = [0, 0, 0, 0, 0]
 
+        self.file_path = None
+
         self.main_window = main_window
         self.curr_time = dt.datetime.now()
 
@@ -64,7 +66,7 @@ class NotificationManager:
             self.mediator.notify(self, "request_adans_duration")
 
     def handel_save_noti_button_clicked(self, day_of_week, adan_type, is_permenant, adan_index, seconds, date, duration):
-            if self.file_path == "":
+            if self.file_path == None:
                 self.mediator.notify(self, "error_saving_notification", "لم يتم حفظ الاشعار", "الرجاء اختيار ملف صوتي")
                 return
 
@@ -146,7 +148,6 @@ class NotificationManager:
         # args[0] is the adan_index (1-6)
         adan_index = args[0]
         time = self.get_adan_time(adan_index)
-        
 
         minutes = args[1]
         duration = args[3] * 60 # from minutes to seconds
@@ -157,7 +158,8 @@ class NotificationManager:
             # Get duration based on notification index (1-6)
             duration_in_seconds = self.get_adan_duration(adan_index)
 
-        new_notification = AdanNotification(is_before_adan, time, adan_index, minutes, self.file_path, date, duration, duration_in_seconds)
+        file_path = self.file_path
+        new_notification = AdanNotification(is_before_adan, time, adan_index, minutes, file_path, date, duration, duration_in_seconds)
 
         # prevent conflict between notifications
         validation_res = self.validate_noti_time(new_notification, is_permenant)
@@ -169,9 +171,9 @@ class NotificationManager:
         
         date_in_db = date.toString("yyyy-MM-dd") if date else None
 
-        self.save_notification_in_db((adan_index, minutes, date_in_db, duration, self.file_path, is_permenant, is_before_adan, 1, duration_in_seconds))
+        self.save_notification_in_db((adan_index, minutes, date_in_db, duration, file_path, is_permenant, is_before_adan, 1, duration_in_seconds))
 
-        self.file_path = ""
+        self.file_path = None
 
         self.connect_noti_to_ui(new_notification)
 

@@ -1,5 +1,3 @@
-from helper_functions import AdanIndex
-
 
 class Mediator:
     def __init__(self):
@@ -89,7 +87,7 @@ class Mediator:
         
         elif event == "quraan_audio_finished":
             self.components["QuraanPageManager"].set_inactive_style_by_index(args[0], args[1])
-            
+
         elif event == "successfully_played":
             self.components["QuraanPageManager"].successful_play()
         

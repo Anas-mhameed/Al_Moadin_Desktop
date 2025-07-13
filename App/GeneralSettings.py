@@ -1,28 +1,7 @@
 from Runnable import Runnable
-from PySide6.QtCore import QObject, Signal
 from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
-from PySide6.QtCore import Qt
-
-class SettingsSignals(QObject):
-    
-    # adan_time_updated = Signal(object)
-
-    adan_time_formate_signal = Signal(str)
-    time_formate_signal = Signal(str)
-    summer_timing_signal = Signal(bool)
-    quds_diff_signal = Signal(int)
-
-    def __init__(self):
-        super().__init__()
-
 
 class GeneralSettings():
-
-    settings_signals = SettingsSignals()
-    
-    adan_time_formate_changed = settings_signals.adan_time_formate_signal
-    summer_timing_changed = settings_signals.summer_timing_signal
-    quds_diff_changed = settings_signals.quds_diff_signal
 
     def __init__(self, pre_adan_sound_checkbox, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
 

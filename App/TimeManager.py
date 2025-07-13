@@ -1,10 +1,6 @@
-from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import  QObject, Signal, QTimer
+from PySide6.QtCore import QTimer
 from Time import Time
-from AdanTimePrepare import AdanTimePrepare
-from GeneralSettings import GeneralSettings
 import time
-
 
 class TimeManager():
 
@@ -20,30 +16,15 @@ class TimeManager():
         """Set the mediator for communication."""
         self.mediator = mediator
 
-    # def connect_to_next_day_signal(self, func):
-    #     self.time.new_day_signal.connect(func)
-
     def connect_to_time_updated_signal(self, func):
         self.time.time_updated.connect(func)
 
-    # def connect_to_new_jomoaa_signal(self, func):
-    #     self.time.new_jomoaa.connect(func)
-
-    def connect_to_get_formate_signal(self, func):
-        self.time.get_formate_signal.connect(func)
-
-    def connect_to_check_version_update(self, func):
-        self.time.check_for_new_release.connect(func)
-
     def update_time_formate(self, new_time_formate):
-        
         self.time.update_time_formate(new_time_formate)
     
     def get_time_formate(self):
         if self.mediator:
             return self.mediator.notify(self, "request_time_formate")
-        
-        # self.time.get_formate()
 
     def run(self):
         # Get the current time
