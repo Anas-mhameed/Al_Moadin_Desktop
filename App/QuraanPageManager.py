@@ -90,7 +90,7 @@ class QuraanPageManager(QWidget):
         return -1  # Not found
 
     def set_inactive_style_by_index(self, index: int, category: str):
-    
+        
         if category == CATEGORIES["QURAAN"]:
             list_widget = self.quraan_list_widget
         elif category == CATEGORIES["ADAN"]:
@@ -104,6 +104,10 @@ class QuraanPageManager(QWidget):
         widget = list_widget.itemWidget(item)
         if widget:
             widget.set_inactive_style()
+
+        # Also reset current_widget when audio finishes
+        if widget == self.current_widget:
+            self.current_widget = None
 
     def successful_play(self):
         self.current_widget.set_active_style()

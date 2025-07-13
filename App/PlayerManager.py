@@ -87,16 +87,26 @@ class PlayerManager:
             self.volume_off_on_btn.setIcon(QIcon("resources/images/volume.png"))
 
     def on_state_changed(self, state):
-        if self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
-            if self.pending_command:
-                command = self.pending_command
-                self.pending_command = None
-                self.waiting_to_set_source = False
+        # if self.waiting_to_set_source and state == QMediaPlayer.StoppedState:
+        #     if self.pending_command:
+        #         command = self.pending_command
+        #         self.pending_command = None
+        #         self.waiting_to_set_source = False
 
-                # Delay playback slightly to avoid FFmpeg/Qt bug
-                QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
+        #         # Delay playback slightly to avoid FFmpeg/Qt bug
+        #         QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
 
-        elif state == QMediaPlayer.StoppedState:
+        # Store command info before potentially clearing it
+        current_requester = None
+        current_index = -1
+        current_adan_name = None
+        
+        if self.current_command:
+            current_requester = self.current_command.requester
+            current_index = getattr(self.current_command, 'index', -1)
+            current_adan_name = getattr(self.current_command, 'adan_name', None)
+
+        if state == QMediaPlayer.StoppedState:
             if self.current_command.requester == "QuraanPageManager":
                 self.mediator.notify(self, "quraan_audio_finished", self.current_command.index, self.current_command.adan_name)
             elif self.current_command.requester == "NotificationManager":
@@ -105,7 +115,16 @@ class PlayerManager:
             elif self.current_command.requester == "InstantPlayer":
                 self.position_timer.stop()
                 self.position_signal.emit(0)
-            self._clear_command()
+
+            if self.waiting_to_set_source and self.pending_command:
+                command = self.pending_command
+                self.pending_command = None
+                self.waiting_to_set_source = False
+
+                # Delay playback slightly to avoid FFmpeg/Qt bug
+                QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
+            else:
+                self._clear_command()
 
     def _clear_command(self):
         self.current_command = None # indicates that no one is playing
@@ -138,7 +157,7 @@ class PlayerManager:
         else:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
-                if self.current_command and self.current_command.requester == "QuraanPageManager":
+                if command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "failed_to_play")
             else:
                 if self.isPlaying():
@@ -148,10 +167,10 @@ class PlayerManager:
                 else:
                     self._play(command)
                 
-                if self.current_command and self.current_command.requester == "QuraanPageManager":
+                if command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "successfully_played")
                 
-                elif self.current_command and self.current_command.requester == "InstantPlayer":
+                elif command.requester == "InstantPlayer":
                     self.position_timer.start(200)
                 
     def isPlaying(self):
