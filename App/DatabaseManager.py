@@ -80,14 +80,23 @@ class DatabaseManager:
     def check_token(self):
         return self.check_if_table_is_empty('tokens')
     
+    def clear_token(self):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        cur.execute("DELETE FROM tokens")  # Remove all stored tokens
+        con.commit()
+        con.close()
+
     def save_token(self, token):
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
 
-        cur.execute("INSERT INTO tokens VALUES(?)", [(token)])
+        cur.execute("DELETE FROM tokens")  # Clear any existing token
+        cur.execute("INSERT INTO tokens VALUES (?)", (token,))
         con.commit()
-
         con.close()
+
 
     def initialize_app_version(self):
         con = sqlite3.connect(self.db_name)

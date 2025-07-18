@@ -35,6 +35,7 @@ from ZigbeeController import ZigbeeController
 from DatabaseManager import DatabaseManager
 from Mediator import Mediator
 from QuraanPageManager import QuraanPageManager
+from helper_functions import *
 
 class AppManager(QMainWindow):
 
@@ -71,35 +72,47 @@ class AppManager(QMainWindow):
         if not self.database_manager.check_token():
             token = self.database_manager.get_token()
         else:
-            # Else ask for token
-            token = "123"
+            # Else ask user for token
+            token = ask_user_for_token()
             # Save token in database
             self.database_manager.save_token(token)
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
 
-        def temp():
+        self.msg_manager = MsgManager()
+        self.mediator.register("MsgManager", self.msg_manager)
+
+        def temp_connect_to_zigbee():
             def helper(func):
                 if func():
                     self.zigbee_controller.connect_to_zigbee_btn_clicked()
             runnable = Runnable(helper)
             self.runnable_manager.runTask(runnable)
             
-        self.connect_to_zigbee_btn.clicked.connect(temp)
+        self.connect_to_zigbee_btn.clicked.connect(temp_connect_to_zigbee)
         
+        def temp_reset_token():
+            reply = QMessageBox.question(
+                None,
+                "Reset Token",
+                "Are you sure you want to reset the Home Assistant token?",
+                QMessageBox.Ok | QMessageBox.Cancel
+            )
+
+            if reply == QMessageBox.Ok:
+                self.database_manager.clear_token()
+                QMessageBox.information(None, "Token Reset", "Please restart the app to enter a new token.")
+            
+        self.reset_token_btn.clicked.connect(temp_reset_token)
+
         self.intiate_adans_state_button()
 
-        self.msg_manager = MsgManager()
-        self.mediator.register("MsgManager", self.msg_manager)
 
         self.player_manager = PlayerManager(self.player_volume_off_on_btn, self)
         self.mediator.register("PlayerManager", self.player_manager)
   
-
-        #  NEED TO BE CHECKED ------ TO BE COMPLETED ------
         self.player_manager.open_mic_signal.connect(lambda: self.zigbee_controller.run(True))
         self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
-        #  TILL HERE ||||||||||||||||||||| ------ TO BE COMPLETED ------
 
         self.adan_manager = AdanManager(self, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
@@ -127,17 +140,6 @@ class AppManager(QMainWindow):
 
         self.quraan_list_manager = QuraanPageManager(self.quraan_list_widget, self.adan_sounds_list_widget, self.fajer_sounds_list_widget)
         self.mediator.register("QuraanPageManager", self.quraan_list_manager)
-
-        # Here -----------------------------------------
-
-        # self.adan_manager.fajer_duartion_signal.connect(self.notification_manager.handle_fajer_duration_changed)
-        # self.adan_manager.basic_duartion_signal.connect(self.notification_manager.handle_basic_duration_changed)
-
-        # self.adan_manager.set_sounds_source()
-
-        # self.adan_manager.adan_time_changed.connect(self.notification_manager.update_notis_and_intiate_index)
-
-        #  ---------------------------------------------
 
         self.noti_sort_box.currentIndexChanged.connect(self.notification_manager.show_notifications)
         self.notification_manager.cancel_noti_signal.connect(self.cancel_noti_handle)
@@ -185,6 +187,12 @@ class AppManager(QMainWindow):
         ChivoMono_VariableFont_wght_font_family = QFontDatabase.applicationFontFamilies(Chivo_Mono_font_id)[0]
         ChivoMono_VariableFont_wght_font_80 = QFont(ChivoMono_VariableFont_wght_font_family, 80)
         ChivoMono_VariableFont_wght_font_80.setWeight(QFont.Bold)
+        
+        self.reset_token_btn = self.ui.findChild(QPushButton, "reset_token_btn")
+        self.reset_token_btn.setFont(tajawal_bold_font_16)
+
+        self.reset_token_label = self.ui.findChild(QLabel, "reset_token_label")
+        self.reset_token_label.setFont(kufi_font_18)
 
         self.player_volume_off_on_btn = self.ui.findChild(QPushButton, "player_volume_off_on_btn")
 
@@ -193,6 +201,7 @@ class AppManager(QMainWindow):
         self.quraan_list_widget = self.ui.findChild(QListWidget, "quraan_list_widget")
         
         self.pre_adan_sound_checkbox = self.ui.findChild(QCheckBox, "pre_adan_sound_checkbox")
+        self.pre_adan_sound_checkbox.setFont(kufi_font_18)
 
         self.menu_title_label = self.ui.findChild(QLabel, "menuTitleLabel")
         self.menu_title_label.setFont(tajawal_bold_font_20)
@@ -235,9 +244,6 @@ class AppManager(QMainWindow):
 
         self.noti_sort_box.setFont(kufi_font_18)
         self.noti_sort_box.view().setFont(kufi_font_18)
-
-        # self.noti_msg_label = self.ui.findChild(QLabel, "noti_msg_label")
-        # self.noti_msg_frame = self.ui.findChild(QFrame, "noti_msg_frame")
 
         self.create_noti_button = self.ui.findChild(QPushButton, "new_notification_buttton")
         self.create_noti_button.setFont(tajawal_bold_font_16)
@@ -312,16 +318,6 @@ class AppManager(QMainWindow):
         self.choose_notification_sound.clicked.connect(lambda : self.notification_manager.choose_sound(self))
         self.save_notification.clicked.connect(lambda: self.save_notification_handler())
 
-        # self.client_info_msg_frame = self.ui.findChild(QFrame, "client_info_msg_frame")
-        # self.client_info_msg_frame.hide()
-
-        # self.error_msg_label = self.ui.findChild(QLabel, "error_msg_label")
-        # self.info_msg_label = self.ui.findChild(QLabel, "info_msg_label")
-
-        # self.error_msg_label.setFont(merhay_font_14)
-        # self.info_msg_label.setFont(merhay_font_14)
-
-
         self.instant_player_play_button = self.ui.findChild(QPushButton,"instant_player_play_button")
         self.instant_player_pause_button = self.ui.findChild(QPushButton,"instant_player_pause_button")
         self.instant_player_resume_button = self.ui.findChild(QPushButton,"instant_player_resume_button")
@@ -352,23 +348,18 @@ class AppManager(QMainWindow):
         # preparing the AdanManager components
         self.adansSoundButtons = []
 
-        # adans_sound_button = self.ui.findChild(QPushButton, "adansSoundButton")
         fajer_sound_button = self.ui.findChild(QPushButton, "fajerSoundButton")
         dohor_sound_button = self.ui.findChild(QPushButton, "dohorSoundButton")
         aser_sound_button = self.ui.findChild(QPushButton, "aserSoundButton")
         magreb_sound_button = self.ui.findChild(QPushButton, "magrebSoundButton")
         ishaa_sound_button = self.ui.findChild(QPushButton, "ishaaSoundButton")
         
-        
-        # adans_sound_button.setFont(tajawal_bold_font_18)
         fajer_sound_button.setFont(tajawal_bold_font_18)
         dohor_sound_button.setFont(tajawal_bold_font_18)
         aser_sound_button.setFont(tajawal_bold_font_18)
         magreb_sound_button.setFont(tajawal_bold_font_18)
         ishaa_sound_button.setFont(tajawal_bold_font_18)
 
-
-        # self.adansSoundButtons.append(adans_sound_button)
         self.adansSoundButtons.append(fajer_sound_button)
         self.adansSoundButtons.append(dohor_sound_button)
         self.adansSoundButtons.append(aser_sound_button)
@@ -743,12 +734,6 @@ class AppManager(QMainWindow):
     def get_time_formate_buttons(self):
         return self.time_formate_buttons
 
-    # start function
-    # def start(self):
-    #     timer = QTimer(self)
-    #     timer.timeout.connect(lambda: self.run())
-    #     timer.start(1000)
-    
     def run(self):
         self.time_manager.run()
 

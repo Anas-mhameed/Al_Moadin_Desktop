@@ -464,7 +464,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -5354,49 +5354,6 @@ border: 4px solid black;
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="pre_adan_sound_checkbox">
-               <property name="font">
-                <font>
-                 <family>Microsoft Uighur</family>
-                 <pointsize>28</pointsize>
-                </font>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QCheckBox::indicator {
-    width: 30px;
-    height: 30px;
-    border: 1px solid gray;
-    background-color: white;
-}
-
-QCheckBox::indicator:checked {
-    image: none;
-    background-color: white;
-    border: 2px solid black;
-}
-
-QCheckBox::indicator:checked {
-    image: url(:/newPrefix/images/check_mark.png); 
-}</string>
-               </property>
-               <property name="text">
-                <string>جهاز مستشعر الصوت</string>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>80</width>
-                 <height>80</height>
-                </size>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QFrame" name="frame_25">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -5459,6 +5416,49 @@ QCheckBox::indicator:checked {
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="pre_adan_sound_checkbox">
+               <property name="font">
+                <font>
+                 <family>Microsoft Uighur</family>
+                 <pointsize>28</pointsize>
+                </font>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+    border: 1px solid gray;
+    background-color: white;
+}
+
+QCheckBox::indicator:checked {
+    image: none;
+    background-color: white;
+    border: 2px solid black;
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/newPrefix/images/check_mark.png); 
+}</string>
+               </property>
+               <property name="text">
+                <string>جهاز مستشعر الصوت</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>80</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -5538,6 +5538,83 @@ border:2px solid black;
                   </property>
                   <property name="text">
                    <string>للارتباط بجهاز الصوت zigbee </string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frame_46">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_27">
+                <item>
+                 <spacer name="horizontalSpacer_18">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="reset_token_btn">
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>150</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Sakkal Majalla</family>
+                    <pointsize>19</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+background-color: rgb(38, 38, 38);
+border-radius: 25px;
+color:white;
+}
+
+QPushButton:hover{
+background-color: rgb(255, 255, 255);
+color:black;
+border:2px solid black;
+}
+</string>
+                  </property>
+                  <property name="text">
+                   <string>إعادة ضبط</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="reset_token_label">
+                  <property name="font">
+                   <font>
+                    <family>Microsoft Uighur</family>
+                    <pointsize>28</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>لاعادة ضبط رمز مساعد الاتصال </string>
                   </property>
                  </widget>
                 </item>

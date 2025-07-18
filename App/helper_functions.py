@@ -1,6 +1,16 @@
 from enum import Enum
-from PySide6.QtWidgets import QFileDialog 
+from PySide6.QtWidgets import QFileDialog, QInputDialog, QMessageBox
 import os
+
+def ask_user_for_token():
+    token, ok = QInputDialog.getText(None, "Enter Home Assistant Token", "Please enter your Home Assistant long-lived access token:")
+    if ok and token:
+        return token.strip()
+    return None
+
+def reset_token(database_manager):
+    database_manager.clear_token()
+    QMessageBox.information(None, "Token Reset", "Please restart the app to enter a new token.")
 
 def get_audio_files(directory, extensions=None):
     if extensions is None:
