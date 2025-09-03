@@ -5,7 +5,6 @@ from ResourceFile import resource_path
 import uuid
 from PySide6.QtGui import QIcon
 
-
 def get_mac_address():
     mac = uuid.getnode()
     return ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))

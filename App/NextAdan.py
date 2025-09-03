@@ -165,7 +165,7 @@ class NextAdan() :
             self.prepare_adan_signal_emitted = False 
         
         if self.compare_with_timedelta(5, 10) and not self.pre_adan_sound_emitted:
-            self.mediator.notify("NextAdan", "start_pre_adan_sound")
+            self.mediator.notify("NextAdan", "pre_adan_preparation")
             self.pre_adan_sound_emitted = True    
 
         elif not self.compare_with_timedelta(5, 10) and self.pre_adan_sound_emitted:

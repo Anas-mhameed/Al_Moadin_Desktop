@@ -92,8 +92,6 @@ class NotificationManager:
         """
         if 0 <= index < len(self.adans_duration):
             self.adans_duration[index] = new_duration
-        else:
-            print(f"Invalid Adan index for duration update: {index}")
 
     def get_adan_duration(self, index):
         """
@@ -483,6 +481,7 @@ class NotificationManager:
                 self.next_noti = None
     
     def handel_time_changed(self, curr_time):
+        
         # update self.curr_time
         self.update_curr_time(curr_time)
 
@@ -531,6 +530,7 @@ class NotificationManager:
 
             act like jomoaa and dohor is the same
         """
+
         self.update_adan_duration(adan_index, new_duration)
 
         # Update all notifications that use this Adan

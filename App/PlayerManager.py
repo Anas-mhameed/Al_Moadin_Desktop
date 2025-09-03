@@ -7,17 +7,12 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon
 
 class PlayerManagersignals(QObject):
-    open_mic_signal = Signal()
-    close_mic_signal = Signal()
     position_signal = Signal(int)
     duration_signal = Signal(int)
 
 class PlayerManager:
 
     player_manager_signals = PlayerManagersignals()
-    
-    open_mic_signal = player_manager_signals.open_mic_signal
-    close_mic_signal = player_manager_signals.close_mic_signal
     position_signal = player_manager_signals.position_signal
     duration_signal = player_manager_signals.duration_signal
 
@@ -99,6 +94,7 @@ class PlayerManager:
                 # Delay playback slightly to avoid FFmpeg/Qt bug
                 QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
             else:
+                self.mediator.notify(self, "audio_finished")
                 self._clear_command()
 
     def _clear_command(self):

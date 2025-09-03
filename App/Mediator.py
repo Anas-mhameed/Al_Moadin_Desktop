@@ -76,8 +76,14 @@ class Mediator:
         elif event == "request_adans_duration":
             self.components["AdanManager"].get_adans_duration()
         
-        elif event == "start_pre_adan_sound":
-            self.components["PlayerManager"].start_pre_adan_sound()
+        elif event == "audio_finished":
+            self.components["ZigbeeController"].run(False)
+
+        elif event == "pre_adan_preparation":
+            if self.components["GeneralSettings"].is_pre_adan_sound_activated:
+                self.components["PlayerManager"].start_pre_adan_sound()
+            else:        
+                self.components["ZigbeeController"].run(True)
 
         elif event == "pre_adan_sound_state_changed":
             self.components["PlayerManager"].set_pre_adan_sound_state(args[0])

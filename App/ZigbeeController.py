@@ -34,6 +34,10 @@ class ZigbeeController:
         # get switch entity id
         self.prepare_entity()
 
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
+
     def prepare_entity(self):
         url = "http://127.0.0.1:8123/api/states"
         
@@ -82,7 +86,7 @@ class ZigbeeController:
 
         return status_code
     
-    def pair_new_device(self):
+    def enable_pairing_mode(self):
         url = "http://127.0.0.1:8123/api/services/zha/permit"
         data ={"duration": 60}
 
@@ -97,7 +101,7 @@ class ZigbeeController:
         return status_code
 
     def connect_to_zigbee_btn_clicked(self):
-        status_code = self.pair_new_device()
+        status_code = self.enable_pairing_mode()
         if status_code == 200:
             print("zigbee device paired successfully")
             sleep(20)
@@ -105,13 +109,41 @@ class ZigbeeController:
         else:
             print("Failed to pair zigbee device!")
 
+    def is_mic_on(self):
+        if not self.entity_id:
+            print("Entity not initialized!")
+            return None
+
+        url = f"http://127.0.0.1:8123/api/states/{self.entity_id}"
+
+        try:
+            response = requests.get(url=url, headers=self.headers)
+            if response.status_code == 200:
+                state = response.json().get("state")
+                print(f"{self.entity_id} is currently: {state}")
+                return state == "on"
+            else:
+                print(f"Failed to fetch state! Status code: {response.status_code}")
+                return None
+        except Exception as e:
+            print(e)
+            return None
+
     def run(self, on_off):
         def temp(func):
             if func():
-                if on_off:
+                current_state = self.is_mic_on()
+                if current_state is None:
+                    print("Couldn't determine current state.")
+                    return
+
+                if on_off and not current_state:
                     self.turn_on_mic()
-                else:
+                elif not on_off and current_state:
                     self.turn_off_mic()
+                else:
+                    print("No action needed. Already in desired state.")
 
         runnable = Runnable(temp)
         self.runnable_manager.runTask(runnable)
+

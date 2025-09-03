@@ -78,6 +78,7 @@ class AppManager(QMainWindow):
             self.database_manager.save_token(token)
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
+        self.mediator.register("ZigbeeController", self.zigbee_controller)
 
         self.msg_manager = MsgManager()
         self.mediator.register("MsgManager", self.msg_manager)
@@ -107,17 +108,13 @@ class AppManager(QMainWindow):
 
         self.intiate_adans_state_button()
 
-
         self.player_manager = PlayerManager(self.player_volume_off_on_btn, self)
         self.mediator.register("PlayerManager", self.player_manager)
-  
-        self.player_manager.open_mic_signal.connect(lambda: self.zigbee_controller.run(True))
-        self.player_manager.close_mic_signal.connect(lambda: self.zigbee_controller.run(False))
 
         self.adan_manager = AdanManager(self, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
 
-        self.general_settings = GeneralSettings(self.pre_adan_sound_checkbox, self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
+        self.general_settings = GeneralSettings(self.zigbee_checkBox, self.pre_adan_sound_checkbox, self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
         self.mediator.register("GeneralSettings", self.general_settings)
 
         self.time_manager = TimeManager(self.mediator, self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label)
@@ -202,6 +199,9 @@ class AppManager(QMainWindow):
         
         self.pre_adan_sound_checkbox = self.ui.findChild(QCheckBox, "pre_adan_sound_checkbox")
         self.pre_adan_sound_checkbox.setFont(kufi_font_18)
+
+        self.zigbee_checkBox = self.ui.findChild(QCheckBox, "zigbee_checkBox")
+        self.zigbee_checkBox.setFont(kufi_font_18)
 
         self.menu_title_label = self.ui.findChild(QLabel, "menuTitleLabel")
         self.menu_title_label.setFont(tajawal_bold_font_20)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1397</width>
-    <height>1199</height>
+    <height>1108</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1833,7 +1833,7 @@ background-color: rgb(8, 148, 108);
                          </size>
                         </property>
                         <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                         <enum>QFrame::NoFrame</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
@@ -2063,7 +2063,7 @@ color:white;
                          </size>
                         </property>
                         <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                         <enum>QFrame::NoFrame</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
@@ -2278,7 +2278,7 @@ color:white;
                          </size>
                         </property>
                         <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                         <enum>QFrame::NoFrame</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
@@ -2496,7 +2496,7 @@ color:white;
                          </size>
                         </property>
                         <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                         <enum>QFrame::NoFrame</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
@@ -2726,7 +2726,7 @@ color:white;
                          </size>
                         </property>
                         <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                         <enum>QFrame::NoFrame</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
@@ -3894,8 +3894,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>100</width>
-                     <height>31</height>
+                     <width>986</width>
+                     <height>381</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -4011,7 +4011,7 @@ background-color: rgb(198, 35, 20);
           <item>
            <widget class="QFrame" name="frame_22">
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
@@ -4020,7 +4020,7 @@ background-color: rgb(198, 35, 20);
              <item>
               <widget class="QFrame" name="frame_44">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -4092,6 +4092,9 @@ background-color: rgb(198, 35, 20);
 
 </string>
                   </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
                   <property name="verticalScrollBarPolicy">
                    <enum>Qt::ScrollBarAlwaysOff</enum>
                   </property>
@@ -4106,7 +4109,7 @@ background-color: rgb(198, 35, 20);
              <item>
               <widget class="QFrame" name="frame_23">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -4178,6 +4181,9 @@ background-color: rgb(198, 35, 20);
 
 </string>
                   </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
                   <property name="verticalScrollBarPolicy">
                    <enum>Qt::ScrollBarAlwaysOff</enum>
                   </property>
@@ -4226,7 +4232,7 @@ background-color: rgb(198, 35, 20);
              </size>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
@@ -4285,6 +4291,9 @@ background-color: rgb(198, 35, 20);
     }
 
 </string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="verticalScrollBarPolicy">
                 <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -5430,7 +5439,10 @@ border: 4px solid black;
                 <enum>Qt::RightToLeft</enum>
                </property>
                <property name="styleSheet">
-                <string notr="true">QCheckBox::indicator {
+                <string notr="true">QCheckBox {
+color: black;
+}
+QCheckBox::indicator {
     width: 30px;
     height: 30px;
     border: 1px solid gray;
@@ -5458,6 +5470,46 @@ QCheckBox::indicator:checked {
                </property>
                <property name="checked">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="zigbee_checkBox">
+               <property name="font">
+                <font>
+                 <family>Microsoft Uighur</family>
+                 <pointsize>28</pointsize>
+                </font>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QCheckBox {
+color: black;
+}
+QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+    border: 1px solid gray;
+    background-color: white;
+}
+
+QCheckBox::indicator:checked {
+    image: none;
+    background-color: white;
+    border: 2px solid black;
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/newPrefix/images/check_mark.png); 
+}</string>
+               </property>
+               <property name="text">
+                <string>zigbee جهاز</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -5547,7 +5599,7 @@ border:2px solid black;
              <item>
               <widget class="QFrame" name="frame_46">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
