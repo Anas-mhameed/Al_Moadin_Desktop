@@ -57,6 +57,8 @@ class NotificationManager:
         self.permenant_noti_index = 0
         self.once_notifications = []
 
+        self.pre_adan_preparation_emitted = False
+
         self.get_notification_from_db()
 
         self.clear_layout()
@@ -463,6 +465,10 @@ class NotificationManager:
     def compare_datetimes(self, curr_time, noti):
             return noti.get_adjusted_datetime() - curr_time
     
+    def check_if_time_to_prepare(self, curr_time, notification):
+            res = self.compare_datetimes(curr_time, notification)
+            return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 7)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
+    
     def check_if_time_to_play(self, curr_time, notification):
             res = self.compare_datetimes(curr_time, notification)
             return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 1)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
@@ -518,7 +524,13 @@ class NotificationManager:
                     if self.permenant_noti_index == len(self.permenant_notifications):
                         self.permenant_noti_index = 0
 
+                self.pre_adan_preparation_emitted = False
                 self.find_next_noti()
+            
+            elif self.check_if_time_to_prepare(curr_time, self.next_noti) and not self.pre_adan_preparation_emitted:
+                if self.next_noti.activated():
+                    self.mediator.notify(self, "pre_adan_preparation")
+                    self.pre_adan_preparation_emitted = True
     
     def handle_adan_duration_changed(self, new_duration, adan_index):
         """

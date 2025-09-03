@@ -113,6 +113,7 @@ class PlayerManager:
 
     def request_playback(self, command: PlayAudioCommand):
         if command.requester == "AdanManager":
+            self.mediator.notify(self, "open_mic")
             self._play(command)
     
         elif command.requester == "NextAdan" and self.is_adan_near:
@@ -129,6 +130,7 @@ class PlayerManager:
                     self.waiting_to_set_source = True
                     self._stop_current()
                 else:
+                    self.mediator.notify(self, "open_mic")
                     self._play(command)
                 
                 if command.requester == "QuraanPageManager":
