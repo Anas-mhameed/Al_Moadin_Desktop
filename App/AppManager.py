@@ -84,7 +84,6 @@ class AppManager(QMainWindow):
             print("mobile connection code found!")
             print(self.database_manager.get_mobile_connection_code())
             print()
-            
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
