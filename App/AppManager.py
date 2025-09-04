@@ -76,6 +76,15 @@ class AppManager(QMainWindow):
             token = ask_user_for_token()
             # Save token in database
             self.database_manager.save_token(token)
+        
+
+        if not self.database_manager.is_mobile_connection_code_empty():
+            # should send data to the api to reflect desktop data on mobile
+            print()
+            print("mobile connection code found!")
+            print(self.database_manager.get_mobile_connection_code())
+            print()
+            
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
@@ -114,7 +123,7 @@ class AppManager(QMainWindow):
         self.adan_manager = AdanManager(self, self.five_prayers, self.shorok,  self.jomoaa_widget, self.adansSoundButtons, self.next_adan_label, self.remaining_time_label)
         self.mediator.register("AdanManager", self.adan_manager)
 
-        self.general_settings = GeneralSettings(self.zigbee_checkBox, self.pre_adan_sound_checkbox, self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
+        self.general_settings = GeneralSettings(self.mobile_connection_code, self.zigbee_checkBox, self.pre_adan_sound_checkbox, self.get_masjed_name_label(), self.get_masjed_name_input(), self.get_city_input(), self.get_quds_time_diff_input(), self.get_winter_summer_buttons(), self.get_time_formate_buttons(), self.runnable_manager)
         self.mediator.register("GeneralSettings", self.general_settings)
 
         self.time_manager = TimeManager(self.mediator, self.am_pm_label, self.seconds_label, self.am_pm_frame, self.time_lower_widget, self.main_time_label, self.day_label, self.gregorian_date_label)
@@ -185,6 +194,8 @@ class AppManager(QMainWindow):
         ChivoMono_VariableFont_wght_font_80 = QFont(ChivoMono_VariableFont_wght_font_family, 80)
         ChivoMono_VariableFont_wght_font_80.setWeight(QFont.Bold)
         
+        self.mobile_connection_code = self.ui.findChild(QLineEdit, "mobile_connection_code")
+
         self.reset_token_btn = self.ui.findChild(QPushButton, "reset_token_btn")
         self.reset_token_btn.setFont(tajawal_bold_font_16)
 
@@ -579,7 +590,6 @@ class AppManager(QMainWindow):
         self.duration_spinbox.setValue(0)
         self.set_curr_date_time(QDate.currentDate())
 
-    
     def cancel_noti_handle(self):
         self.change_page(1)
         self.reset_all_noti_data()
@@ -696,6 +706,7 @@ class AppManager(QMainWindow):
                 self.set_up_date()
         else:
             primary_btn.setChecked(True)
+    
     # for AdansManager
     def get_five_prayers(self):
         return self.five_prayers

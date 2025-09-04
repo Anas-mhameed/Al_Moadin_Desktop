@@ -3,7 +3,7 @@ from DatabaseManager import DatabaseManager  # Import DatabaseManager directly
 
 class GeneralSettings():
 
-    def __init__(self, zigbee_checkbox, pre_adan_sound_checkbox, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
+    def __init__(self, mobile_connection_code, zigbee_checkbox, pre_adan_sound_checkbox, masjed_name_label, masjed_name_input, city_input, quds_time_diff_input, winter_summer_buttons, time_formate_buttons, runnable_manager, *args, **kwargs):
 
         self.database_manager = DatabaseManager()  # Initialize DatabaseManager directly
 
@@ -17,6 +17,9 @@ class GeneralSettings():
         self.time_formate_buttons = time_formate_buttons
         self.pre_adan_sound_checkbox = pre_adan_sound_checkbox
         self.zigbee_checkbox = zigbee_checkbox
+        
+        self.mobile_connection_code = mobile_connection_code
+        self.mobile_connection_code.editingFinished.connect(self.update_mobile_connection_code)
 
         self.runnable_manager = runnable_manager
 
@@ -68,6 +71,18 @@ class GeneralSettings():
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
+
+    def update_mobile_connection_code(self):
+        new_code = self.mobile_connection_code.text()
+        
+        if new_code == "":
+            return
+
+        # save to db
+        self.save_to_db('mobile_connection_code', new_code)
+        
+        self.mobile_connection_code.clear()
+
 
     def update_masjed_name(self):
         temp = self.masjed_name_input.text() if self.masjed_name_input.text() != "" else "اسم المسجد"

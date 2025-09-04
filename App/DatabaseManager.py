@@ -80,6 +80,12 @@ class DatabaseManager:
     def check_token(self):
         return self.check_if_table_is_empty('tokens')
     
+    def is_mobile_connection_code_empty(self):
+        return self.check_if_table_is_empty('general_settings') or self.get_settings_data()[6][1] == ''
+
+    def get_mobile_connection_code(self):
+        return self.get_settings_data()[6][1]
+
     def clear_token(self):
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()
@@ -221,7 +227,8 @@ class DatabaseManager:
             ('quds_time_diff', '0'),
             ('is_summer_time', '1'),
             ('time_formate', '1'),
-            ('is_pre_adan_sound_activated', '0')
+            ('is_pre_adan_sound_activated', '0'),
+            ('mobile_connection_code', '')
         ]
 
         cur.executemany("INSERT INTO general_settings VALUES(?, ?)", data)
