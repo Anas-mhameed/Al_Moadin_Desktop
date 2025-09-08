@@ -49,6 +49,9 @@ class DatabaseManager:
             cur.execute('''CREATE TABLE if not exists app_version (id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)''')
             con.commit()
 
+            cur.execute("CREATE TABLE if not exists firebase_token (firebase_token TEXT)")
+            con.commit()
+            
             con.close()
             
             # add default values if table is empty
@@ -71,6 +74,17 @@ class DatabaseManager:
         cur = con.cursor()
 
         res = cur.execute("SELECT * FROM tokens")
+        records = res.fetchall()
+
+        con.close()
+
+        return records[0][0]
+    
+    def get_firebase_token(self):
+        con = sqlite3.connect(self.db_name)
+        cur = con.cursor()
+
+        res = cur.execute("SELECT * FROM firebase_token")
         records = res.fetchall()
 
         con.close()

@@ -8,6 +8,9 @@ def ask_user_for_token():
         return token.strip()
     return None
 
+# def ask_user_for_credentials():
+#     pass
+
 def reset_token(database_manager):
     database_manager.clear_token()
     QMessageBox.information(None, "Token Reset", "Please restart the app to enter a new token.")

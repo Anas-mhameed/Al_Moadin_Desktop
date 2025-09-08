@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1397</width>
+    <width>1402</width>
     <height>1108</height>
    </rect>
   </property>
@@ -470,7 +470,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -3900,7 +3900,7 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>986</width>
+                     <width>991</width>
                      <height>381</height>
                     </rect>
                    </property>

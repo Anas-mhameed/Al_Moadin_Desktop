@@ -80,10 +80,8 @@ class AppManager(QMainWindow):
 
         if not self.database_manager.is_mobile_connection_code_empty():
             # should send data to the api to reflect desktop data on mobile
-            print()
-            print("mobile connection code found!")
-            print(self.database_manager.get_mobile_connection_code())
-            print()
+            doc_id =self.database_manager.get_mobile_connection_code()
+            
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
@@ -748,7 +746,18 @@ class AppManager(QMainWindow):
         self.time_manager.run()
 
     def closeEvent(self, event: QEvent):
+        print("Closing application...")
+
+        # Stop ServerCommunicator if it exists
+        # if hasattr(self, "server_communicator") and self.server_communicator.client:
+        #     print("Stopping server communicator...")
+        #     self.server_communicator.client.stop()
+
+        # Stop all runnable workers
+        print("Stopping runnable workers...")
         self.runnable_manager.terminate_all_workers()
         self.runnable_manager.wait_for_done()
+
+        print("Application closed successfully")
         event.accept()
 
