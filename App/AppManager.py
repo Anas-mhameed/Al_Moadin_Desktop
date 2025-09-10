@@ -1,5 +1,6 @@
 import os
 from PySide6.QtUiTools import QUiLoader
+from ServerListener import FirebaseTestClient
 import resources_rc as resources_rc
 from PySide6.QtWidgets import (
     QMainWindow, 
@@ -77,11 +78,19 @@ class AppManager(QMainWindow):
             # Save token in database
             self.database_manager.save_token(token)
         
-
+        self.client = None
         if not self.database_manager.is_mobile_connection_code_empty():
             # should send data to the api to reflect desktop data on mobile
-            doc_id =self.database_manager.get_mobile_connection_code()
+            doc_id = self.database_manager.get_mobile_connection_code()
+            self.client = FirebaseTestClient(self.runnable_manager, doc_id)
+            self.mediator.register("FirebaseTestClient", self.client)
             
+            def firebase_data_received(data):
+                self.mediator.notify(self, "firebase_data_received", data)
+            
+            self.client.firebase_data_received.connect(firebase_data_received)
+
+            self.client.start_full_flow()
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
