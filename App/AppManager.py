@@ -80,6 +80,7 @@ class AppManager(QMainWindow):
         
         self.client = None
         if not self.database_manager.is_mobile_connection_code_empty():
+
             # should send data to the api to reflect desktop data on mobile
             doc_id = self.database_manager.get_mobile_connection_code()
             self.client = FirebaseTestClient(self.runnable_manager, doc_id)
@@ -755,18 +756,13 @@ class AppManager(QMainWindow):
         self.time_manager.run()
 
     def closeEvent(self, event: QEvent):
-        print("Closing application...")
-
         # Stop ServerCommunicator if it exists
         # if hasattr(self, "server_communicator") and self.server_communicator.client:
-        #     print("Stopping server communicator...")
         #     self.server_communicator.client.stop()
 
         # Stop all runnable workers
-        print("Stopping runnable workers...")
         self.runnable_manager.terminate_all_workers()
         self.runnable_manager.wait_for_done()
 
-        print("Application closed successfully")
         event.accept()
 
