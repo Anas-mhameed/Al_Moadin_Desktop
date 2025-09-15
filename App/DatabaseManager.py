@@ -152,11 +152,11 @@ class DatabaseManager:
     def initialize_adans_sound(self):
         # Include default volume values (50%)
         data = [
-            ("fajer_adan", "adan-sounds/أذان_6.mp3", 50), 
-            ("dohor_adan", "adan-sounds/أذان_6.mp3", 50), 
-            ("aser_adan", "adan-sounds/أذان_6.mp3", 50), 
-            ("magreb_adan", "adan-sounds/أذان_6.mp3", 50), 
-            ("ishaa_adan", "adan-sounds/أذان_6.mp3", 50)
+            ("fajer_adan", "./fajer-sounds/أذان الفجر 4.mp3", 50), 
+            ("dohor_adan", "./adan-sounds/أذان 6.mp3", 50), 
+            ("aser_adan", "./adan-sounds/أذان 6.mp3", 50), 
+            ("magreb_adan", "./adan-sounds/أذان 6.mp3", 50), 
+            ("ishaa_adan", "./adan-sounds/أذان 6.mp3", 50)
         ]
         
         con = sqlite3.connect(self.db_name)
