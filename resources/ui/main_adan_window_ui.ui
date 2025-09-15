@@ -470,7 +470,7 @@ margin-right:30px;
 </string>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="mainPage">
       <property name="styleSheet">
@@ -657,7 +657,7 @@ border: none;
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>40</height>
+           <height>30</height>
           </size>
          </property>
         </widget>
@@ -1454,7 +1454,7 @@ border-radius: 25px;
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>50</height>
+              <height>30</height>
              </size>
             </property>
             <property name="styleSheet">
@@ -3344,17 +3344,32 @@ background-color: rgb(235, 33, 11);
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+           <widget class="QFrame" name="frame_26">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="sizeHint" stdset="0">
+            <property name="minimumSize">
              <size>
-              <width>20</width>
-              <height>10</height>
+              <width>0</width>
+              <height>20</height>
              </size>
             </property>
-           </spacer>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -3900,8 +3915,8 @@ QScrollBar::handle:horizontal {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>991</width>
-                     <height>381</height>
+                     <width>100</width>
+                     <height>31</height>
                     </rect>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -4264,7 +4279,7 @@ background-color: rgb(198, 35, 20);
              <item>
               <widget class="QFrame" name="frame_25">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -4919,7 +4934,7 @@ QSpinBox::down-button:hover{
              <item>
               <widget class="QFrame" name="frame_50">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -4931,7 +4946,7 @@ QSpinBox::down-button:hover{
                 <item>
                  <widget class="QFrame" name="frame_49">
                   <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
@@ -5458,7 +5473,7 @@ border: 4px solid black;
              <item>
               <widget class="QFrame" name="frame_48">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -5727,7 +5742,7 @@ border:2px solid black;
                 </font>
                </property>
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
