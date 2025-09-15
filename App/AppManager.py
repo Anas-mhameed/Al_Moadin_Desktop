@@ -1,4 +1,5 @@
 import os
+from time import sleep
 from PySide6.QtUiTools import QUiLoader
 from ServerListener import FirebaseTestClient
 import resources_rc as resources_rc
@@ -80,7 +81,6 @@ class AppManager(QMainWindow):
         
         self.client = None
         if not self.database_manager.is_mobile_connection_code_empty():
-
             # should send data to the api to reflect desktop data on mobile
             doc_id = self.database_manager.get_mobile_connection_code()
             self.client = FirebaseTestClient(self.runnable_manager, doc_id)
@@ -95,6 +95,20 @@ class AppManager(QMainWindow):
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
+
+        def zigbee_connection_helper(func):
+            while(not self.zigbee_controller.is_connected() and func()):
+                self.zigbee_controller.try_to_connect()
+                print("attempting to connect to zigbee")
+                sleep(2)
+            
+            while(not self.zigbee_controller.is_entity_prepared() and func()):
+                self.zigbee_controller.prepare_entity()
+                print("attempting to connect to reach entity")
+                sleep(2)
+
+        runnable = Runnable(zigbee_connection_helper)
+        self.runnable_manager.runTask(runnable)
 
         self.msg_manager = MsgManager()
         self.mediator.register("MsgManager", self.msg_manager)

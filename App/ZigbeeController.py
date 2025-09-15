@@ -9,7 +9,20 @@ class ZigbeeController:
         self.runnable_manager = runnable_manager
         self.token = token
         self.entity_id = None
+        self.connected = False
 
+        self.try_to_connect()
+
+        # get switch entity id
+        self.prepare_entity()
+
+    def is_entity_prepared(self):
+        return self.entity_id != None
+
+    def is_connected(self):
+        return self.connected
+
+    def try_to_connect(self):
         # check if api is up
         url = "http://127.0.0.1:8123/api/"
         self.headers = {
@@ -24,15 +37,14 @@ class ZigbeeController:
             status_code = response.status_code
         except Exception as e:
             print(e)
+            pass
 
         if status_code == 200:
             print("API is up and running.")
+            self.connected = True
         else:
             print("Failed to reach HA API!")
-            print("Validate Token!")
-
-        # get switch entity id
-        self.prepare_entity()
+            print("validate Token!")
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
@@ -47,15 +59,17 @@ class ZigbeeController:
             status_code = response.status_code
         except Exception as e:
             print(e)
+            pass
 
         if status_code == 200:
             entities = response.json()
             switch_entities = [entity for entity in entities if entity["entity_id"].startswith("switch.")]
             
             if len(switch_entities) == 0:
-                print("No entities found!")
+                print("No entity found!")
                 return
             self.entity_id = switch_entities[0]["entity_id"]
+            print(f"successfuly found to entity {self.entity_id}")
         else:
             print("Failed to prepare entity!")
 
@@ -69,6 +83,7 @@ class ZigbeeController:
             status_code = response.status_code
         except Exception as e:
             print(e)
+            pass
 
         return status_code
 
@@ -83,6 +98,7 @@ class ZigbeeController:
             status_code = response.status_code
         except Exception as e:
             print(e)
+            pass
 
         return status_code
     
@@ -97,21 +113,19 @@ class ZigbeeController:
             status_code = response.status_code
         except Exception as e:
             print(e)
+            pass
 
         return status_code
 
     def connect_to_zigbee_btn_clicked(self):
         status_code = self.enable_pairing_mode()
         if status_code == 200:
-            print("zigbee device paired successfully")
             sleep(20)
             self.prepare_entity()
-        else:
-            print("Failed to pair zigbee device!")
 
     def is_mic_on(self):
         if not self.entity_id:
-            print("Entity not initialized!")
+            print("Entity not intialized!")
             return None
 
         url = f"http://127.0.0.1:8123/api/states/{self.entity_id}"
