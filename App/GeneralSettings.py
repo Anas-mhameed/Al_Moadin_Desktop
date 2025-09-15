@@ -84,8 +84,14 @@ class GeneralSettings():
         self.mobile_connection_code.clear()
 
 
-    def update_masjed_name(self):
-        temp = self.masjed_name_input.text() if self.masjed_name_input.text() != "" else "اسم المسجد"
+    def update_masjed_name(self, masjed_name = None):
+        if masjed_name is None:
+            if self.masjed_name_input.text() != "":
+                temp = self.masjed_name_input.text()
+            else:
+                temp = "اسم المسجد"
+        else :
+            temp = masjed_name
 
         self.msjed_name = temp.rstrip()
         
@@ -103,8 +109,14 @@ class GeneralSettings():
         runnable = Runnable(temp_func)
         self.runnable_manager.runTask(runnable)
 
-    def update_city(self):
-        temp = self.city_input.text() if self.city_input.text() != "" else "البلد"
+    def update_city(self, city = None):
+        if city is None:
+            if self.city_input.text() != "":
+                temp = self.city_input.text()
+            else:
+                temp = "البلد"
+        else :
+            temp = city
 
         self.city = temp.rstrip()
 
@@ -113,8 +125,12 @@ class GeneralSettings():
 
         self.update_ui()
 
-    def change_quds_diff(self):
-        self.quds_time_diff = self.quds_time_diff_input.value()
+    def change_quds_diff(self, quds_diff = None):
+        if quds_diff is None:
+            self.quds_time_diff = self.quds_time_diff_input.value()
+        else:
+            self.quds_time_diff_input.setValue(quds_diff)
+            return 
 
         # save to db 
         self.save_to_db('quds_time_diff', str(self.quds_time_diff))
@@ -150,7 +166,6 @@ class GeneralSettings():
         self.save_to_db('time_formate',temp)
        
     def switch_summer_winter(self, index):
-
         temp = '1'
         if index == 0:
 
@@ -195,7 +210,6 @@ class GeneralSettings():
             self.mediator.notify(self, "time_formate_changed", self.time_formate[0], self.time_formate[1])
         
     def change_pre_adan_sound_state(self, checked):
-        print(1)
         """Handle pre-adan sound checkbox toggle"""
         # Temporarily disconnect signals to prevent infinite recursion
         self.zigbee_checkbox.toggled.disconnect()
@@ -217,7 +231,6 @@ class GeneralSettings():
         self.zigbee_checkbox.toggled.connect(lambda checked: self.change_zigbee_state(checked))
 
     def change_zigbee_state(self, checked):
-        print(2)
 
         """Handle zigbee checkbox toggle"""
         # Temporarily disconnect signals to prevent infinite recursion
@@ -251,3 +264,25 @@ class GeneralSettings():
             }
         return settings
 
+    def handle_firebase_update(self, data):
+
+        masjed_name = data["name"]
+        city = data["city"]
+
+        quds_diff = data["qudsDifferenceTime"]
+        summer_time = data["summerTime"]
+
+        self.set_masjed_name_input(masjed_name)
+        self.set_city_input(city)
+
+        self.set_quds_diff_input(quds_diff)
+        self.switch_summer_winter(0 if summer_time else 1)
+
+    def set_quds_diff_input(self, value):
+        self.quds_time_diff_input.setValue(value)
+    
+    def set_masjed_name_input(self, value):
+        self.masjed_name_input.setText(value)
+    
+    def set_city_input(self, value):
+        self.city_input.setText(value)
