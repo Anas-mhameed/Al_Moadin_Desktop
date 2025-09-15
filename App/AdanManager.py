@@ -82,7 +82,10 @@ class AdanManager():
 
 
         self.adans = []
+        self.adans_buttons = []
+
         self.initiate_adans(five_prayers, shorok)
+
 
         self.intiate_adans_state()
 
@@ -193,6 +196,7 @@ class AdanManager():
     def connect_adan_to_activate_button(self, prayer, adan, adan_label):
         adan_button = prayer.findChild(QPushButton, f"{adan_label}_activate_button")
         adan_button.toggled.connect(adan.change_state)
+        self.adans_buttons.append(adan_button)
 
     def connect_adan_to_slider(self, adan, adan_label, adan_index):
         # Find and connect volume slider if it exists
@@ -520,8 +524,8 @@ class AdanManager():
 
     # HERE FIRESTORE UPDATES
     def set_adan_state(self, adans_data):
+
         labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
         for i in range(5):
-            adan_state = adans_data[labels[i]]
-            
-            
+            adan_info = adans_data[labels[i]]
+            self.adans_buttons[i].setChecked(adan_info["state"])
