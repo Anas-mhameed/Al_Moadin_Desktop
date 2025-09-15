@@ -520,7 +520,7 @@ class AdanManager():
 
     # HERE FIRESTORE UPDATES
     def set_adan_state(self, adans_data):
-        labels = ["Fajer", "Dhuhr", "Aser", "Maghrib", "Isha"]
+        labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
         for i in range(5):
             adan_state = adans_data[labels[i]]
             
