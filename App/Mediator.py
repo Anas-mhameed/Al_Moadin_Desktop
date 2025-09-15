@@ -108,10 +108,13 @@ class Mediator:
             self.components["AdanManager"].update_sound(args[0], args[1])
 
         elif event == "firebase_data_received":
-            print("in mediator")
             # Let each component handle Firebase data in sequence
             firebase_data = args[0]
             
             # Process in specific order if needed
             if "GeneralSettings" in self.components:
                 self.components["GeneralSettings"].handle_firebase_update(firebase_data)
+            
+            if "AdanManager" in self.components:
+                adans_data = firebase_data["adansData"]
+                self.components["AdanManager"].set_adan_state(adans_data)
