@@ -83,6 +83,7 @@ class AdanManager():
 
         self.adans = []
         self.adans_buttons = []
+        self.adans_volume_sliders = []
 
         self.initiate_adans(five_prayers, shorok)
 
@@ -201,6 +202,7 @@ class AdanManager():
     def connect_adan_to_slider(self, adan, adan_label, adan_index):
         # Find and connect volume slider if it exists
         volume_slider = self.main_widget.findChild(QSlider, f"{adan_label}_volume_slider")
+        self.adans_volume_sliders.append(volume_slider)
         if volume_slider:
             # Set the slider value to the adan's volume
             volume_slider.setValue(adan.get_volume())
@@ -529,3 +531,4 @@ class AdanManager():
         for i in range(5):
             adan_info = adans_data[labels[i]]
             self.adans_buttons[i].setChecked(adan_info["state"])
+            self.adans_volume_sliders[i].setValue(adan_info["volume"])
