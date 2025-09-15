@@ -296,7 +296,6 @@ class AdanManager():
         self.adans[adan_index].set_sound_path(file_path)
         self.database_manager.update_adans_sound(adan_db_names[adan_index], file_path)
 
-
     def change_pre_adan_sound(self):
         """Allow user to select a pre-adhan sound file"""
 
@@ -314,8 +313,6 @@ class AdanManager():
             # Show success message
             if self.mediator:
                 self.mediator.notify(self, "sound_updated_successfully", "تم تحديث صوت ما قبل الأذان بنجاح")
-            else:
-                print("DEBUG: Mediator is None!")
 
         except Exception as e:
             import traceback
@@ -326,8 +323,6 @@ class AdanManager():
 
         if self.mediator:
             self.mediator.notify(self, "sound_updated_successfully", "اختبار إشعار صوت ما قبل الأذان")
-        else:
-            print("DEBUG: Mediator is None in test!")
 
     def set_pre_adan_sound_direct(self, file_path):
         """Set pre-adhan sound directly without file dialog (for testing)"""
@@ -344,8 +339,6 @@ class AdanManager():
             # Show success message
             if self.mediator:
                 self.mediator.notify(self, "sound_updated_successfully", "تم تحديث صوت ما قبل الأذان بنجاح")
-            else:
-                print("DEBUG: Mediator is None!")
 
         except Exception as e:
             import traceback
@@ -365,8 +358,6 @@ class AdanManager():
 
         if self.mediator:
             self.mediator.notify(self, "sound_updated_successfully", f"تم تحديث مستوى صوت ما قبل الأذان إلى {volume}%")
-
-
 
     def helper(self, adans, new_quds_diff, is_summer):
 
@@ -526,3 +517,11 @@ class AdanManager():
         for i in range(1,7):
             lst.append(self.get_current_adan_time(i))
         return lst
+
+    # HERE FIRESTORE UPDATES
+    def set_adan_state(self, adans_data):
+        labels = ["Fajer", "Dhuhr", "Aser", "Maghrib", "Isha"]
+        for i in range(5):
+            adan_state = adans_data[labels[i]]
+            
+            
