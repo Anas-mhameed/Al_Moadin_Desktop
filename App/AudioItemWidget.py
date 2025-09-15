@@ -19,9 +19,6 @@ class AudioItemWidget(QWidget):
         tajawal_bold_font_family = QFontDatabase.applicationFontFamilies(Tajawal_font_id)[0]
         tajawal_bold_font_18 = QFont(tajawal_bold_font_family, 18)
         
-        # self.setStyleSheet("background-color: blue;")
-        # self.remove_bg_color_of_item()
-
         self.label = QLabel(self.remove_extension(filename))
         self.label.setFont(tajawal_bold_font_18)
         self.label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
@@ -75,7 +72,7 @@ class AudioItemWidget(QWidget):
     def remove_bg_color_from_qpush_btn(self, button):
         button.setStyleSheet("""
             QPushButton {
-                background-color: transparent;
+                /* background-color: transparent; */
                 border: none;  /* Optional: remove button border */
             }
         """)
@@ -83,7 +80,7 @@ class AudioItemWidget(QWidget):
     def remove_bg_color_from_qpsuh_btn_and_set_hover(self, button):
          button.setStyleSheet("""
             QPushButton {
-                background-color: transparent;
+                /* background-color: transparent; */
                 border: none;  /* Optional: remove button border */
             }
             QPushButton:hover {
