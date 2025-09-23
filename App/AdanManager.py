@@ -87,7 +87,6 @@ class AdanManager():
 
         self.initiate_adans(five_prayers, shorok)
 
-
         self.intiate_adans_state()
 
         self.jomoaa = self.intiate_jomoaa(jomoaa)
@@ -175,7 +174,7 @@ class AdanManager():
         
         # Get sound data from database
         sound_data = self.database_manager.get_adans_sound()
-
+        
         for i in range(len(five_prayers)):
             adan = self.adan_creator(five_prayers[i], adans_labels[i], all_adans_time[2][i])
             
@@ -526,9 +525,10 @@ class AdanManager():
 
     # HERE FIRESTORE UPDATES
     def set_adan_state(self, adans_data):
-
         labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
         for i in range(5):
             adan_info = adans_data[labels[i]]
             self.adans_buttons[i].setChecked(adan_info["state"])
             self.adans_volume_sliders[i].setValue(adan_info["volume"])
+            
+            
