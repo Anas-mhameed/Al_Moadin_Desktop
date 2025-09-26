@@ -38,7 +38,7 @@ class TimeManager():
         
         # Adjust the next timer interval to maintain 1-second precision
         # If the update took 0.1 seconds, wait 0.9 seconds for the next update
-        next_interval = max(0, 1.0 - elapsed)
+        next_interval = max(0, 0.3 - elapsed)
         
         # Schedule the next update with the adjusted interval
         QTimer.singleShot(int(next_interval * 1000), self.run)

@@ -491,7 +491,7 @@ class NotificationManager:
         # update self.curr_time
         self.update_curr_time(curr_time)
 
-        # find next noti if not exist 
+        # find next noti is not exist 
         if not self.next_noti:
             self.intiate_index()
             self.find_next_noti()

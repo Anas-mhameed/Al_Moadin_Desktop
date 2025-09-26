@@ -36,15 +36,16 @@ class ZigbeeController:
             response = requests.get(url=url, headers=self.headers)
             status_code = response.status_code
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         if status_code == 200:
             print("API is up and running.")
             self.connected = True
         else:
-            print("Failed to reach HA API!")
-            print("validate Token!")
+            # print("Failed to reach HA API!")
+            # print("validate Token!")
+            pass
 
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
@@ -58,7 +59,7 @@ class ZigbeeController:
             response = requests.get(url=url, headers=self.headers)
             status_code = response.status_code
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         if status_code == 200:
@@ -71,7 +72,8 @@ class ZigbeeController:
             self.entity_id = switch_entities[0]["entity_id"]
             print(f"successfuly found to entity {self.entity_id}")
         else:
-            print("Failed to prepare entity!")
+            # print("Failed to prepare entity!")
+            pass
 
     def turn_on_mic(self):
         url = "http://127.0.0.1:8123/api/services/switch/turn_on"
@@ -82,7 +84,7 @@ class ZigbeeController:
             response = requests.post(url, json=data, headers=self.headers)
             status_code = response.status_code
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         return status_code
@@ -97,7 +99,7 @@ class ZigbeeController:
             response = requests.post(url, json=data, headers=self.headers)
             status_code = response.status_code
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         return status_code
@@ -112,7 +114,7 @@ class ZigbeeController:
             response = requests.post(url, headers=self.headers, json=data)            
             status_code = response.status_code
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         return status_code

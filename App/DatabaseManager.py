@@ -117,7 +117,6 @@ class DatabaseManager:
         con.commit()
         con.close()
 
-
     def initialize_app_version(self):
         con = sqlite3.connect(self.db_name)
         cur = con.cursor()

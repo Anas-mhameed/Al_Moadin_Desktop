@@ -83,6 +83,9 @@ class Mediator:
             if not self.components["GeneralSettings"].is_pre_adan_sound_activated:
                 self.components["ZigbeeController"].run(True)
 
+        elif event == "close_mic":
+            self.components["ZigbeeController"].run(False)
+
         elif event == "pre_adan_preparation":
             if self.components["GeneralSettings"].is_pre_adan_sound_activated:
                 self.components["PlayerManager"].start_pre_adan_sound()

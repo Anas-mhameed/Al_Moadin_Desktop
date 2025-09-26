@@ -241,6 +241,8 @@ class AdanManager():
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             # Pass the command to the mediator
             self.mediator.notify(self, "request_playback", command)
+        else:
+            self.mediator.notify(self, "close_mic")
 
     def change_adan_sound(self, adan_name):
     

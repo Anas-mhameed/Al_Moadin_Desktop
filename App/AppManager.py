@@ -99,12 +99,12 @@ class AppManager(QMainWindow):
         def zigbee_connection_helper(func):
             while(not self.zigbee_controller.is_connected() and func()):
                 self.zigbee_controller.try_to_connect()
-                print("attempting to connect to zigbee")
+                # print("attempting to connect to zigbee")
                 sleep(2)
             
             while(not self.zigbee_controller.is_entity_prepared() and func()):
                 self.zigbee_controller.prepare_entity()
-                print("attempting to connect to reach entity")
+                # print("attempting to connect to reach entity")
                 sleep(2)
 
         runnable = Runnable(zigbee_connection_helper)

@@ -33,7 +33,7 @@ class PlayerManager:
 
         self.is_player_muted = False
 
-        self.pre_adan_sound_path = "resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
+        self.pre_adan_sound_path = "./resources/pre_adan_sound/notification-smooth-modern-stereo.mp3"
 
         self.is_pre_adan_sound_activated = False
         

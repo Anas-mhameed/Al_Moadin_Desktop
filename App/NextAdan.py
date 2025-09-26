@@ -36,6 +36,9 @@ class NextAdan() :
 
         self.mediator = None
 
+        self.time_to_find_next_adan = False
+        self.automatic_find_next_adan_counter = 0
+
         self.curr_time = dt.datetime.now()
         self.curr_day = self.curr_time.strftime('%A')
 
@@ -62,8 +65,6 @@ class NextAdan() :
         self.called_prepare_for_adan = state
 
     def intiate_next_adan(self):
-
-
 
         for adan in self.five_prayers:
                 
@@ -135,8 +136,13 @@ class NextAdan() :
 
         self.update_curr_time(curr_time)
 
-        if self.next_adan == None:
+        self.automatic_find_next_adan_counter += 1
+
+        if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 30:
+            print("IM IN -------------------------------------")
             self.intiate_next_adan()
+            self.time_to_find_next_adan = False
+            self.automatic_find_next_adan_counter = 0
 
         if self.previous_adan and self.previous_adan == self.next_adan.get_adan_name():
 
@@ -153,8 +159,7 @@ class NextAdan() :
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
 
-            self.intiate_next_adan()
-            self.find_next_adan()
+            self.time_to_find_next_adan = True
 
         elif self.compare_with_timedelta(0, 30) and not self.prepare_adan_signal_emitted:
             self.mediator.notify("NextAdan", "prepare_for_adan")
@@ -164,9 +169,9 @@ class NextAdan() :
             self.mediator.notify("NextAdan", "allow_playback")
             self.prepare_adan_signal_emitted = False 
         
-        if self.compare_with_timedelta(5, 10) and not self.pre_adan_sound_emitted:
+        if self.compare_with_timedelta(2, 10) and not self.pre_adan_sound_emitted and self.next_adan.check_state():
             self.mediator.notify("NextAdan", "pre_adan_preparation")
             self.pre_adan_sound_emitted = True    
 
-        elif not self.compare_with_timedelta(5, 10) and self.pre_adan_sound_emitted:
+        elif not self.compare_with_timedelta(2, 10) and self.pre_adan_sound_emitted:
             self.pre_adan_sound_emitted = False
