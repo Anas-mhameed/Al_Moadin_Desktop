@@ -139,7 +139,6 @@ class NextAdan() :
         self.automatic_find_next_adan_counter += 1
 
         if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 30:
-            print("IM IN -------------------------------------")
             self.intiate_next_adan()
             self.time_to_find_next_adan = False
             self.automatic_find_next_adan_counter = 0

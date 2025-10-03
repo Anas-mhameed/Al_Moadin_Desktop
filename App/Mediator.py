@@ -50,6 +50,7 @@ class Mediator:
         elif event == "new_day_event":
             self.components["AdanManager"].handle_new_day(args[0])
             self.components["AdanManager"].handle_new_jomoaa()
+            self.components["NotificationManager"].handel_new_day()
         
         elif event == "current_adan_changed_to_previous":
             self.components["PlayerManager"].current_adan_changed_to_previous()
@@ -110,14 +111,14 @@ class Mediator:
         elif event == "set_adan_sound":
             self.components["AdanManager"].update_sound(args[0], args[1])
 
-        elif event == "firebase_data_received":
-            # Let each component handle Firebase data in sequence
-            firebase_data = args[0]
+        # elif event == "firebase_data_received":
+        #     # Let each component handle Firebase data in sequence
+        #     firebase_data = args[0]
             
-            # Process in specific order if needed
-            if "GeneralSettings" in self.components:
-                self.components["GeneralSettings"].handle_firebase_update(firebase_data)
+        #     # Process in specific order if needed
+        #     if "GeneralSettings" in self.components:
+        #         self.components["GeneralSettings"].handle_firebase_update(firebase_data)
             
-            if "AdanManager" in self.components:
-                adans_data = firebase_data["adansData"]
-                self.components["AdanManager"].set_adan_state(adans_data)
+        #     if "AdanManager" in self.components:
+        #         adans_data = firebase_data["adansData"]
+        #         self.components["AdanManager"].set_adan_state(adans_data)

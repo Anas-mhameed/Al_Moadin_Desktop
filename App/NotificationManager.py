@@ -57,6 +57,7 @@ class NotificationManager:
         self.permenant_noti_index = 0
         self.once_notifications = []
 
+        self.play_request_sent = False
         self.pre_adan_preparation_emitted = False
 
         self.get_notification_from_db()
@@ -474,6 +475,7 @@ class NotificationManager:
             return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 1)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
     
     def find_next_noti(self):
+            temp = self.next_noti
             res = self.wich_noti_next(self.curr_time)
             if res != 2:
                 if res == 0:
@@ -485,7 +487,10 @@ class NotificationManager:
             else:
                 self.curr_noti_type = -1
                 self.next_noti = None
-    
+            
+            if temp != self.next_noti:
+                self.play_request_sent = False
+
     def handel_time_changed(self, curr_time):
         
         # update self.curr_time
@@ -498,7 +503,7 @@ class NotificationManager:
 
         if self.next_noti:  
             if self.check_if_time_to_play(curr_time, self.next_noti):
-                if self.next_noti.activated():
+                if self.next_noti.activated() and not self.play_request_sent:
                     # Create command with duration
                     command = PlayAudioCommand(
                         "NotificationManager", 
@@ -508,6 +513,7 @@ class NotificationManager:
                     
                     # ask player manager to play
                     self.mediator.notify(self, "request_playback", command)
+                    self.play_request_sent = True
 
                 # find next notification
                 if self.curr_noti_type:
@@ -573,3 +579,6 @@ class NotificationManager:
                     noti.update_adan_duration(new_duration_seconds)
                     # update noti in db
                     self.update_notification_in_db(noti, "adan_duration", new_duration_seconds)
+
+    def handel_new_day(self):
+        self.play_request_sent = False
