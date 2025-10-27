@@ -38,6 +38,7 @@ from DatabaseManager import DatabaseManager
 from Mediator import Mediator
 from QuraanPageManager import QuraanPageManager
 from helper_functions import *
+from logger_utils import AdanLogger, log_adan_event
 
 class AppManager(QMainWindow):
 
@@ -63,6 +64,13 @@ class AppManager(QMainWindow):
 
         # Initialize the mediator
         self.mediator = Mediator()
+
+        # Initialize logger
+        self.adan_logger = AdanLogger()
+        self.mediator.set_logger(self.adan_logger)
+
+        # Log app initialization
+        self.adan_logger.log_adan_state_change("initializing", "started", "AppManager")
 
         # Initialize DatabaseManager as a singleton
         self.database_manager = DatabaseManager()
