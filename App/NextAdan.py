@@ -55,8 +55,20 @@ class NextAdan() :
     def update_five_prayers(self, new_prayers):
         if hasattr(self, 'mediator') and self.mediator:
             old_count = len(self.five_prayers) if hasattr(self, 'five_prayers') else 0
+            
+            # Log old prayer objects
+            old_prayers_info = []
+            if hasattr(self, 'five_prayers') and self.five_prayers:
+                for prayer in self.five_prayers:
+                    old_prayers_info.append(f"{prayer.get_adan_name()}@{prayer.get_adan_time().strftime('%H:%M')}")
+            
+            # Log new prayer objects
+            new_prayers_info = []
+            for prayer in new_prayers:
+                new_prayers_info.append(f"{prayer.get_adan_name()}@{prayer.get_adan_time().strftime('%H:%M')}")
+            
             self.mediator.log("adan_state_change", "prayers_updated", "new_schedule", 
-                            f"Updated from {old_count} to {len(new_prayers)} prayers")
+                            f"Old: [{', '.join(old_prayers_info)}] -> New: [{', '.join(new_prayers_info)}]")
         
         self.five_prayers = new_prayers
 

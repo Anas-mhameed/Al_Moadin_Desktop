@@ -157,8 +157,9 @@ class AdanManager():
             self.adans[i].change_state(new_state)
             
             if hasattr(self, 'mediator') and self.mediator:
-                state_change = "enabled" if new_state else "disabled"
-                self.mediator.log("adan_state_change", "unknown", state_change, 
+                old_state_text = "enabled" if old_state else "disabled"
+                new_state_text = "enabled" if new_state else "disabled"
+                self.mediator.log("adan_state_change", old_state_text, new_state_text, 
                                 f"{self.adans[i].get_adan_name()} loaded from DB")
 
     def get_current_adan_time(self, index):
@@ -194,13 +195,14 @@ class AdanManager():
         
         for i in range(len(five_prayers)):
             adan = self.adan_creator(five_prayers[i], adans_labels[i], all_adans_time[2][i])
-            adan.set_sound_path(resource_path(sound_data[i][1]))
+            sound_path = resource_path(sound_data[i][1])
+            adan.set_sound_path(sound_path)
             volume = sound_data[i][2] if len(sound_data[i]) > 2 else 50
             adan.set_volume(volume)
             
             if hasattr(self, 'mediator') and self.mediator:
                 self.mediator.log("adan_state_change", "created", "adan_configured", 
-                                f"{adans_labels[i]} - Time: {all_adans_time[2][i].strftime('%H:%M')}, Volume: {volume}%")
+                                f"{adans_labels[i]} - Time: {all_adans_time[2][i].strftime('%H:%M')}, Volume: {volume}%, Sound: {sound_path}")
             
             self.adans.append(adan)
             self.connect_adan_to_activate_button(five_prayers[i], adan, adans_labels[i])
