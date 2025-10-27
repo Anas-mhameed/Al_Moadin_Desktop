@@ -26,6 +26,10 @@ class AdanLogger:
     def __init__(self):
         self.logger = logging.getLogger('AdanApp')
     
+    def set_mediator(self, mediator):
+        """Set the mediator for communication."""
+        self.mediator = mediator
+
     def log_time_update(self, current_time, next_adan_time, next_adan_name):
         self.logger.info(f"[TIME_UPDATE] Current: {current_time}, Next Adan: {next_adan_name} at {next_adan_time}")
     

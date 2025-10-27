@@ -3,6 +3,10 @@ class Mediator:
     def __init__(self):
         self.components = {}
 
+    def set_logger(self, logger):
+        """Set the logger for the mediator."""
+        self.logger = logger
+
     def register(self, name, component):
         """Register a component with the mediator."""
         self.components[name] = component
@@ -122,3 +126,25 @@ class Mediator:
         #     if "AdanManager" in self.components:
         #         adans_data = firebase_data["adansData"]
         #         self.components["AdanManager"].set_adan_state(adans_data)
+
+    def log(self, *args):
+        """Log events using the AdanLogger if available."""
+        # Check if logger is set, if not try to get it from components
+        if not hasattr(self, 'logger') or not self.logger:
+            if "AdanLogger" in self.components:
+                self.logger = self.components["AdanLogger"]
+            else:
+                return  # No logger available
+        
+        if len(args) == 3:
+            # Pattern: log(event_type, current_state, new_state)
+            event_type, current_state, new_state = args
+            self.logger.log_adan_state_change(current_state, new_state, event_type)
+        elif len(args) == 4:
+            # Pattern: log(event_type, current_state, new_state, details)
+            event_type, current_state, new_state, details = args
+            self.logger.log_adan_state_change(current_state, new_state, details)
+        else:
+            # Fallback: convert all args to string
+            details = " ".join(str(arg) for arg in args)
+            self.logger.log_adan_state_change("unknown", "unknown", details)

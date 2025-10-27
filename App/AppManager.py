@@ -67,6 +67,9 @@ class AppManager(QMainWindow):
 
         # Initialize logger
         self.adan_logger = AdanLogger()
+        self.mediator.register("AdanLogger", self.adan_logger)
+        
+        # Set the logger in mediator after registration
         self.mediator.set_logger(self.adan_logger)
 
         # Log app initialization
