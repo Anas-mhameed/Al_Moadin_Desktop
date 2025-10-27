@@ -217,6 +217,11 @@ class Time():
         self.update_time()
         self.update_ui()
 
+        # Log every time update to see all activity
+        if hasattr(self, 'mediator') and self.mediator:
+            self.mediator.log("time_component", "update", "time_updated", 
+                            f"Current time: {self.curr_dt.strftime('%H:%M:%S.%f')[:-3]}")
+
         self.time_updated.emit(self.curr_dt)
 
         is_new_day = self.check_if_new_day()
