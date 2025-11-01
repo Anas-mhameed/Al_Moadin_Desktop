@@ -58,23 +58,17 @@ class TimeManager():
         elapsed = time.time() - start_time
         
         # Adjust the next timer interval to maintain 1-second precision
-        next_interval = max(0, 0.3 - elapsed)
+        next_interval = max(0, 1 - elapsed)
         
         # Log every single run to see all activity
         if hasattr(self, 'mediator') and self.mediator:
             self.mediator.log("time_manager", "performance", "run_cycle", 
                             f"Update took {elapsed:.3f}s, next interval: {next_interval:.3f}s")
         
-        # Log empty line every second (every 3rd run since we run 3x per second)
-        if not hasattr(self, 'run_counter'):
-            self.run_counter = 0
         
-        self.run_counter += 1
-        
-        if self.run_counter >= 3:  # Every 3 runs = every second
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("time_manager", "separator", "second_boundary", "\n")
-            self.run_counter = 0
+        if hasattr(self, 'mediator') and self.mediator:
+            self.mediator.log("time_manager", "separator", "second_boundary", "\n")
+            
         
         # Schedule the next update with the adjusted interval
         QTimer.singleShot(int(next_interval * 1000), self.run)

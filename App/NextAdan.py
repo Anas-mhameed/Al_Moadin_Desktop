@@ -173,9 +173,9 @@ class NextAdan() :
 
         self.automatic_find_next_adan_counter += 1
 
-        if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 30:
+        if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 10:
             if hasattr(self, 'mediator') and self.mediator:
-                reason = "no_next_adan" if self.next_adan == None else "time_to_find" if self.time_to_find_next_adan else "auto_counter_30"
+                reason = "no_next_adan" if self.next_adan == None else "time_to_find" if self.time_to_find_next_adan else "auto_counter_10"
                 self.mediator.log("adan_state_change", "searching", "initiating_next_adan", f"Reason: {reason}")
             
             self.intiate_next_adan()
