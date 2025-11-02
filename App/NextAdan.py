@@ -149,7 +149,7 @@ class NextAdan() :
             temp_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1, microseconds= remaining_time.microseconds)
             return (self.remaining_time > zero_timedelta ) and (self.remaining_time < temp_timedelta)
         else:
-            return (remaining_time == zero_timedelta)
+            return (remaining_time <= zero_timedelta) and (remaining_time > dt.timedelta(seconds = -2))
         
     def update_curr_time(self, new_curr_time):
         self.curr_time = new_curr_time
