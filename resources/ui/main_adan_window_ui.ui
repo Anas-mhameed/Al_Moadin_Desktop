@@ -1797,9 +1797,6 @@ background-color: rgb(167, 25, 35);
 color: rgb(255,255,255);
 }
 
-QPushButton:hover{
-background-color: rgb(8, 185, 123);
-}
 
 QPushButton:checked{
 background-color: rgb(8, 148, 108);
