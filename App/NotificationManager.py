@@ -468,11 +468,11 @@ class NotificationManager:
     
     def check_if_time_to_prepare(self, curr_time, notification):
             res = self.compare_datetimes(curr_time, notification)
-            return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 7)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
+            return True if (res <= dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 9)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 2)) else False
     
     def check_if_time_to_play(self, curr_time, notification):
             res = self.compare_datetimes(curr_time, notification)
-            return True if (res < dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 1)) and (res > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) else False
+            return True if (res <= dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 0)) and (res >= dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = -4)) else False
     
     def find_next_noti(self):
             temp = self.next_noti
