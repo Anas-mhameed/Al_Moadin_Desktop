@@ -6,6 +6,7 @@ temp.py
 # Ignore directories
 dist/
 build/
+logs/
 
 #  Ignore vscode
 .vscode/

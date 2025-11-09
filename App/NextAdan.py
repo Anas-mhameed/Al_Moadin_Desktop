@@ -53,9 +53,30 @@ class NextAdan() :
         self.five_prayers = five_prayers
 
     def update_five_prayers(self, new_prayers):
+        if hasattr(self, 'mediator') and self.mediator:
+            old_count = len(self.five_prayers) if hasattr(self, 'five_prayers') else 0
+            
+            # Log old prayer objects
+            old_prayers_info = []
+            if hasattr(self, 'five_prayers') and self.five_prayers:
+                for prayer in self.five_prayers:
+                    old_prayers_info.append(f"{prayer.get_adan_name()}@{prayer.get_adan_time().strftime('%H:%M')}")
+            
+            # Log new prayer objects
+            new_prayers_info = []
+            for prayer in new_prayers:
+                new_prayers_info.append(f"{prayer.get_adan_name()}@{prayer.get_adan_time().strftime('%H:%M')}")
+            
+            self.mediator.log("adan_state_change", "prayers_updated", "new_schedule", 
+                            f"Old: [{', '.join(old_prayers_info)}] -> New: [{', '.join(new_prayers_info)}]")
+        
         self.five_prayers = new_prayers
 
     def update_curr_day(self, day):
+        if hasattr(self, 'mediator') and self.mediator:
+            old_day = getattr(self, 'curr_day', 'unknown')
+            self.mediator.log("adan_state_change", old_day, day, "Day changed")
+        
         self.curr_day = day
 
     def get_next_adan_name(self):
@@ -65,19 +86,27 @@ class NextAdan() :
         self.called_prepare_for_adan = state
 
     def intiate_next_adan(self):
+        if hasattr(self, 'mediator') and self.mediator:
+            self.mediator.log("adan_state_change", "searching", "finding_next_adan", f"Current time: {self.curr_time.strftime('%H:%M:%S')}")
 
         for adan in self.five_prayers:
-                
             next_time = adan.get_adan_time()
-
             if next_time > self.curr_time:
-
                 self.next_adan = adan  
-                self.adan_index = self.five_prayers.index(adan)  
+                self.adan_index = self.five_prayers.index(adan)
+                
+                if hasattr(self, 'mediator') and self.mediator:
+                    self.mediator.log("adan_state_change", "searching", "next_adan_found", 
+                                    f"{adan.get_adan_name()} at {next_time.strftime('%H:%M:%S')}")
                 return
 
+        # Next day's first adan
         self.next_adan = self.five_prayers[0]
         self.adan_index = 0
+        
+        if hasattr(self, 'mediator') and self.mediator:
+            self.mediator.log("adan_state_change", "searching", "next_day_adan", 
+                            f"Tomorrow's {self.next_adan.get_adan_name()}")
 
     def calc_remaining_time(self):
         
@@ -120,7 +149,7 @@ class NextAdan() :
             temp_timedelta = dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = sec1, microseconds= remaining_time.microseconds)
             return (self.remaining_time > zero_timedelta ) and (self.remaining_time < temp_timedelta)
         else:
-            return (remaining_time == zero_timedelta)
+            return (remaining_time <= zero_timedelta) and (remaining_time > dt.timedelta(seconds = -4))
         
     def update_curr_time(self, new_curr_time):
         self.curr_time = new_curr_time
@@ -133,42 +162,63 @@ class NextAdan() :
         self.mediator = mediator
 
     def handle_time_updated(self, curr_time):
-
         self.update_curr_time(curr_time)
+        
+        # Log time update with next adan info
+        if hasattr(self, 'mediator') and self.mediator and self.next_adan:
+            self.mediator.log("time_update", 
+                             curr_time.strftime('%H:%M:%S'), 
+                             self.next_adan.get_adan_time().strftime('%H:%M:%S'), 
+                             self.next_adan.get_adan_name())
 
         self.automatic_find_next_adan_counter += 1
 
-        if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 30:
+        if self.next_adan == None or self.time_to_find_next_adan or self.automatic_find_next_adan_counter == 10:
+            if hasattr(self, 'mediator') and self.mediator:
+                reason = "no_next_adan" if self.next_adan == None else "time_to_find" if self.time_to_find_next_adan else "auto_counter_10"
+                self.mediator.log("adan_state_change", "searching", "initiating_next_adan", f"Reason: {reason}")
+            
             self.intiate_next_adan()
             self.time_to_find_next_adan = False
             self.automatic_find_next_adan_counter = 0
 
         if self.previous_adan and self.previous_adan == self.next_adan.get_adan_name():
-
+            if hasattr(self, 'mediator') and self.mediator:
+                self.mediator.log("adan_state_change", "current_adan", "changed_to_previous", self.previous_adan)
+            
             self.previous_adan = self.five_prayers[(self.adan_index - 1) % 5 ].get_adan_name()
-
             self.mediator.notify("NextAdan", "current_adan_changed_to_previous")
 
         self.calc_remaining_time()
-
         self.update_ui()
 
         if self.compare_with_timedelta(0):
-            # emit a signal to start adan
+            # Log adan time reached
+            if hasattr(self, 'mediator') and self.mediator:
+                self.mediator.log("adan_play", self.next_adan.get_adan_name(), "ADAN_TIME_REACHED", f"State: {self.next_adan.check_state()}")
+            
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
-
             self.time_to_find_next_adan = True
 
         elif self.compare_with_timedelta(0, 30) and not self.prepare_adan_signal_emitted:
+            if hasattr(self, 'mediator') and self.mediator:
+                self.mediator.log("adan_state_change", "normal", "prepare_for_adan", f"{self.next_adan.get_adan_name()} in 30s")
+            
             self.mediator.notify("NextAdan", "prepare_for_adan")
             self.prepare_adan_signal_emitted = True
         
         elif not self.compare_with_timedelta(0, 30) and self.prepare_adan_signal_emitted:
+            if hasattr(self, 'mediator') and self.mediator:
+                self.mediator.log("adan_state_change", "prepare_for_adan", "allow_playback", f"{self.next_adan.get_adan_name()}")
+            
             self.mediator.notify("NextAdan", "allow_playback")
             self.prepare_adan_signal_emitted = False 
         
         if self.compare_with_timedelta(2, 10) and not self.pre_adan_sound_emitted and self.next_adan.check_state():
+            if hasattr(self, 'mediator') and self.mediator:
+                self.mediator.log("notification_play", "pre_adan_sound", f"{self.next_adan.get_adan_name()} in about 10 seconds")
+            
             self.mediator.notify("NextAdan", "pre_adan_preparation")
             self.pre_adan_sound_emitted = True    
 
