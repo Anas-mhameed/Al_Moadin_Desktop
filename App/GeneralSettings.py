@@ -83,7 +83,6 @@ class GeneralSettings():
         
         self.mobile_connection_code.clear()
 
-
     def update_masjed_name(self, masjed_name = None):
         if masjed_name is None:
             if self.masjed_name_input.text() != "":
@@ -264,25 +263,25 @@ class GeneralSettings():
             }
         return settings
 
-    def handle_firebase_update(self, data):
+    # def handle_firebase_update(self, data):
 
-        masjed_name = data["name"]
-        city = data["city"]
+    #     masjed_name = data["name"]
+    #     city = data["city"]
 
-        quds_diff = data["qudsDifferenceTime"]
-        summer_time = data["summerTime"]
+    #     quds_diff = data["qudsDifferenceTime"]
+    #     summer_time = data["summerTime"]
 
-        self.set_masjed_name_input(masjed_name)
-        self.set_city_input(city)
+    #     self.set_masjed_name_input(masjed_name)
+    #     self.set_city_input(city)
 
-        self.set_quds_diff_input(quds_diff)
-        self.switch_summer_winter(0 if summer_time else 1)
+    #     self.set_quds_diff_input(quds_diff)
+    #     self.switch_summer_winter(0 if summer_time else 1)
 
-    def set_quds_diff_input(self, value):
-        self.quds_time_diff_input.setValue(value)
+    # def set_quds_diff_input(self, value):
+    #     self.quds_time_diff_input.setValue(value)
     
-    def set_masjed_name_input(self, value):
-        self.masjed_name_input.setText(value)
+    # def set_masjed_name_input(self, value):
+    #     self.masjed_name_input.setText(value)
     
-    def set_city_input(self, value):
-        self.city_input.setText(value)
+    # def set_city_input(self, value):
+    #     self.city_input.setText(value)
