@@ -224,11 +224,20 @@ class AdanManager():
         return Adan(adan_name_label, adan_time, adan_time_label)
 
     def start_adan(self, adan):
-
+        adan_name = adan.get_adan_name()
+        
         if adan.check_state():
+            # Log that adan time was reached and adan is active
+            if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
+                self.mediator.logger.log_adan_play(adan_name, adan.get_sound_path(), adan.get_volume())
+            
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             self.mediator.notify(self, "request_playback", command)
         else:
+            # Log that adan time was reached but adan is disabled
+            if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
+                self.mediator.logger.log_adan_state_change("adan_time_reached", "skipped", adan_name)
+            
             self.mediator.notify(self, "close_mic")
 
     def change_adan_sound(self, adan_name):

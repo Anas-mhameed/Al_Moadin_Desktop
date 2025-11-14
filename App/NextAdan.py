@@ -152,6 +152,14 @@ class NextAdan() :
         self.update_ui()
 
         if self.compare_with_timedelta(0):
+            # Log that adan time has been reached
+            if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
+                self.mediator.logger.log_time_update(
+                    self.curr_time.strftime("%H:%M:%S"), 
+                    self.next_adan.get_adan_time().strftime("%H:%M:%S"),
+                    self.next_adan.get_adan_name()
+                )
+            
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
             self.time_to_find_next_adan = True
