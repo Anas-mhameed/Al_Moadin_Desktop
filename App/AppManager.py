@@ -101,7 +101,6 @@ class AppManager(QMainWindow):
                 self.mediator.notify(self, "firebase_data_received", data)
             
             self.client.firebase_data_received.connect(firebase_data_received)
-
             self.client.start_full_flow()
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
@@ -781,13 +780,16 @@ class AppManager(QMainWindow):
         self.time_manager.run()
 
     def closeEvent(self, event: QEvent):
-        # Stop ServerCommunicator if it exists
-        # if hasattr(self, "server_communicator") and self.server_communicator.client:
-        #     self.server_communicator.client.stop()
-
+        print("Application closing...")
+        
+        # Stop Firebase client first
+        if hasattr(self, 'client') and self.client:
+            self.client.cleanup()
+        
         # Stop all runnable workers
         self.runnable_manager.terminate_all_workers()
-        self.runnable_manager.wait_for_done()
-
+        self.runnable_manager.wait_for_done(3000)  # 3 second timeout
+        
+        print("Application closed successfully")
         event.accept()
 

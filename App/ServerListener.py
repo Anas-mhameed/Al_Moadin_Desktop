@@ -18,6 +18,7 @@ class FirebaseTestClient:
         self.server_url = server_url
         self.sio = socketio.Client()
         self.last_desktop_update = None
+        self.is_listening = False
         self._setup_event_handlers()
     
     def _setup_event_handlers(self):
@@ -159,18 +160,30 @@ class FirebaseTestClient:
     def listen_for_changes(self, can_listen):
         """Keep listening for Firebase changes"""
         print("\nListening for Firebase changes... (Press Ctrl+C to stop)")
+        self.is_listening = True
         try:
-            while can_listen:
+            while can_listen() and self.is_listening:
                 time.sleep(1)
         except Exception as e:
-            print(f"somthing went: \n {e}")
+            print(f"Something went wrong: \n {e}")
         finally:
             self.disconnect_from_server()
 
     def disconnect_from_server(self):
         """Disconnect from server"""
-        self.sio.disconnect()
-    
+        print("Disconnecting from Firebase server...")
+        self.is_listening = False
+        try:
+            if self.sio.connected:
+                self.sio.disconnect()
+                print("✅ Disconnected from Firebase server")
+        except Exception as e:
+            print(f"⚠️ Error during disconnect: {e}")
+
+    def stop_listening(self):
+        """Stop the listening loop"""
+        self.is_listening = False
+
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
@@ -193,6 +206,15 @@ class FirebaseTestClient:
             
         except Exception as e:
             print(f"Error: {e}")
+
+    def cleanup(self):
+        """Clean up resources before app shutdown"""
+        print("Cleaning up Firebase client...")
+        self.stop_listening()
+        self.disconnect_from_server()
+        
+        # Wait a bit for cleanup
+        time.sleep(0.5)
 
 # Usage examples
 if __name__ == '__main__':
