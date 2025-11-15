@@ -40,7 +40,6 @@ class FirebaseTestClient:
             print(f"   Doc ID: {data['doc_id']}")
             print(f"   Timestamp: {data['timestamp']}")
 
-            print(f"   Data: {json.dumps(data['data'], indent=2)}")
             firestore_data = data['data']
             
             # Check for circular updates using lastUpdatedBy and lastUpdatedAt
