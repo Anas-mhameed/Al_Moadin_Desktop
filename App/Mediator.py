@@ -1,3 +1,4 @@
+from PlayAudioCommand import PlayAudioCommand
 
 class Mediator:
     def __init__(self):
@@ -115,10 +116,20 @@ class Mediator:
         elif event == "set_adan_sound":
             self.components["AdanManager"].update_sound(args[0], args[1])
 
-        # elif event == "firebase_data_received":
+        elif event == "firebase_data_received":
             # Let each component handle Firebase data in sequence
-            # firebase_data = args[0]
+            firebase_data = args[0]
             # print(firebase_data)
+
+            commands = firebase_data["commands"]
+            if len(commands) != 0:
+                command = commands[0]
+                print(command["filePath"])
+                audio_command = PlayAudioCommand("FirebaseVoiceRecord", command["filePath"], 50)
+                self.components["PlayerManager"].request_playback(audio_command)
+                print("Audio command sent to player manager")
+                print()
+
             # Process in specific order if needed
             # if "GeneralSettings" in self.components:
             #     self.components["GeneralSettings"].handle_firebase_update(firebase_data)
