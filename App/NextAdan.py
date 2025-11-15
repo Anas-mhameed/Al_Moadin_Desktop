@@ -137,9 +137,7 @@ class NextAdan() :
         if self.automatic_find_next_adan_counter > 10:
             self.automatic_find_next_adan_counter = 0
 
-        print(f"automatic counter: {self.automatic_find_next_adan_counter} \nremaining time: {self.remaining_time}")
         if self.next_adan == None or self.time_to_find_next_adan or ( self.automatic_find_next_adan_counter == 10 and (self.remaining_time > dt.timedelta(days = 0, hours = 0, minutes = 0, seconds = 30) or self.remaining_time < dt.timedelta(seconds = -10))):
-            print("finding next adan")
             self.intiate_next_adan()
             self.time_to_find_next_adan = False
             self.automatic_find_next_adan_counter = 0
