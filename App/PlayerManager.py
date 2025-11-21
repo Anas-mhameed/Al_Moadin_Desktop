@@ -94,7 +94,8 @@ class PlayerManager:
                 # Delay playback slightly to avoid FFmpeg/Qt bug
                 QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
             else:
-                self.mediator.notify(self, "audio_finished")
+                id = self.current_command.adan_name if self.current_command.adan_name else None
+                self.mediator.notify(self, "audio_finished", self.current_command.requester, id)
                 self._clear_command()
 
     def _clear_command(self):
