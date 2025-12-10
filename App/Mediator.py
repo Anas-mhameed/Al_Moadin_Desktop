@@ -82,7 +82,23 @@ class Mediator:
         elif event == "request_adans_duration":
             self.components["AdanManager"].get_adans_duration()
         
+        elif event == "firebase_audio_task":
+            # Handle Firebase audio task with ACK logic
+            audio_command = args[0]
+            print(f"Processing Firebase audio task: {audio_command.adan_name}")
+            self.components["PlayerManager"].request_playback(audio_command)
+            print("Firebase audio command sent to player manager")
+
         elif event == "audio_finished":
+            # Check if this was a Firebase audio task that needs completion ACK
+            requester = args[0]
+            command_id = args[1] if len(args) > 1 else None
+            
+            if requester == "FirebaseVoiceRecord" and command_id:
+                # Notify Firebase client that audio completed
+                if "FirebaseTestClient" in self.components:
+                    self.components["FirebaseTestClient"].notify_audio_completed(command_id)
+            
             self.components["ZigbeeController"].run(False)
 
         elif event == "open_mic":
@@ -117,26 +133,30 @@ class Mediator:
             self.components["AdanManager"].update_sound(args[0], args[1])
 
         elif event == "firebase_data_received":
-            # Let each component handle Firebase data in sequence
+            # Handle general Firebase data updates (non-audio commands)
             firebase_data = args[0]
-            # print(firebase_data)
-
-            commands = firebase_data["commands"]
-            if len(commands) != 0:
-                command = commands[0]
-                print(command["filePath"])
-                audio_command = PlayAudioCommand("FirebaseVoiceRecord", command["filePath"], 50)
-                self.components["PlayerManager"].request_playback(audio_command)
-                print("Audio command sent to player manager")
-                print()
-
-            # Process in specific order if needed
-            # if "GeneralSettings" in self.components:
-            #     self.components["GeneralSettings"].handle_firebase_update(firebase_data)
             
-            # if "AdanManager" in self.components:
-            #     adans_data = firebase_data["adansData"]
-            #     self.components["AdanManager"].set_adan_state(adans_data)
+            # Process other Firebase data updates here (settings, configurations, etc.)
+            # Remove audio command processing - that's now handled by firebase_audio_task
+            
+            # Example: Handle other types of updates
+            if "settings" in firebase_data:
+                # Handle settings updates
+                pass
+            
+            # Note: Audio commands are now exclusively handled by firebase_audio_task event
+
+        elif event == "firebase_audio_task_cant_play":
+            # Handle Firebase audio task that can't be played
+            command_id = args[0]
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].notify_audio_cant_play(command_id)
+
+        elif event == "firebase_audio_task_completed":
+            # Handle Firebase audio task completion without affecting ZigbeeController
+            command_id = args[0]
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].notify_audio_completed(command_id)
 
     def log(self, *args):
         """Log events using the AdanLogger if available."""
