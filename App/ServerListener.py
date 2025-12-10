@@ -7,19 +7,27 @@ from PySide6.QtCore import QObject, Signal
 
 class FirebaseSignals(QObject):
     firebase_data_received = Signal(dict)
+    firebase_audio_task_received = Signal(object)  # PlayAudioCommand object
+    audio_task_ack_needed = Signal(str, str, str)  # task_id, status, error (optional)
 
 class FirebaseTestClient:
     firebase_signals = FirebaseSignals()
     firebase_data_received = firebase_signals.firebase_data_received
+    firebase_audio_task_received = firebase_signals.firebase_audio_task_received
+    audio_task_ack_needed = firebase_signals.audio_task_ack_needed
 
-    def __init__(self, runnable_manager,  doc_id=None, server_url='http://localhost:5000'):
+    def __init__(self, runnable_manager, doc_id=None, server_url='http://localhost:5000'):
         self.doc_id = doc_id
         self.runnable_manager = runnable_manager
         self.server_url = server_url
         self.sio = socketio.Client()
         self.last_desktop_update = None
         self.is_listening = False
+        self.active_audio_tasks = {}
         self._setup_event_handlers()
+        
+        # Connect internal signals to handle ACKs on background thread
+        self.audio_task_ack_needed.connect(self._send_ack_on_background_thread)
     
     def _setup_event_handlers(self):
         """Setup all Socket.IO event handlers"""
@@ -48,21 +56,17 @@ class FirebaseTestClient:
                 last_updated_by = firestore_data.get("lastUpdatedBy")
                 last_updated_at = firestore_data.get("lastUpdatedAt")
                 
-                # Skip if this update came from desktop
                 if last_updated_by == "desktop":
                     print("🔁 Ignoring self-originated update (lastUpdatedBy = desktop)")
                     return
                 
-                # If we have a last desktop update timestamp, compare with incoming timestamp
                 if self.last_desktop_update and last_updated_at:
-                    # Convert Firestore timestamp to datetime for comparison
                     incoming_timestamp = self._parse_firestore_timestamp(last_updated_at)
                     
-                    if incoming_timestamp and incoming_timestamp <= self.last_desktop_update:
+                    if incoming_timestamp and incoming_timestamp < self.last_desktop_update:
                         print(f"🔁 Ignoring older update (incoming: {incoming_timestamp}, last desktop: {self.last_desktop_update})")
                         return
                 
-                # Update our last update timestamp if this is a newer change
                 if last_updated_at:
                     parsed_timestamp = self._parse_firestore_timestamp(last_updated_at)
                     if parsed_timestamp:
@@ -70,10 +74,63 @@ class FirebaseTestClient:
                         
             except (KeyError, TypeError, AttributeError) as e:
                 print(f"⚠️ Error checking circular update: {e}")
-                # Continue processing the update if we can't determine origin
             
-            self.firebase_data_received.emit(firestore_data)
-        
+            # Remove commands from firestore_data before emitting
+            filtered_data = {k: v for k, v in firestore_data.items() if k != 'commands'}
+            
+            if filtered_data:
+                print(f"📄 Emitting general Firebase data (excluding commands)")
+                self.firebase_data_received.emit(filtered_data)
+            else:
+                print(f"📄 No general data to emit (commands filtered out)")
+
+        @self.sio.event
+        def audio_task(data):
+            print(f"🎵 Audio task received:")
+            print(f"   Task ID: {data.get('task_id')}")
+            print(f"   File Path: {data.get('command', {}).get('filePath')}")
+            print(f"   Command ID: {data.get('command', {}).get('id')}")
+            
+            task_id = data.get('task_id')
+            command = data.get('command', {})
+            file_path = command.get('filePath')
+            command_id = command.get('id')
+            
+            # Validate required fields
+            if not task_id or not file_path or not command_id:
+                print(f"⚠️ Invalid audio task data")
+                return
+            
+            # Check if file exists
+            import os
+            if not os.path.exists(file_path):
+                print(f"⚠️ Audio file not found: {file_path}")
+                return
+            
+            # Send received ACK immediately
+            print(f"📨 Sending received ACK for task {task_id}")
+            self.sio.emit('audio_ack', {
+                'task_id': task_id,
+                'status': 'received'
+            })
+            
+            # Create audio command and emit signal to main thread
+            from PlayAudioCommand import PlayAudioCommand
+            audio_command = PlayAudioCommand(
+                "FirebaseVoiceRecord", 
+                file_path, 
+                50, 
+                adan_name=command_id,
+                task_id=task_id
+            )
+            
+            # Store task_id for completion tracking
+            self.active_audio_tasks[command_id] = task_id
+            
+            # Emit signal to main thread for processing
+            print(f"📡 Emitting audio task signal to main thread")
+            self.firebase_audio_task_received.emit(audio_command)
+
         @self.sio.event
         def update_confirmed(data):
             print(f"✅ Update confirmed: {data}")
@@ -85,18 +142,56 @@ class FirebaseTestClient:
         @self.sio.event
         def disconnect():
             print("❌ Disconnected from server")
-            # Auto-reconnect after 3 seconds
             time.sleep(3)
             try:
                 print("🔄 Attempting to reconnect...")
                 self.sio.connect(self.server_url)
-                # Re-set document if we have one
                 if self.doc_id:
                     time.sleep(1)
                     self.set_document()
             except Exception as e:
                 print(f"❌ Reconnection failed: {e}")
-    
+
+    def _send_ack_on_background_thread(self, task_id, status, error=""):
+        """Send ACK from background thread (connected via signal)"""
+        ack_data = {
+            'task_id': task_id,
+            'status': status
+        }
+        if error:
+            ack_data['error'] = error
+            
+        print(f"📨 Sending {status} ACK for task {task_id}")
+        self.sio.emit('audio_ack', ack_data)
+
+    def notify_audio_completed(self, command_id):
+        """Notify server that audio task has completed playing (called from main thread)"""
+        if command_id in self.active_audio_tasks:
+            task_id = self.active_audio_tasks[command_id]
+            print(f"🎵 Requesting completion ACK for task {task_id} (command: {command_id})")
+            
+            # Use signal to send ACK from background thread
+            self.audio_task_ack_needed.emit(task_id, 'completed', '')
+            
+            # Remove from active tasks
+            del self.active_audio_tasks[command_id]
+        else:
+            print(f"⚠️ No active task found for command {command_id}")
+
+    def notify_audio_cant_play(self, command_id):
+        """Notify server that audio task can't be played (called from main thread)"""
+        if command_id in self.active_audio_tasks:
+            task_id = self.active_audio_tasks[command_id]
+            print(f"🚫 Requesting can't play ACK for task {task_id} (command: {command_id})")
+            
+            # Use signal to send ACK from background thread
+            self.audio_task_ack_needed.emit(task_id, 'cant_play', 'Audio cannot be played during adan time')
+            
+            # Remove from active tasks
+            del self.active_audio_tasks[command_id]
+        else:
+            print(f"⚠️ No active task found for command {command_id}")
+
     def _parse_firestore_timestamp(self, timestamp_data):
         """Parse Firestore timestamp to datetime object"""
         try:
