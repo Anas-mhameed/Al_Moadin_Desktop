@@ -113,43 +113,36 @@ class PlayerManager:
             self.request_playback(PlayAudioCommand("NextAdan", self.pre_adan_sound_path, 50))
 
     def request_playback(self, command: PlayAudioCommand):
-        print()
-        print(0)
         if command.requester == "AdanManager":
-            print(1)
             self.mediator.notify(self, "open_mic")
             self._play(command)
     
         elif command.requester == "NextAdan" and self.is_adan_near:
-            print(2)
             self._play(command)
 
         else:
             if self.is_adan_near or (self.current_command is not None and self.current_command.requester == "AdanManager"):
-                print(3)
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
                 if command.requester == "QuraanPageManager":
-                    print(4)
                     self.mediator.notify(self, "failed_to_play")
+                elif command.requester == "FirebaseVoiceRecord":
+                    # Send can't play status for Firebase audio task since it can't be played
+                    if command.adan_name:  # adan_name contains the command_id for Firebase tasks
+                        self.mediator.notify(self, "firebase_audio_task_cant_play", command.adan_name)
             else:
                 if self.isPlaying() or self.isPaused():
-                    print(5)
                     self.pending_command = command
                     self.waiting_to_set_source = True
                     self._stop_current()
                 else:
-                    print(6)
                     self.mediator.notify(self, "open_mic")
                     self._play(command)
                 
                 if command.requester == "QuraanPageManager":
-                    print(7)
                     self.mediator.notify(self, "successfully_played")
                 
                 elif command.requester == "InstantPlayer":
-                    print(8)
                     self.position_timer.start(200)
-        print(9)
                 
     def isPlaying(self):
         return self.player.isPlaying()
