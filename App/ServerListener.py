@@ -8,12 +8,14 @@ from PySide6.QtCore import QObject, Signal
 class FirebaseSignals(QObject):
     firebase_data_received = Signal(dict)
     firebase_audio_task_received = Signal(object)  # PlayAudioCommand object
+    firebase_audio_preparation_received = Signal()  # Audio preparation signal
     audio_task_ack_needed = Signal(str, str, str)  # task_id, status, error (optional)
 
 class FirebaseTestClient:
     firebase_signals = FirebaseSignals()
     firebase_data_received = firebase_signals.firebase_data_received
     firebase_audio_task_received = firebase_signals.firebase_audio_task_received
+    firebase_audio_preparation_received = firebase_signals.firebase_audio_preparation_received
     audio_task_ack_needed = firebase_signals.audio_task_ack_needed
 
     def __init__(self, runnable_manager, doc_id=None, server_url='http://localhost:5000'):
@@ -151,6 +153,18 @@ class FirebaseTestClient:
                     self.set_document()
             except Exception as e:
                 print(f"❌ Reconnection failed: {e}")
+
+        @self.sio.event
+        def prepare_audio_playback(data):
+            print(f"🎵 Audio playback preparation request received")
+            
+            # Emit signal to main thread for preparation
+            print(f"📡 Emitting preparation signal to main thread")
+            if hasattr(self, 'firebase_audio_preparation_received'):
+                self.firebase_audio_preparation_received.emit()
+            else:
+                # Fallback: emit through firebase_data_received with special marker
+                self.firebase_data_received.emit({'prepare_audio_playback': True})
 
     def _send_ack_on_background_thread(self, task_id, status, error=""):
         """Send ACK from background thread (connected via signal)"""

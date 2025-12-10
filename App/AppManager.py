@@ -103,8 +103,12 @@ class AppManager(QMainWindow):
             def firebase_audio_task_received(audio_command):
                 self.mediator.notify(self, "firebase_audio_task", audio_command)
             
+            def firebase_audio_preparation_received():
+                self.mediator.notify(self, "pre_adan_preparation")
+
             self.client.firebase_data_received.connect(firebase_data_received)
             self.client.firebase_audio_task_received.connect(firebase_audio_task_received)
+            self.client.firebase_audio_preparation_received.connect(firebase_audio_preparation_received)
             self.client.start_full_flow()
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
