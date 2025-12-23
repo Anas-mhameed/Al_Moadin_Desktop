@@ -77,9 +77,16 @@ class FirebaseTestClient:
             except (KeyError, TypeError, AttributeError) as e:
                 print(f"⚠️ Error checking circular update: {e}")
             
+            # Check for force stop command
+            playing_audio_metadata = firestore_data.get("playingAudioMetaData", {})
+            if playing_audio_metadata.get("forceStop") == True:
+                print("🛑 Force stop command received")
+                self.firebase_data_received.emit({"force_stop": True})
+                return  # Don't process other data when force stop is received
+            
             # Remove commands from firestore_data before emitting
             filtered_data = {k: v for k, v in firestore_data.items() if k != 'commands'}
-            
+
             if filtered_data:
                 print(f"📄 Emitting general Firebase data (excluding commands)")
                 self.firebase_data_received.emit(filtered_data)
@@ -324,6 +331,30 @@ class FirebaseTestClient:
         
         # Wait a bit for cleanup
         time.sleep(0.5)
+
+    def handle_firestore_data(self, firestore_data):
+        # Check for force stop command
+        playing_audio_metadata = firestore_data.get("playingAudioMetaData", {})
+        if playing_audio_metadata.get("forceStop") == True:
+            print("🛑 Force stop command received")
+            self.firebase_data_received.emit({"force_stop": True})
+
+    def update_force_stop_field(self, value):
+        """Update forceStop field in Firestore"""
+        try:
+            update_data = {
+                'playingAudioMetaData': {
+                    'forceStop': value
+                }
+            }
+            
+            self.sio.emit('request_firebase_update', {
+                'doc_id': self.doc_id,
+                'update_data': update_data
+            })
+            print(f"📝 Updated forceStop field to {value}")
+        except Exception as e:
+            print(f"❌ Failed to update forceStop field: {e}")
 
 # Usage examples
 if __name__ == '__main__':

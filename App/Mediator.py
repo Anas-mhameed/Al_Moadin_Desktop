@@ -158,6 +158,15 @@ class Mediator:
             if "FirebaseTestClient" in self.components:
                 self.components["FirebaseTestClient"].notify_audio_completed(command_id)
 
+        elif event == "force_stop_audio_from_firebase":
+            self.components["PlayerManager"].handle_force_stop_from_firebase()
+            # Set forceStop field back to false
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].update_force_stop_field(False)
+
+        elif event == "force_stop_quraan_audio":
+            self.components["QuraanPageManager"].force_stop_current_audio()
+
     def log(self, *args):
         """Log events using the AdanLogger if available."""
         # Check if logger is set, if not try to get it from components

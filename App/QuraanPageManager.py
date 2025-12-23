@@ -20,6 +20,10 @@ class QuraanPageManager(QWidget):
         self.quraan_list_widget = quraan_list_widget
         self.quraan_list_widget.setSpacing(5)
         self.current_widget = None  # To track what's playing
+        
+        # Track currently playing audio for force stop
+        self.current_playing_index = None
+        self.current_playing_category = None
 
         self.adan_audio_dir = './adan-sounds'
         self.adan_sounds_list_widget = adan_sounds_list_widget
@@ -62,8 +66,13 @@ class QuraanPageManager(QWidget):
  
     def play_audio(self, widget: AudioItemWidget):
         full_path = os.path.join(widget.audio_dir, widget.filename)
+        index = self.get_item_index_by_widget(widget, widget.category)
 
-        command = PlayAudioCommand("QuraanPageManager", full_path, index=self.get_item_index_by_widget(widget, widget.category), adan_name=widget.category)
+        # Store current playing info for force stop
+        self.current_playing_index = index
+        self.current_playing_category = widget.category
+
+        command = PlayAudioCommand("QuraanPageManager", full_path, index=index, adan_name=widget.category)
 
         if self.current_widget and self.current_widget != widget:
             self.current_widget.set_inactive_style()
@@ -90,6 +99,10 @@ class QuraanPageManager(QWidget):
         return -1  # Not found
 
     def set_inactive_style_by_index(self, index: int, category: str):
+        # Clear current playing info when audio finishes
+        if index == self.current_playing_index and category == self.current_playing_category:
+            self.current_playing_index = None
+            self.current_playing_category = None
         
         if category == CATEGORIES["QURAAN"]:
             list_widget = self.quraan_list_widget
@@ -134,5 +147,17 @@ class QuraanPageManager(QWidget):
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
+
+    def force_stop_current_audio(self):
+        """Stop currently playing audio (called by force stop)"""
+        if self.current_playing_index is not None and self.current_playing_category is not None:
+            self.mediator.notify(self, "stop_quraan_audio", self.current_playing_index, self.current_playing_category)
+            
+            # Clear tracking variables
+            self.current_playing_index = None
+            self.current_playing_category = None
+            
+            if self.current_widget:
+                self.current_widget = None
 
         

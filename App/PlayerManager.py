@@ -232,3 +232,16 @@ class PlayerManager:
     def stop_quraan_audio(self, index, category):
         if self.current_command and self.current_command.requester == "QuraanPageManager" and self.current_command.index == index and self.current_command.adan_name == category and self.isPlaying():
             self._stop_current()
+    
+    def stop_firebase_audio(self):
+        if self.current_command and self.current_command.requester == "FirebaseVoiceRecord" and self.isPlaying():
+            self._stop_current()
+
+    def handle_force_stop_from_firebase(self):
+        """Handle force stop from Firebase - stops all audio except adan"""
+        if self.current_command:
+            if self.current_command.requester == "QuraanPageManager":
+                # Use mediator to stop QuraanPageManager audio properly
+                self.mediator.notify(self, "force_stop_quraan_audio")
+            elif self.current_command.requester in ["InstantPlayer", "NotificationManager", "FirebaseVoiceRecord"]:
+                self._stop_current()

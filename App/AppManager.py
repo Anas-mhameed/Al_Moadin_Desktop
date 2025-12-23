@@ -98,7 +98,8 @@ class AppManager(QMainWindow):
             
             # Connect signals to main thread handlers
             def firebase_data_received(data):
-                self.mediator.notify(self, "firebase_data_received", data)
+                if data.get("force_stop"):
+                    self.mediator.notify(self, "force_stop_audio_from_firebase")
             
             def firebase_audio_task_received(audio_command):
                 self.mediator.notify(self, "firebase_audio_task", audio_command)
