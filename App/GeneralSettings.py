@@ -9,6 +9,8 @@ class GeneralSettings():
 
         self.mediator = None
 
+        self.is_firebase_update_locked = False
+
         self.masjed_name_label = masjed_name_label
         self.masjed_name_input = masjed_name_input
         self.city_input = city_input
@@ -225,6 +227,8 @@ class GeneralSettings():
         # Notify mediator if available
         if self.mediator:
             self.mediator.notify(self, "pre_adan_sound_state_changed", checked)
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"soundSensor": checked, "zigbeeDevice": not checked})
 
         # Reconnect the signal
         self.zigbee_checkbox.toggled.connect(lambda checked: self.change_zigbee_state(checked))
@@ -247,9 +251,17 @@ class GeneralSettings():
         # Notify mediator if available
         if self.mediator:
             self.mediator.notify(self, "pre_adan_sound_state_changed", not checked)
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"soundSensor": not checked, "zigbeeDevice": checked})
 
         # Reconnect the signal
         self.pre_adan_sound_checkbox.toggled.connect(lambda checked: self.change_pre_adan_sound_state(checked))
+
+    def lock_firebase_update(self):
+        self.is_firebase_update_locked = True
+
+    def unlock_firebase_update(self):
+        self.is_firebase_update_locked = False
 
     def update_ui(self):
         self.masjed_name_label.setText(f"{self.msjed_name} - {self.city}")

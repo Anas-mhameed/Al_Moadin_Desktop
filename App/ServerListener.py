@@ -1,7 +1,7 @@
 import socketio
 import time
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from Runnable import *
 from PySide6.QtCore import QObject, Signal
 
@@ -10,13 +10,17 @@ class FirebaseSignals(QObject):
     firebase_audio_task_received = Signal(object)  # PlayAudioCommand object
     firebase_audio_preparation_received = Signal()  # Audio preparation signal
     audio_task_ack_needed = Signal(str, str, str)  # task_id, status, error (optional)
+    request_firebase_update_signal = Signal(dict)  # Signal to request Firebase update
+    firebase_settings_received = Signal(dict)  # Signal to receive settings
 
 class FirebaseTestClient:
     firebase_signals = FirebaseSignals()
     firebase_data_received = firebase_signals.firebase_data_received
     firebase_audio_task_received = firebase_signals.firebase_audio_task_received
     firebase_audio_preparation_received = firebase_signals.firebase_audio_preparation_received
+    firebase_settings_received = firebase_signals.firebase_settings_received
     audio_task_ack_needed = firebase_signals.audio_task_ack_needed
+    request_firebase_update_signal = firebase_signals.request_firebase_update_signal
 
     def __init__(self, runnable_manager, doc_id=None, server_url='http://localhost:5000'):
         self.doc_id = doc_id
@@ -30,6 +34,9 @@ class FirebaseTestClient:
         
         # Connect internal signals to handle ACKs on background thread
         self.audio_task_ack_needed.connect(self._send_ack_on_background_thread)
+        
+        # Connect update signal to request_firebase_update method
+        self.request_firebase_update_signal.connect(self.request_firebase_update)
     
     def _setup_event_handlers(self):
         """Setup all Socket.IO event handlers"""
@@ -63,13 +70,15 @@ class FirebaseTestClient:
                     return
                 
                 if self.last_desktop_update and last_updated_at:
+                    print(0)
                     incoming_timestamp = self._parse_firestore_timestamp(last_updated_at)
-                    
+                    print(1)
                     if incoming_timestamp and incoming_timestamp < self.last_desktop_update:
                         print(f"🔁 Ignoring older update (incoming: {incoming_timestamp}, last desktop: {self.last_desktop_update})")
                         return
                 
                 if last_updated_at:
+                    print(2)
                     parsed_timestamp = self._parse_firestore_timestamp(last_updated_at)
                     if parsed_timestamp:
                         self.last_desktop_update = parsed_timestamp
@@ -86,12 +95,16 @@ class FirebaseTestClient:
             
             # Remove commands from firestore_data before emitting
             filtered_data = {k: v for k, v in firestore_data.items() if k != 'commands'}
+            print(filtered_data)
+            # Extract settings fields
+            settings_fields = ['city', 'name', 'qudsDifferenceTime', 'summerTime', 'soundSensor', 'zigbeeDevice']
+            settings_data = {k: v for k, v in filtered_data.items() if k in settings_fields}
+            # Emit settings if any exist
+            if settings_data:
+                print(f"⚙️ Emitting settings data: {list(settings_data.keys())}")
+                self.firebase_settings_received.emit(settings_data)
 
-            if filtered_data:
-                print(f"📄 Emitting general Firebase data (excluding commands)")
-                self.firebase_data_received.emit(filtered_data)
-            else:
-                print(f"📄 No general data to emit (commands filtered out)")
+            remaining_data = {k: v for k, v in filtered_data.items() if k not in settings_fields}
 
         @self.sio.event
         def audio_task(data):
@@ -256,6 +269,15 @@ class FirebaseTestClient:
         self.sio.emit('set_document', {'doc_id': self.doc_id})
         time.sleep(2)
     
+    def serialize(self, data: dict):
+        result = {}
+        for k, v in data.items():
+            if isinstance(v, datetime):
+                result[k] = v.isoformat()  # ✅ JSON safe
+            else:
+                result[k] = v
+        return result
+
     def request_firebase_update(self, update_data):
         """Request Firebase update"""
         print("\nRequesting Firebase update...")
@@ -264,12 +286,14 @@ class FirebaseTestClient:
         update_data["lastUpdatedBy"] = "desktop"
         # Note: SERVER_TIMESTAMP will be handled by the server/Firebase
         # We'll use current time as approximation for our tracking
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         self.last_desktop_update = current_time
-        
+        print(f" lastUpdatedAt Type: {type(current_time)}")
+        update_data["lastUpdatedAt"] = current_time
+
         self.sio.emit('request_firebase_update', {
             'doc_id': self.doc_id,
-            'update_data': update_data
+            'update_data': self.serialize(update_data)
         })
         time.sleep(1)
 

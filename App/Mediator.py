@@ -132,19 +132,46 @@ class Mediator:
         elif event == "set_adan_sound":
             self.components["AdanManager"].update_sound(args[0], args[1])
 
-        elif event == "firebase_data_received":
-            # Handle general Firebase data updates (non-audio commands)
-            firebase_data = args[0]
+        elif event == "lock_firebase_update":
+            if "GeneralSettings" in self.components:
+                self.components["GeneralSettings"].lock_firebase_update()
+
+        elif event == "unlock_firebase_update":
+            if "GeneralSettings" in self.components:
+                self.components["GeneralSettings"].unlock_firebase_update()
+        
+        elif event == "send_firebase_update":
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].request_firebase_update_signal.emit(args[0])
+
+        # elif event == "firebase_data_received":
+
+        # "FirebaseTestClient".request_firebase_update_signal.
+
+
+        #     # Handle general Firebase data updates (non-audio commands)
+        #     firebase_data = args[0]
             
-            # Process other Firebase data updates here (settings, configurations, etc.)
-            # Remove audio command processing - that's now handled by firebase_audio_task
+        #     # Process other Firebase data updates here (settings, configurations, etc.)
+        #     # Remove audio command processing - that's now handled by firebase_audio_task
             
-            # Example: Handle other types of updates
-            if "settings" in firebase_data:
-                # Handle settings updates
-                pass
+        #     # Example: Handle other types of updates
+        #     if "settings" in firebase_data:
+        #         # Handle settings updates
+        #         pass
             
             # Note: Audio commands are now exclusively handled by firebase_audio_task event
+        elif event == "firebase_settings_received":
+            settings = args[0]
+
+            self.notify(self, "lock_firebase_update")
+            
+            if "soundSensor" in settings:
+                self.components["GeneralSettings"].change_pre_adan_sound_state(settings.get("soundSensor"))
+            if "zigbeeDevice" in settings:
+                self.components["GeneralSettings"].change_zigbee_state(settings.get("zigbeeDevice"))
+
+            self.notify(self, "unlock_firebase_update")
 
         elif event == "firebase_audio_task_cant_play":
             # Handle Firebase audio task that can't be played
