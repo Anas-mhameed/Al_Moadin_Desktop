@@ -142,6 +142,8 @@ class Mediator:
         
         elif event == "send_firebase_update":
             if "FirebaseTestClient" in self.components:
+                print("\n\nsending firebase update")
+                print(args[0])
                 self.components["FirebaseTestClient"].request_firebase_update_signal.emit(args[0])
 
         # elif event == "firebase_data_received":
@@ -170,6 +172,12 @@ class Mediator:
                 self.components["GeneralSettings"].change_pre_adan_sound_state(settings.get("soundSensor"))
             if "zigbeeDevice" in settings:
                 self.components["GeneralSettings"].change_zigbee_state(settings.get("zigbeeDevice"))
+            if "qudsDifferenceTime" in settings:
+                self.components["GeneralSettings"].set_quds_diff_input(settings.get("qudsDifferenceTime"))
+                # self.components["GeneralSettings"]
+            if "summerTime" in settings:
+                # self.components["GeneralSettings"]
+                pass
 
             self.notify(self, "unlock_firebase_update")
 

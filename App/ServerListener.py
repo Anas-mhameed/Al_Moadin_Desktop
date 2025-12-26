@@ -70,15 +70,12 @@ class FirebaseTestClient:
                     return
                 
                 if self.last_desktop_update and last_updated_at:
-                    print(0)
                     incoming_timestamp = self._parse_firestore_timestamp(last_updated_at)
-                    print(1)
                     if incoming_timestamp and incoming_timestamp < self.last_desktop_update:
                         print(f"🔁 Ignoring older update (incoming: {incoming_timestamp}, last desktop: {self.last_desktop_update})")
                         return
                 
                 if last_updated_at:
-                    print(2)
                     parsed_timestamp = self._parse_firestore_timestamp(last_updated_at)
                     if parsed_timestamp:
                         self.last_desktop_update = parsed_timestamp
@@ -95,7 +92,7 @@ class FirebaseTestClient:
             
             # Remove commands from firestore_data before emitting
             filtered_data = {k: v for k, v in firestore_data.items() if k != 'commands'}
-            print(filtered_data)
+
             # Extract settings fields
             settings_fields = ['city', 'name', 'qudsDifferenceTime', 'summerTime', 'soundSensor', 'zigbeeDevice']
             settings_data = {k: v for k, v in filtered_data.items() if k in settings_fields}

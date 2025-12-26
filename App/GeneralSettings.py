@@ -62,7 +62,7 @@ class GeneralSettings():
 
         self.masjed_name_input.textChanged.connect(lambda: self.update_masjed_name())
         self.city_input.textChanged.connect(lambda: self.update_city())
-        self.quds_time_diff_input.valueChanged.connect(lambda: self.change_quds_diff())
+        self.quds_time_diff_input.valueChanged.connect(lambda value: self.change_quds_diff(value))
         self.summer_winter_buttons[0].clicked.connect(lambda: self.switch_summer_winter(index=0))
         self.summer_winter_buttons[1].clicked.connect(lambda: self.switch_summer_winter(index=1))
         self.time_formate_buttons[0].clicked.connect(lambda: self.change_time_formate(0))
@@ -126,17 +126,19 @@ class GeneralSettings():
 
         self.update_ui()
 
-    def change_quds_diff(self, quds_diff = None):
-        if quds_diff is None:
-            self.quds_time_diff = self.quds_time_diff_input.value()
-        else:
-            self.quds_time_diff_input.setValue(quds_diff)
-            return 
+    def change_quds_diff(self, quds_diff):
+        print("\n\n\n")
+        print(f"Quds diff changed: {quds_diff}")
 
+        self.quds_time_diff = self.quds_time_diff_input.value()
+        
         # save to db 
         self.save_to_db('quds_time_diff', str(self.quds_time_diff))
         
         if self.mediator:
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"qudsDifferenceTime": self.quds_time_diff})
+            print("emitting signal !!!!!!!!!!!!!!!!!!!!")
             self.mediator.notify(self, "quds_diff_time_changed", self.quds_time_diff,self.is_summer_time)
 
     def change_time_formate(self, index):
@@ -289,9 +291,12 @@ class GeneralSettings():
     #     self.set_quds_diff_input(quds_diff)
     #     self.switch_summer_winter(0 if summer_time else 1)
 
-    # def set_quds_diff_input(self, value):
-    #     self.quds_time_diff_input.setValue(value)
+    def set_quds_diff_input(self, value):
+        print("\n\nfrom firebase")
+        self.quds_time_diff_input.setValue(value)
     
+        
+
     # def set_masjed_name_input(self, value):
     #     self.masjed_name_input.setText(value)
     
