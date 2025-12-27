@@ -6,21 +6,23 @@ from Runnable import *
 from PySide6.QtCore import QObject, Signal
 
 class FirebaseSignals(QObject):
-    firebase_data_received = Signal(dict)
+    firebase_force_stop_received = Signal(dict)
     firebase_audio_task_received = Signal(object)  # PlayAudioCommand object
     firebase_audio_preparation_received = Signal()  # Audio preparation signal
     audio_task_ack_needed = Signal(str, str, str)  # task_id, status, error (optional)
     request_firebase_update_signal = Signal(dict)  # Signal to request Firebase update
     firebase_settings_received = Signal(dict)  # Signal to receive settings
+    firebase_adan_data_received = Signal(dict)  # Signal to receive adan data
 
 class FirebaseTestClient:
     firebase_signals = FirebaseSignals()
-    firebase_data_received = firebase_signals.firebase_data_received
+    firebase_force_stop_received = firebase_signals.firebase_force_stop_received
     firebase_audio_task_received = firebase_signals.firebase_audio_task_received
     firebase_audio_preparation_received = firebase_signals.firebase_audio_preparation_received
     firebase_settings_received = firebase_signals.firebase_settings_received
     audio_task_ack_needed = firebase_signals.audio_task_ack_needed
     request_firebase_update_signal = firebase_signals.request_firebase_update_signal
+    firebase_adan_data_received = firebase_signals.firebase_adan_data_received
 
     def __init__(self, runnable_manager, doc_id=None, server_url='http://localhost:5000'):
         self.doc_id = doc_id
@@ -87,7 +89,7 @@ class FirebaseTestClient:
             playing_audio_metadata = firestore_data.get("playingAudioMetaData", {})
             if playing_audio_metadata.get("forceStop") == True:
                 print("🛑 Force stop command received")
-                self.firebase_data_received.emit({"force_stop": True})
+                self.firebase_force_stop_received.emit({"force_stop": True})
                 return  # Don't process other data when force stop is received
             
             # Remove commands from firestore_data before emitting
@@ -102,6 +104,11 @@ class FirebaseTestClient:
                 self.firebase_settings_received.emit(settings_data)
 
             remaining_data = {k: v for k, v in filtered_data.items() if k not in settings_fields}
+
+            # Extract adan data
+            adans_data = remaining_data.get("adansData", {})
+            if adans_data:
+                self.firebase_adan_data_received.emit(adans_data)
 
         @self.sio.event
         def audio_task(data):
@@ -181,7 +188,8 @@ class FirebaseTestClient:
                 self.firebase_audio_preparation_received.emit()
             else:
                 # Fallback: emit through firebase_data_received with special marker
-                self.firebase_data_received.emit({'prepare_audio_playback': True})
+                # self.firebase_data_received.emit({'prepare_audio_playback': True})
+                pass
 
     def _send_ack_on_background_thread(self, task_id, status, error=""):
         """Send ACK from background thread (connected via signal)"""
@@ -266,28 +274,40 @@ class FirebaseTestClient:
         self.sio.emit('set_document', {'doc_id': self.doc_id})
         time.sleep(2)
     
-    def serialize(self, data: dict):
-        result = {}
-        for k, v in data.items():
-            if isinstance(v, datetime):
-                result[k] = v.isoformat()  # ✅ JSON safe
-            else:
-                result[k] = v
-        return result
+    def serialize(self, data):
+        if isinstance(data, datetime):
+            return data.isoformat()
+
+        if isinstance(data, dict):
+            return {
+                k: self.serialize(v)
+                for k, v in data.items()
+            }
+
+        if isinstance(data, (list, tuple)):
+            return [
+                self.serialize(item)
+                for item in data
+            ]
+
+        return data
 
     def request_firebase_update(self, update_data):
         """Request Firebase update"""
         print("\nRequesting Firebase update...")
-        
+        print(f" update_data: {update_data}")
         # Add desktop identification and server timestamp
         update_data["lastUpdatedBy"] = "desktop"
         # Note: SERVER_TIMESTAMP will be handled by the server/Firebase
         # We'll use current time as approximation for our tracking
         current_time = datetime.now(timezone.utc)
         self.last_desktop_update = current_time
-        print(f" lastUpdatedAt Type: {type(current_time)}")
+
         update_data["lastUpdatedAt"] = current_time
 
+        print("\n\n INSIDE SERVER LISTENER AFTER SERIALIZE")
+        
+        print(f" update_data: {self.serialize(update_data)}")
         self.sio.emit('request_firebase_update', {
             'doc_id': self.doc_id,
             'update_data': self.serialize(update_data)
@@ -358,7 +378,7 @@ class FirebaseTestClient:
         playing_audio_metadata = firestore_data.get("playingAudioMetaData", {})
         if playing_audio_metadata.get("forceStop") == True:
             print("🛑 Force stop command received")
-            self.firebase_data_received.emit({"force_stop": True})
+            self.firebase_force_stop_received.emit({"force_stop": True})
 
     def update_force_stop_field(self, value):
         """Update forceStop field in Firestore"""

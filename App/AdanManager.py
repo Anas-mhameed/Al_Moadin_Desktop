@@ -21,6 +21,8 @@ adan_db_names = [
             "ishaa_adan"
         ]
 
+labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
+
 class AdanManagerSignals(QObject):
     
     prepare_for_adan = Signal()
@@ -75,6 +77,8 @@ class AdanManager():
         self.time_formate = "%H:%M"
 
         self.main_widget = main_widget
+
+        self.is_firebase_update_locked = False
 
         for button in adans_sound_buttons:
             button_name = button.objectName()
@@ -153,7 +157,6 @@ class AdanManager():
             new_state = True if adan_state_data[i][1] else False
             self.adans[i].change_state(new_state)
 
-
     def get_current_adan_time(self, index):
         if index == 6:
             return self.jomoaa.get_adan_time()
@@ -187,16 +190,23 @@ class AdanManager():
             adan.set_volume(volume)
             
             self.adans.append(adan)
-            self.connect_adan_to_activate_button(five_prayers[i], adan, adans_labels[i])
+            self.connect_adan_to_activate_button(five_prayers[i], i, adans_labels[i])
             self.connect_adan_to_slider(adan, adans_labels[i], i)
 
         self.shorok = self.adan_creator(shorok, "shorok", all_adans_time[1])
 
-
-    def connect_adan_to_activate_button(self, prayer, adan, adan_label):
+    def connect_adan_to_activate_button(self, prayer, adan_index, adan_label):
         adan_button = prayer.findChild(QPushButton, f"{adan_label}_activate_button")
-        adan_button.toggled.connect(adan.change_state)
+        adan_button.toggled.connect(lambda is_checked: self.change_adan_state(adan_index, is_checked))
         self.adans_buttons.append(adan_button)
+
+    def change_adan_state(self, adan_index, is_checked):
+        self.adans[adan_index].change_state(is_checked)
+        if not self.is_firebase_update_locked:
+            adans_data = {}
+            for i in range(5):
+                adans_data[labels[i]] = {"adanTime": self.adans[i].get_adan_time().strftime("%H:%M"), "state": self.adans[i].check_state(), "volume": self.adans[i].get_volume()}
+            self.mediator.notify(self, "send_firebase_update", {"adansData": adans_data} )
 
     def connect_adan_to_slider(self, adan, adan_label, adan_index):
         # Find and connect volume slider if it exists
@@ -489,12 +499,23 @@ class AdanManager():
             lst.append(self.get_current_adan_time(i))
         return lst
 
+    def lock_firebase_update(self):
+        self.is_firebase_update_locked = True
+    
+    def unlock_firebase_update(self):
+        self.is_firebase_update_locked = False
+
     # HERE FIRESTORE UPDATES
     def set_adan_state(self, adans_data):
-        labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
-        for i in range(5):
-            adan_info = adans_data[labels[i]]
-            self.adans_buttons[i].setChecked(adan_info["state"])
-            self.adans_volume_sliders[i].setValue(adan_info["volume"])
+        # for i in range(5):
+        #     adan_info = adans_data[labels[i]]
+        #     self.adans_buttons[i].setChecked(adan_info["state"])
+        #     self.adans_volume_sliders[i].setValue(adan_info["volume"])
+
+        for i in labels:
+            adan_state = adans_data[i]["state"]
+            # adan_volume = adans_data[i]["volume"]
+
+            self.adans_buttons[labels.index(i)].setChecked(adan_state)
             
             

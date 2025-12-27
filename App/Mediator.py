@@ -74,6 +74,8 @@ class Mediator:
         
         elif event == "adan_time_changed":
             self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
+            print("\n\nadan time changed")
+            print(args[0])
 
         elif event == "adan_volume_changed":
             # args[0] is the adan name, args[1] is the new volume
@@ -174,7 +176,6 @@ class Mediator:
                 self.components["GeneralSettings"].change_zigbee_state(settings.get("zigbeeDevice"))
             if "qudsDifferenceTime" in settings:
                 self.components["GeneralSettings"].set_quds_diff_input(settings.get("qudsDifferenceTime"))
-                # self.components["GeneralSettings"]
             if "summerTime" in settings:
                 # self.components["GeneralSettings"]
                 pass
@@ -201,6 +202,14 @@ class Mediator:
 
         elif event == "force_stop_quraan_audio":
             self.components["QuraanPageManager"].force_stop_current_audio()
+
+        elif event == "adan_data_received":
+            self.components["AdanManager"].lock_firebase_update()
+    
+            adan_data = args[0]
+            self.components["AdanManager"].set_adan_state(adan_data)
+
+            self.components["AdanManager"].unlock_firebase_update()
 
     def log(self, *args):
         """Log events using the AdanLogger if available."""

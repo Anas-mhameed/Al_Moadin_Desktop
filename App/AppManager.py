@@ -97,7 +97,7 @@ class AppManager(QMainWindow):
             self.mediator.register("FirebaseTestClient", self.client)
             
             # Connect signals to main thread handlers
-            def firebase_data_received(data):
+            def firebase_force_stop_received(data):
                 
                 # self.mediator.notify(self, "lock_firebase_update")
 
@@ -105,6 +105,9 @@ class AppManager(QMainWindow):
                     self.mediator.notify(self, "force_stop_audio_from_firebase")
 
                 # self.mediator.notify(self, "unlock_firebase_update")
+
+            def firebase_adan_data_received(adan_data):
+                self.mediator.notify(self, "adan_data_received", adan_data)
 
             def firebase_audio_task_received(audio_command):
                 self.mediator.notify(self, "firebase_audio_task", audio_command)
@@ -115,10 +118,11 @@ class AppManager(QMainWindow):
             def firebase_settings_received(settings_data):
                 self.mediator.notify(self, "firebase_settings_received", settings_data)
 
-            self.client.firebase_data_received.connect(firebase_data_received)
+            self.client.firebase_force_stop_received.connect(firebase_force_stop_received)
             self.client.firebase_audio_task_received.connect(firebase_audio_task_received)
             self.client.firebase_audio_preparation_received.connect(firebase_audio_preparation_received)
             self.client.firebase_settings_received.connect(firebase_settings_received)
+            self.client.firebase_adan_data_received.connect(firebase_adan_data_received)
             self.client.start_full_flow()
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
