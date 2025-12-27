@@ -60,8 +60,9 @@ class GeneralSettings():
 
         self.time_formate_buttons[1].setChecked(self.is_24_formate)
 
-        self.masjed_name_input.textChanged.connect(lambda: self.update_masjed_name())
-        self.city_input.textChanged.connect(lambda: self.update_city())
+        self.masjed_name_input.editingFinished.connect(lambda: self.update_masjed_name())
+        self.city_input.editingFinished.connect(lambda: self.update_city())
+
         self.quds_time_diff_input.valueChanged.connect(lambda value: self.change_quds_diff(value))
         self.summer_winter_buttons[0].clicked.connect(lambda: self.switch_summer_winter(index=0))
         self.summer_winter_buttons[1].clicked.connect(lambda: self.switch_summer_winter(index=1))
@@ -101,6 +102,10 @@ class GeneralSettings():
 
         self.update_ui()
 
+        if self.mediator:
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"name": self.msjed_name})
+
     def save_to_db(self, row_name, value):
 
         def temp_func(func):
@@ -125,6 +130,10 @@ class GeneralSettings():
         self.save_to_db('city', self.city)
 
         self.update_ui()
+
+        if self.mediator:
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"city": self.city})
 
     def change_quds_diff(self, quds_diff):
         print("\n\n\n")
