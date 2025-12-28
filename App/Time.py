@@ -43,6 +43,8 @@ class Time():
     time_updated = time_signal.time_updated
 
     def __init__(self, mediator, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
+        
+        self.first_time_firestore_update = True
 
         self.mediator = None
         mediator.register("Time", self)
@@ -176,6 +178,8 @@ class Time():
         self.update_factor()
         new_hijri = self.set_hijri_date()
         self.higri_date_label.setText(new_hijri)
+        if self.mediator:
+            self.mediator.notify(self, "send_firebase_update", { 'hijriDate': new_hijri })
 
     def update_day_date_hijri(self):
         self.day_label.setText(self.day)
@@ -195,3 +199,9 @@ class Time():
 
             if self.mediator:
                 self.mediator.notify(self, "new_day_event", self.day)
+                self.mediator.notify(self, "send_firebase_update", { 'day': self.day, 'hijriDate': self.higri_date_label.text() })
+
+        if self.first_time_firestore_update:
+            self.first_time_firestore_update = False
+            if self.mediator:
+                self.mediator.notify(self, "send_firebase_update", { 'day': self.day, 'hijriDate': self.higri_date_label.text() })
