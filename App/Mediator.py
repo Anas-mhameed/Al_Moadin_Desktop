@@ -183,8 +183,7 @@ class Mediator:
             if "city" in settings:
                 self.components["GeneralSettings"].update_city(settings.get("city"))
             if "summerTime" in settings:
-                # self.components["GeneralSettings"]
-                pass
+                self.components["GeneralSettings"].switch_summer_winter(0 if settings.get("summerTime") else 1)
 
             self.notify(self, "unlock_firebase_update")
 

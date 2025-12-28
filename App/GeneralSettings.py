@@ -178,7 +178,7 @@ class GeneralSettings():
         self.save_to_db('time_formate',temp)
        
     def switch_summer_winter(self, index):
-        temp = '1'
+        
         if index == 0:
 
             if self.is_summer_time == False: 
@@ -187,8 +187,6 @@ class GeneralSettings():
                 
                 if self.mediator:
                     self.mediator.notify(self, "summer_timing_changed", self.is_summer_time)
-
-                temp = '1'
 
             self.summer_winter_buttons[0].setChecked(True)
             self.summer_winter_buttons[1].setChecked(False)
@@ -202,13 +200,16 @@ class GeneralSettings():
                 if self.mediator:
                     self.mediator.notify(self, "summer_timing_changed", self.is_summer_time)
 
-                temp = '0'
-
             self.summer_winter_buttons[0].setChecked(False)
             self.summer_winter_buttons[1].setChecked(True)
 
+        
         # save to db        
-        self.save_to_db('is_summer_time', temp)
+        self.save_to_db('is_summer_time', '1' if self.is_summer_time else '0')
+
+        if self.mediator:
+            if not self.is_firebase_update_locked:
+                self.mediator.notify(self, "send_firebase_update", {"summerTime": self.is_summer_time})
 
     def set_time_formate(self):
 
@@ -286,28 +287,6 @@ class GeneralSettings():
             }
         return settings
 
-    # def handle_firebase_update(self, data):
-
-    #     masjed_name = data["name"]
-    #     city = data["city"]
-
-    #     quds_diff = data["qudsDifferenceTime"]
-    #     summer_time = data["summerTime"]
-
-    #     self.set_masjed_name_input(masjed_name)
-    #     self.set_city_input(city)
-
-    #     self.set_quds_diff_input(quds_diff)
-    #     self.switch_summer_winter(0 if summer_time else 1)
-
     def set_quds_diff_input(self, value):
         print("\n\nfrom firebase")
         self.quds_time_diff_input.setValue(value)
-    
-        
-
-    # def set_masjed_name_input(self, value):
-    #     self.masjed_name_input.setText(value)
-    
-    # def set_city_input(self, value):
-    #     self.city_input.setText(value)
