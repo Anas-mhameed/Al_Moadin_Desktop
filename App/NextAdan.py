@@ -25,8 +25,8 @@ class NextAdan() :
 
     def __init__(self, five_prayers, adan_name_label, remaining_time_label) :
         
-        self.remaining_time_firestore_updated = False
         self.update_firestore = False
+        self.old_firestore_remaining_time = None
 
         self.curr_day = ""
         self.adan_index = -1
@@ -136,19 +136,15 @@ class NextAdan() :
         self.mediator = mediator
 
     def update_remaining_time_to_firebase(self, curr_time):
-        seconds = curr_time.second
 
-        if not (seconds > 24 and seconds < 30):
-
-            if self.mediator and not self.remaining_time_firestore_updated:
-                self.mediator.notify(self, "send_firebase_update", { 'remainingTime': self.formate_time(self.remaining_time, no_seconds=True) })
-                self.remaining_time_firestore_updated = True
-        else:
-            self.remaining_time_firestore_updated = False
+        new_firestore_remaining_time = self.formate_time(self.remaining_time, no_seconds=True)
+        if self.mediator:
+            if not self.old_firestore_remaining_time or self.old_firestore_remaining_time != new_firestore_remaining_time:
+                self.mediator.notify(self, "send_firebase_update", { 'remainingTime': new_firestore_remaining_time })
+                self.old_firestore_remaining_time = new_firestore_remaining_time
 
     def unlock_firebase_update(self):
         self.update_firestore = True
-        self.remaining_time_firestore_updated = False
 
     def handle_time_updated(self, curr_time):
         self.update_curr_time(curr_time)
