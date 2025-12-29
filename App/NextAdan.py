@@ -137,12 +137,18 @@ class NextAdan() :
 
     def update_remaining_time_to_firebase(self, curr_time):
         seconds = curr_time.second
-        if seconds > 0 and not (seconds > 24 and seconds < 30) :
+
+        if not (seconds > 24 and seconds < 30):
+
             if self.mediator and not self.remaining_time_firestore_updated:
                 self.mediator.notify(self, "send_firebase_update", { 'remainingTime': self.formate_time(self.remaining_time, no_seconds=True) })
                 self.remaining_time_firestore_updated = True
         else:
             self.remaining_time_firestore_updated = False
+
+    def unlock_firebase_update(self):
+        self.update_firestore = True
+        self.remaining_time_firestore_updated = False
 
     def handle_time_updated(self, curr_time):
         self.update_curr_time(curr_time)
@@ -163,7 +169,7 @@ class NextAdan() :
 
         self.calc_remaining_time()
         self.update_ui()
-        
+
         if self.compare_with_timedelta(0):
             # Log that adan time has been reached
             if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
@@ -172,7 +178,7 @@ class NextAdan() :
                     self.next_adan.get_adan_time().strftime("%H:%M:%S"),
                     self.next_adan.get_adan_name()
                 )
-            
+
             self.adan_time_signal.emit(self.next_adan)
             self.previous_adan = self.next_adan.get_adan_name()
             self.time_to_find_next_adan = True

@@ -108,7 +108,8 @@ class AdanManager():
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
-        self.next_adan.set_mediator(mediator)
+        self.mediator.register("NextAdan", self.next_adan)
+        # self.next_adan.set_mediator(mediator)
 
     def get_adans_duration(self):
         for adan in self.adans:
@@ -426,6 +427,7 @@ class AdanManager():
         self.find_next_adan_signal.emit()
         self.update_ui()
         self.update_jomoaa_ui()
+        self.next_adan.unlock_firebase_update()
     
     def group_adans(self):
         temp = self.adans.copy()
@@ -443,6 +445,7 @@ class AdanManager():
         self.find_next_adan_signal.emit()
         self.update_ui()
         self.update_jomoaa_ui()
+        self.next_adan.unlock_firebase_update()
 
     def get_new_adans_time(self):
 
@@ -518,4 +521,8 @@ class AdanManager():
 
             self.adans_buttons[labels.index(i)].setChecked(adan_state)
             
-            
+    def datetimes_to_hhmm(self):
+        adans_data = {}
+        for i in range(5):
+            adans_data[labels[i]] = {"adanTime": self.adans[i].get_adan_time().strftime("%H:%M"), "state": self.adans[i].check_state(), "volume": self.adans[i].get_volume()}
+        self.mediator.notify(self, "send_firebase_update", {"adansData": adans_data} )

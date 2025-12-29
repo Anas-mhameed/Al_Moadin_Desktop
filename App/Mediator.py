@@ -74,8 +74,7 @@ class Mediator:
         
         elif event == "adan_time_changed":
             self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
-            print("\n\nadan time changed")
-            print(args[0])
+            self.components["AdanManager"].datetimes_to_hhmm()
 
         elif event == "adan_volume_changed":
             # args[0] is the adan name, args[1] is the new volume
@@ -164,10 +163,6 @@ class Mediator:
             
             # Note: Audio commands are now exclusively handled by firebase_audio_task event
         elif event == "firebase_settings_received":
-
-            print("hahahaha")
-            print(args[0])
-
             settings = args[0]
 
             self.notify(self, "lock_firebase_update")
