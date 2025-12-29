@@ -3,7 +3,7 @@ import time
 import json
 from datetime import datetime, timezone
 from Runnable import *
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Slot, QThread
 
 class FirebaseSignals(QObject):
     firebase_force_stop_received = Signal(dict)
@@ -36,9 +36,13 @@ class FirebaseTestClient:
         
         # Connect internal signals to handle ACKs on background thread
         self.audio_task_ack_needed.connect(self._send_ack_on_background_thread)
-        
-        # Connect update signal to request_firebase_update method
-        self.request_firebase_update_signal.connect(self.request_firebase_update)
+
+        # Connect update signal to queue updates (will be processed on background thread)
+        self.request_firebase_update_signal.connect(self._queue_firebase_update)
+
+        # Queue for pending Firebase updates
+        self._pending_updates = []
+        self._update_lock = False
     
     def _setup_event_handlers(self):
         """Setup all Socket.IO event handlers"""
@@ -168,13 +172,18 @@ class FirebaseTestClient:
         @self.sio.event
         def disconnect():
             print("❌ Disconnected from server")
+            if not self.is_listening:
+                print("🛑 Not attempting reconnect - listener stopped")
+                return
+
+            # Reconnect logic runs on socket.io's internal thread
             time.sleep(3)
             try:
                 print("🔄 Attempting to reconnect...")
                 self.sio.connect(self.server_url)
                 if self.doc_id:
                     time.sleep(1)
-                    self.set_document()
+                    self.sio.emit('set_document', {'doc_id': self.doc_id})
             except Exception as e:
                 print(f"❌ Reconnection failed: {e}")
 
@@ -292,38 +301,56 @@ class FirebaseTestClient:
 
         return data
 
+    def _queue_firebase_update(self, update_data):
+        """Queue a Firebase update to be processed on background thread (called from main thread via signal)"""
+        print(f"📥 Queuing Firebase update: {list(update_data.keys())}")
+        self._pending_updates.append(update_data)
+
+    def _process_pending_updates(self):
+        """Process all pending updates (called from background thread during listen loop)"""
+        while self._pending_updates:
+            update_data = self._pending_updates.pop(0)
+            self._do_firebase_update(update_data)
+
+    def _do_firebase_update(self, update_data):
+        """Actually perform the Firebase update (runs on background thread)"""
+        try:
+            print("\n📤 Sending Firebase update...")
+            # Add desktop identification and server timestamp
+            update_data["lastUpdatedBy"] = "desktop"
+            current_time = datetime.now(timezone.utc)
+            self.last_desktop_update = current_time
+            update_data["lastUpdatedAt"] = current_time
+
+            serialized_data = self.serialize(update_data)
+            print(f"   Keys: {list(update_data.keys())}")
+
+            self.sio.emit('request_firebase_update', {
+                'doc_id': self.doc_id,
+                'update_data': serialized_data
+            })
+            print("✅ Firebase update sent")
+        except Exception as e:
+            print(f"❌ Firebase update failed: {e}")
+
     def request_firebase_update(self, update_data):
-        """Request Firebase update"""
-        print("\nRequesting Firebase update...")
-        print(f" update_data: {update_data}")
-        # Add desktop identification and server timestamp
-        update_data["lastUpdatedBy"] = "desktop"
-        # Note: SERVER_TIMESTAMP will be handled by the server/Firebase
-        # We'll use current time as approximation for our tracking
-        current_time = datetime.now(timezone.utc)
-        self.last_desktop_update = current_time
-
-        update_data["lastUpdatedAt"] = current_time
-
-        print("\n\n INSIDE SERVER LISTENER AFTER SERIALIZE")
-        
-        print(f" update_data: {self.serialize(update_data)}")
-        self.sio.emit('request_firebase_update', {
-            'doc_id': self.doc_id,
-            'update_data': self.serialize(update_data)
-        })
-        time.sleep(1)
+        """Request Firebase update - for direct calls from background thread"""
+        self._do_firebase_update(update_data)
 
     def listen_for_changes(self, can_listen):
-        """Keep listening for Firebase changes"""
+        """Keep listening for Firebase changes and process pending updates"""
         print("\nListening for Firebase changes... (Press Ctrl+C to stop)")
         self.is_listening = True
         try:
             while can_listen() and self.is_listening:
-                time.sleep(1)
+                # Process any pending Firebase updates on this background thread
+                self._process_pending_updates()
+                time.sleep(0.1)  # Reduced sleep for faster update processing
         except Exception as e:
             print(f"Something went wrong: \n {e}")
         finally:
+            # Process any remaining updates before disconnecting
+            self._process_pending_updates()
             self.disconnect_from_server()
 
     def disconnect_from_server(self):
@@ -346,23 +373,30 @@ class FirebaseTestClient:
         self.mediator = mediator
 
     def start_full_flow(self):
-        """Run complete test flow"""
-        try:
-            print("Connect to server")
-            # Connect to server
-            self.connect_to_server()
-            
-            print("Set document")
-            # Set document
-            self.set_document()
-            
-            # Listen for changes
-            runnable = Runnable(self.listen_for_changes)
-            self.runnable_manager.runTask(runnable)
-            # self.listen_for_changes(can_listen)
-            
-        except Exception as e:
-            print(f"Error: {e}")
+        """Run complete flow in background thread to avoid blocking UI"""
+        def _start_flow_background(can_continue):
+            try:
+                print("🔗 Connecting to Firebase server (background thread)...")
+                # Connect to server
+                self.sio.connect(self.server_url)
+                time.sleep(1)  # Wait for connection - OK on background thread
+
+                print("📄 Setting document...")
+                # Set document
+                if self.doc_id:
+                    self.sio.emit('set_document', {'doc_id': self.doc_id})
+                    time.sleep(2)  # Wait for document set - OK on background thread
+
+                print("👂 Starting to listen for changes...")
+                # Now listen for changes (this will loop until stopped)
+                self.listen_for_changes(can_continue)
+
+            except Exception as e:
+                print(f"❌ Firebase connection error: {e}")
+
+        # Run the entire flow in a background thread
+        runnable = Runnable(_start_flow_background)
+        self.runnable_manager.runTask(runnable)
 
     def cleanup(self):
         """Clean up resources before app shutdown"""
@@ -381,21 +415,15 @@ class FirebaseTestClient:
             self.firebase_force_stop_received.emit({"force_stop": True})
 
     def update_force_stop_field(self, value):
-        """Update forceStop field in Firestore"""
-        try:
-            update_data = {
-                'playingAudioMetaData': {
-                    'forceStop': value
-                }
+        """Update forceStop field in Firestore (queued for background thread)"""
+        update_data = {
+            'playingAudioMetaData': {
+                'forceStop': value
             }
-            
-            self.sio.emit('request_firebase_update', {
-                'doc_id': self.doc_id,
-                'update_data': update_data
-            })
-            print(f"📝 Updated forceStop field to {value}")
-        except Exception as e:
-            print(f"❌ Failed to update forceStop field: {e}")
+        }
+        # Queue the update to be processed on background thread
+        self._queue_firebase_update(update_data)
+        print(f"📝 Queued forceStop field update to {value}")
 
 # Usage examples
 if __name__ == '__main__':
