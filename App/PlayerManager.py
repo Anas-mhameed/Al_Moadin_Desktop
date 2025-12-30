@@ -94,7 +94,8 @@ class PlayerManager:
                 # Delay playback slightly to avoid FFmpeg/Qt bug
                 QTimer.singleShot(0, lambda: QTimer.singleShot(100, lambda: self._play(command)))
             else:
-                self.mediator.notify(self, "audio_finished")
+                id = self.current_command.adan_name if self.current_command.adan_name else None
+                self.mediator.notify(self, "audio_finished", self.current_command.requester, id)
                 self._clear_command()
 
     def _clear_command(self):
@@ -124,6 +125,10 @@ class PlayerManager:
                 self.mediator.notify(self, "cant_play_audio", "لا يمكن تشغيل الصوت", "انتظر حتى الإنتهاء من الأذان" )
                 if command.requester == "QuraanPageManager":
                     self.mediator.notify(self, "failed_to_play")
+                elif command.requester == "FirebaseVoiceRecord":
+                    # Send can't play status for Firebase audio task since it can't be played
+                    if command.adan_name:  # adan_name contains the command_id for Firebase tasks
+                        self.mediator.notify(self, "firebase_audio_task_cant_play", command.adan_name)
             else:
                 if self.isPlaying() or self.isPaused():
                     self.pending_command = command
@@ -227,3 +232,16 @@ class PlayerManager:
     def stop_quraan_audio(self, index, category):
         if self.current_command and self.current_command.requester == "QuraanPageManager" and self.current_command.index == index and self.current_command.adan_name == category and self.isPlaying():
             self._stop_current()
+    
+    def stop_firebase_audio(self):
+        if self.current_command and self.current_command.requester == "FirebaseVoiceRecord" and self.isPlaying():
+            self._stop_current()
+
+    def handle_force_stop_from_firebase(self):
+        """Handle force stop from Firebase - stops all audio except adan"""
+        if self.current_command:
+            if self.current_command.requester == "QuraanPageManager":
+                # Use mediator to stop QuraanPageManager audio properly
+                self.mediator.notify(self, "force_stop_quraan_audio")
+            elif self.current_command.requester in ["InstantPlayer", "NotificationManager", "FirebaseVoiceRecord"]:
+                self._stop_current()

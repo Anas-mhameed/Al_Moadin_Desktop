@@ -1,3 +1,4 @@
+from PlayAudioCommand import PlayAudioCommand
 
 class Mediator:
     def __init__(self):
@@ -73,6 +74,7 @@ class Mediator:
         
         elif event == "adan_time_changed":
             self.components["NotificationManager"].update_notis_and_intiate_index(args[0])
+            self.components["AdanManager"].datetimes_to_hhmm()
 
         elif event == "adan_volume_changed":
             # args[0] is the adan name, args[1] is the new volume
@@ -81,7 +83,23 @@ class Mediator:
         elif event == "request_adans_duration":
             self.components["AdanManager"].get_adans_duration()
         
+        elif event == "firebase_audio_task":
+            # Handle Firebase audio task with ACK logic
+            audio_command = args[0]
+            print(f"Processing Firebase audio task: {audio_command.adan_name}")
+            self.components["PlayerManager"].request_playback(audio_command)
+            print("Firebase audio command sent to player manager")
+
         elif event == "audio_finished":
+            # Check if this was a Firebase audio task that needs completion ACK
+            requester = args[0]
+            command_id = args[1] if len(args) > 1 else None
+            
+            if requester == "FirebaseVoiceRecord" and command_id:
+                # Notify Firebase client that audio completed
+                if "FirebaseTestClient" in self.components:
+                    self.components["FirebaseTestClient"].notify_audio_completed(command_id)
+            
             self.components["ZigbeeController"].run(False)
 
         elif event == "open_mic":
@@ -115,17 +133,83 @@ class Mediator:
         elif event == "set_adan_sound":
             self.components["AdanManager"].update_sound(args[0], args[1])
 
+        elif event == "lock_firebase_update":
+            if "GeneralSettings" in self.components:
+                self.components["GeneralSettings"].lock_firebase_update()
+
+        elif event == "unlock_firebase_update":
+            if "GeneralSettings" in self.components:
+                self.components["GeneralSettings"].unlock_firebase_update()
+        
+        elif event == "send_firebase_update":
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].request_firebase_update_signal.emit(args[0])
+
         # elif event == "firebase_data_received":
-            # Let each component handle Firebase data in sequence
-            # firebase_data = args[0]
-            # print(firebase_data)
-            # Process in specific order if needed
-            # if "GeneralSettings" in self.components:
-            #     self.components["GeneralSettings"].handle_firebase_update(firebase_data)
+
+        # "FirebaseTestClient".request_firebase_update_signal.
+
+
+        #     # Handle general Firebase data updates (non-audio commands)
+        #     firebase_data = args[0]
             
-            # if "AdanManager" in self.components:
-            #     adans_data = firebase_data["adansData"]
-            #     self.components["AdanManager"].set_adan_state(adans_data)
+        #     # Process other Firebase data updates here (settings, configurations, etc.)
+        #     # Remove audio command processing - that's now handled by firebase_audio_task
+            
+        #     # Example: Handle other types of updates
+        #     if "settings" in firebase_data:
+        #         # Handle settings updates
+        #         pass
+            
+            # Note: Audio commands are now exclusively handled by firebase_audio_task event
+        elif event == "firebase_settings_received":
+            settings = args[0]
+
+            self.notify(self, "lock_firebase_update")
+            
+            if "soundSensor" in settings:
+                self.components["GeneralSettings"].change_pre_adan_sound_state(settings.get("soundSensor"))
+            if "zigbeeDevice" in settings:
+                self.components["GeneralSettings"].change_zigbee_state(settings.get("zigbeeDevice"))
+            if "qudsDifferenceTime" in settings:
+                self.components["GeneralSettings"].set_quds_diff_input(settings.get("qudsDifferenceTime"))
+            if "name" in settings:
+                self.components["GeneralSettings"].update_masjed_name(settings.get("name"))
+            if "city" in settings:
+                self.components["GeneralSettings"].update_city(settings.get("city"))
+            if "summerTime" in settings:
+                self.components["GeneralSettings"].switch_summer_winter(0 if settings.get("summerTime") else 1)
+
+            self.notify(self, "unlock_firebase_update")
+
+        elif event == "firebase_audio_task_cant_play":
+            # Handle Firebase audio task that can't be played
+            command_id = args[0]
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].notify_audio_cant_play(command_id)
+
+        elif event == "firebase_audio_task_completed":
+            # Handle Firebase audio task completion without affecting ZigbeeController
+            command_id = args[0]
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].notify_audio_completed(command_id)
+
+        elif event == "force_stop_audio_from_firebase":
+            self.components["PlayerManager"].handle_force_stop_from_firebase()
+            # Set forceStop field back to false
+            if "FirebaseTestClient" in self.components:
+                self.components["FirebaseTestClient"].update_force_stop_field(False)
+
+        elif event == "force_stop_quraan_audio":
+            self.components["QuraanPageManager"].force_stop_current_audio()
+
+        elif event == "adan_data_received":
+            self.components["AdanManager"].lock_firebase_update()
+    
+            adan_data = args[0]
+            self.components["AdanManager"].set_adan_state(adan_data)
+
+            self.components["AdanManager"].unlock_firebase_update()
 
     def log(self, *args):
         """Log events using the AdanLogger if available."""

@@ -43,12 +43,11 @@ class Time():
     time_updated = time_signal.time_updated
 
     def __init__(self, mediator, am_pm_label, seconds_label, am_pm_frame, time_lower_widget, time_label, day_label, date_label):
+        
+        self.first_time_firestore_update = True
 
         self.mediator = None
         mediator.register("Time", self)
-
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "initialization", "starting", "Time component initializing")
 
         self.time_formate = "%I:%M:%S %p"
 
@@ -81,14 +80,9 @@ class Time():
 
         self.time_label = time_label
         self.day_label = day_label
-        self.date_label = date_label
-        # self.higri_date_label = higri_date_label 
+        self.date_label = date_label 
 
         self.initate_labels()
-
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "initialization", "completed", 
-                            f"Time initialized - Current: {self.curr_dt.strftime('%H:%M:%S')}, Day: {self.day}, Hijri: {self.set_hijri_date()}")
 
     
     def set_mediator(self, mediator):
@@ -149,16 +143,9 @@ class Time():
         return f"{ day } { hijri_months[ month - 1 ] } { year }"
     
     def handle_next_day(self):
-        old_date = self.date
-        old_day = self.day
-        
         self.update_date()
         self.update_day()
         
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "day_change", "new_day", 
-                            f"Day transition: {old_day} ({old_date.strftime('%d/%m/%Y')}) -> {self.day} ({self.date.strftime('%d/%m/%Y')})")
-
     def check_if_new_day(self):
         if self.date != self.curr_dt.date():
             self.handle_next_day()
@@ -168,22 +155,14 @@ class Time():
     def check_if_jomoaa_passed(self):
         if self.day == my_calendar[5]:
             if self.curr_dt.time() > dt.time(0,0,0) and self.curr_dt.time() < dt.time(0,0,1):
-                if hasattr(self, 'mediator') and self.mediator:
-                    self.mediator.log("time_component", "friday_detection", "jomoaa_passed", 
-                                    f"Friday midnight transition detected at {self.curr_dt.strftime('%H:%M:%S')}")
                 return True
         return False
 
     def update_time_formate(self, new_formate):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "format_change", "updated", 
-                            f"Time format: '{self.time_formate}' -> '{new_formate}'")
-        
         self.time_formate = new_formate
 
     
     def update_ui(self):
-
         if self.time_formate == "%I:%M:%S %p":
             self.am_pm_frame.show()
             self.time_label.setText(self.curr_dt.strftime("%I:%M"))
@@ -196,16 +175,11 @@ class Time():
             self.time_label.setText(self.curr_dt.strftime(self.time_formate))
 
     def hijri_label_click_handel(self):
-        old_factor = self.factor
-        old_hijri = self.higri_date_label.text()
-        
         self.update_factor()
         new_hijri = self.set_hijri_date()
         self.higri_date_label.setText(new_hijri)
-        
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "hijri_adjustment", "user_click", 
-                            f"Hijri factor: {old_factor} -> {self.factor}, Date: '{old_hijri}' -> '{new_hijri}'")
+        if self.mediator:
+            self.mediator.notify(self, "send_firebase_update", { 'hijriDate': new_hijri })
 
     def update_day_date_hijri(self):
         self.day_label.setText(self.day)
@@ -213,14 +187,8 @@ class Time():
         self.higri_date_label.setText(self.set_hijri_date())
 
     def run(self):
-        old_time = getattr(self, 'curr_dt', None)
         self.update_time()
         self.update_ui()
-
-        # Log every time update to see all activity
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("time_component", "update", "time_updated", 
-                            f"Current time: {self.curr_dt.strftime('%H:%M:%S.%f')[:-3]}")
 
         self.time_updated.emit(self.curr_dt)
 
@@ -231,8 +199,9 @@ class Time():
 
             if self.mediator:
                 self.mediator.notify(self, "new_day_event", self.day)
-                
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("time_component", "day_transition", "mediator_notified", 
-                                f"New day event sent to mediator: {self.day}")
+                self.mediator.notify(self, "send_firebase_update", { 'day': self.day, 'hijriDate': self.higri_date_label.text() })
 
+        if self.first_time_firestore_update:
+            self.first_time_firestore_update = False
+            if self.mediator:
+                self.mediator.notify(self, "send_firebase_update", { 'day': self.day, 'hijriDate': self.higri_date_label.text() })

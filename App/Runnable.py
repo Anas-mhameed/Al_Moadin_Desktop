@@ -30,16 +30,24 @@ class RunnableManager(QObject):
     def __init__(self): 
         super().__init__()   
         self.pool = QThreadPool.globalInstance()
+        self.active_runnables = []
         
     def runTask(self, runnable):
         self.force_stop_signal.connect(runnable.stop)
+        self.active_runnables.append(runnable)
         self.pool.start(runnable)
     
-    def wait_for_done(self):
-        self.pool.waitForDone()
+    def wait_for_done(self, timeout_ms=5000):
+        """Wait for all tasks to complete with timeout"""
+        if not self.pool.waitForDone(timeout_ms):
+            print("⚠️ Some tasks didn't finish within timeout, forcing termination...")
 
     def terminate_all_workers(self):
+        print("Terminating all workers...")
         self.force_stop_signal.emit(None)
+        
+        # Clear the list
+        self.active_runnables.clear()
     
     def active_workers(self):
         return self.pool.activeThreadCount()

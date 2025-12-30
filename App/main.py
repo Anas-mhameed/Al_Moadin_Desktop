@@ -5,6 +5,7 @@ from ResourceFile import resource_path
 import uuid
 from PySide6.QtGui import QIcon
 import logging
+from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 import os
 
@@ -14,15 +15,25 @@ def setup_logging():
     if not os.path.exists('logs'):
         os.makedirs('logs')
     
-    # Configure logging
-    log_filename = f"logs/adan_app_{datetime.now().strftime('%Y%m%d')}.log"
+    # Configure logging with daily rotation
+    log_filename = "logs/adan_app.log"
+    
+    # Create a timed rotating file handler that rotates daily at midnight
+    file_handler = TimedRotatingFileHandler(
+        filename=log_filename,
+        when='midnight',
+        interval=1,
+        backupCount=30,  # Keep 30 days of logs
+        encoding='utf-8'
+    )
+    
+    # Set the suffix for rotated files (YYYY-MM-DD format)
+    file_handler.suffix = "%Y-%m-%d"
     
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_filename, encoding='utf-8')
-        ]
+        handlers=[file_handler]
     )
     
     logger = logging.getLogger('AdanApp')

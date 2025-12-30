@@ -90,19 +90,40 @@ class AppManager(QMainWindow):
             # Save token in database
             self.database_manager.save_token(token)
         
-        # self.client = None
-        # if not self.database_manager.is_mobile_connection_code_empty():
-        #     # should send data to the api to reflect desktop data on mobile
-        #     doc_id = self.database_manager.get_mobile_connection_code()
-        #     self.client = FirebaseTestClient(self.runnable_manager, doc_id)
-        #     self.mediator.register("FirebaseTestClient", self.client)
+        self.client = None
+        if not self.database_manager.is_mobile_connection_code_empty():
+            doc_id = self.database_manager.get_mobile_connection_code()
+            self.client = FirebaseTestClient(self.runnable_manager, doc_id)
+            self.mediator.register("FirebaseTestClient", self.client)
             
-        #     def firebase_data_received(data):
-        #         self.mediator.notify(self, "firebase_data_received", data)
-            
-        #     self.client.firebase_data_received.connect(firebase_data_received)
+            # Connect signals to main thread handlers
+            def firebase_force_stop_received(data):
+                
+                # self.mediator.notify(self, "lock_firebase_update")
 
-        #     self.client.start_full_flow()
+                if data.get("force_stop"):
+                    self.mediator.notify(self, "force_stop_audio_from_firebase")
+
+                # self.mediator.notify(self, "unlock_firebase_update")
+
+            def firebase_adan_data_received(adan_data):
+                self.mediator.notify(self, "adan_data_received", adan_data)
+
+            def firebase_audio_task_received(audio_command):
+                self.mediator.notify(self, "firebase_audio_task", audio_command)
+            
+            def firebase_audio_preparation_received():
+                self.mediator.notify(self, "pre_adan_preparation")
+            
+            def firebase_settings_received(settings_data):
+                self.mediator.notify(self, "firebase_settings_received", settings_data)
+
+            self.client.firebase_force_stop_received.connect(firebase_force_stop_received)
+            self.client.firebase_audio_task_received.connect(firebase_audio_task_received)
+            self.client.firebase_audio_preparation_received.connect(firebase_audio_preparation_received)
+            self.client.firebase_settings_received.connect(firebase_settings_received)
+            self.client.firebase_adan_data_received.connect(firebase_adan_data_received)
+            self.client.start_full_flow()
 
         self.zigbee_controller = ZigbeeController(token, self.runnable_manager)
         self.mediator.register("ZigbeeController", self.zigbee_controller)
@@ -781,13 +802,16 @@ class AppManager(QMainWindow):
         self.time_manager.run()
 
     def closeEvent(self, event: QEvent):
-        # Stop ServerCommunicator if it exists
-        # if hasattr(self, "server_communicator") and self.server_communicator.client:
-        #     self.server_communicator.client.stop()
-
+        print("Application closing...")
+        
+        # Stop Firebase client first
+        if hasattr(self, 'client') and self.client:
+            self.client.cleanup()
+        
         # Stop all runnable workers
         self.runnable_manager.terminate_all_workers()
-        self.runnable_manager.wait_for_done()
-
+        self.runnable_manager.wait_for_done(3000)  # 3 second timeout
+        
+        print("Application closed successfully")
         event.accept()
 

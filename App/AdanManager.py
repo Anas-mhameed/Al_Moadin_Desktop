@@ -21,6 +21,8 @@ adan_db_names = [
             "ishaa_adan"
         ]
 
+labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
+
 class AdanManagerSignals(QObject):
     
     prepare_for_adan = Signal()
@@ -76,6 +78,8 @@ class AdanManager():
 
         self.main_widget = main_widget
 
+        self.is_firebase_update_locked = False
+
         for button in adans_sound_buttons:
             button_name = button.objectName()
             button.clicked.connect(lambda checked=False, btn_name=button_name: self.change_adan_sound(btn_name))
@@ -104,7 +108,8 @@ class AdanManager():
     def set_mediator(self, mediator):
         """Set the mediator for communication."""
         self.mediator = mediator
-        self.next_adan.set_mediator(mediator)
+        self.mediator.register("NextAdan", self.next_adan)
+        # self.next_adan.set_mediator(mediator)
 
     def get_adans_duration(self):
         for adan in self.adans:
@@ -146,21 +151,12 @@ class AdanManager():
         self.curr_time = updated_time
 
     def intiate_adans_state(self):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "loading", "retrieving_states", "Loading adan states from database")
 
         adan_state_data = self.database_manager.get_adans_state()
         
         for i in range(len(self.adans)):
-            old_state = self.adans[i].check_state()
             new_state = True if adan_state_data[i][1] else False
             self.adans[i].change_state(new_state)
-            
-            if hasattr(self, 'mediator') and self.mediator:
-                old_state_text = "enabled" if old_state else "disabled"
-                new_state_text = "enabled" if new_state else "disabled"
-                self.mediator.log("adan_state_change", old_state_text, new_state_text, 
-                                f"{self.adans[i].get_adan_name()} loaded from DB")
 
     def get_current_adan_time(self, index):
         if index == 6:
@@ -180,18 +176,12 @@ class AdanManager():
             self.mediator.notify(self, "request_general_settings")
 
     def initiate_adans(self, five_prayers, shorok):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "uninitialized", "initializing_adans", "Loading 5 daily prayers")
 
         adans_labels = ["fajer", "dohor", "aser", "magreb", "ishaa"]
         self.adan_time_prepare.get_current_day_adans()
         all_adans_time = self.adan_time_prepare.convert_to_dt()
         
         sound_data = self.database_manager.get_adans_sound()
-        
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "loading", "sound_data_retrieved", 
-                            f"Loaded {len(sound_data)} adan sound configurations")
         
         for i in range(len(five_prayers)):
             adan = self.adan_creator(five_prayers[i], adans_labels[i], all_adans_time[2][i])
@@ -200,24 +190,24 @@ class AdanManager():
             volume = sound_data[i][2] if len(sound_data[i]) > 2 else 50
             adan.set_volume(volume)
             
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("adan_state_change", "created", "adan_configured", 
-                                f"{adans_labels[i]} - Time: {all_adans_time[2][i].strftime('%H:%M')}, Volume: {volume}%, Sound: {sound_path}")
-            
             self.adans.append(adan)
-            self.connect_adan_to_activate_button(five_prayers[i], adan, adans_labels[i])
+            self.connect_adan_to_activate_button(five_prayers[i], i, adans_labels[i])
             self.connect_adan_to_slider(adan, adans_labels[i], i)
 
         self.shorok = self.adan_creator(shorok, "shorok", all_adans_time[1])
-        
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "initializing", "adans_initialized", 
-                            f"All 5 prayers + Shorok configured successfully")
 
-    def connect_adan_to_activate_button(self, prayer, adan, adan_label):
+    def connect_adan_to_activate_button(self, prayer, adan_index, adan_label):
         adan_button = prayer.findChild(QPushButton, f"{adan_label}_activate_button")
-        adan_button.toggled.connect(adan.change_state)
+        adan_button.toggled.connect(lambda is_checked: self.change_adan_state(adan_index, is_checked))
         self.adans_buttons.append(adan_button)
+
+    def change_adan_state(self, adan_index, is_checked):
+        self.adans[adan_index].change_state(is_checked)
+        if not self.is_firebase_update_locked:
+            adans_data = {}
+            for i in range(5):
+                adans_data[labels[i]] = {"adanTime": self.adans[i].get_adan_time().strftime("%H:%M"), "state": self.adans[i].check_state(), "volume": self.adans[i].get_volume()}
+            self.mediator.notify(self, "send_firebase_update", {"adansData": adans_data} )
 
     def connect_adan_to_slider(self, adan, adan_label, adan_index):
         # Find and connect volume slider if it exists
@@ -229,22 +219,10 @@ class AdanManager():
             volume_slider.valueChanged.connect(lambda value, a=adan, idx=adan_index: self.handle_volume_change(value, a, idx))
 
     def handle_volume_change(self, value, adan, adan_index):
-        old_volume = adan.get_volume()
         adan.set_volume(value)
-        
-        # Log volume change
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("volume_change", 
-                             adan.get_adan_name(), 
-                             old_volume, 
-                             value)
         
         if 0 <= adan_index < len(adan_db_names):
             self.database_manager.update_adans_sound(adan_db_names[adan_index], new_volume=value)
-            
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("adan_state_change", "volume_updated", "database_saved", 
-                                f"{adan.get_adan_name()} volume saved to DB")
         
         if self.mediator:
             self.mediator.notify(self, "adan_volume_changed", adan.get_adan_name(), value)
@@ -257,38 +235,26 @@ class AdanManager():
         return Adan(adan_name_label, adan_time, adan_time_label)
 
     def start_adan(self, adan):
-        # Log adan start attempt with all details
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_play", 
-                             adan.get_adan_name(), 
-                             adan.get_sound_path(), 
-                             adan.get_volume())
-            self.mediator.log("adan_state_change", 
-                             "waiting", 
-                             "adan_triggered", 
-                             f"{adan.get_adan_name()} - State: {adan.check_state()}")
-
+        adan_name = adan.get_adan_name()
+        
         if adan.check_state():
+            # Log that adan time was reached and adan is active
+            if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
+                self.mediator.logger.log_adan_play(adan_name, adan.get_sound_path(), adan.get_volume())
+            
             command = PlayAudioCommand("AdanManager", adan.get_sound_path(), adan.get_volume(), adan.get_adan_name())
             self.mediator.notify(self, "request_playback", command)
-            
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("adan_play", adan.get_adan_name(), "playback_requested", "Command sent to PlayerManager")
         else:
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("adan_state_change", "enabled", "disabled", 
-                                f"{adan.get_adan_name()} - Adan is turned off")
+            # Log that adan time was reached but adan is disabled
+            if self.mediator and hasattr(self.mediator, 'logger') and self.mediator.logger:
+                self.mediator.logger.log_adan_state_change("adan_time_reached", "skipped", adan_name)
+            
             self.mediator.notify(self, "close_mic")
 
     def change_adan_sound(self, adan_name):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "current_sound", "changing_sound", f"User changing {adan_name}")
-
         try:
             file_path = select_sound_file(self.main_widget)
             if not file_path:
-                if hasattr(self, 'mediator') and self.mediator:
-                    self.mediator.log("adan_state_change", "changing_sound", "cancelled", f"{adan_name} - No file selected")
                 return
 
             path = resource_path(file_path)
@@ -303,13 +269,8 @@ class AdanManager():
 
             if adan_name in adan_index_map:
                 adan_index = adan_index_map[adan_name]
-                old_path = self.adans[adan_index].get_sound_path()
                 
                 self.update_sound(adan_index, path)
-                
-                if hasattr(self, 'mediator') and self.mediator:
-                    self.mediator.log("adan_state_change", "sound_changed", "updated_successfully", 
-                                    f"{self.adans[adan_index].get_adan_name()} - New file: {path}")
                 
                 self.calc_audio_duration(path, adan_index + 1)
 
@@ -325,8 +286,7 @@ class AdanManager():
                 self.mediator.notify(self, "sound_updated_successfully", f"تم تحديث صوت أذان {display_name} بنجاح")
 
         except Exception as e:
-            if hasattr(self, 'mediator') and self.mediator:
-                self.mediator.log("error", "AdanManager", f"Failed to change adan sound for {adan_name}: {str(e)}")
+            pass
 
     def update_sound(self, adan_index, file_path):
         self.adans[adan_index].set_sound_path(file_path)
@@ -456,9 +416,6 @@ class AdanManager():
         adan.update_time(new_adan_time)
 
     def handle_summer_winter_change(self, is_summer_time):
-        if hasattr(self, 'mediator') and self.mediator:
-            season = "summer" if is_summer_time else "winter"
-            self.mediator.log("adan_state_change", "season_change", f"switched_to_{season}", "Time adjustment applied")
 
         for adan in self.adans:
             self.handle_summer_winter_helper(adan, is_summer_time)
@@ -470,6 +427,7 @@ class AdanManager():
         self.find_next_adan_signal.emit()
         self.update_ui()
         self.update_jomoaa_ui()
+        self.next_adan.unlock_firebase_update()
     
     def group_adans(self):
         temp = self.adans.copy()
@@ -479,24 +437,15 @@ class AdanManager():
         return temp
 
     def handle_quds_diff_change(self, new_quds_differ, is_summer_time):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "time_adjustment", "quds_diff_changed", 
-                            f"New difference: {new_quds_differ} min, Summer time: {is_summer_time}")
 
         all_adans = self.group_adans()
         self.helper(all_adans, new_quds_differ, is_summer_time)
-        
-        # Log updated times
-        if hasattr(self, 'mediator') and self.mediator:
-            updated_times = {}
-            for adan in self.adans:
-                updated_times[adan.get_adan_name()] = adan.get_adan_time().strftime('%H:%M')
-            self.mediator.log("adan_times", updated_times)
 
         self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
         self.find_next_adan_signal.emit()
         self.update_ui()
         self.update_jomoaa_ui()
+        self.next_adan.unlock_firebase_update()
 
     def get_new_adans_time(self):
 
@@ -521,19 +470,10 @@ class AdanManager():
         self.jomoaa.update_ui(self.time_formate)
 
     def handle_new_day(self, new_day):
-        if hasattr(self, 'mediator') and self.mediator:
-            self.mediator.log("adan_state_change", "previous_day", "new_day", f"Day changed to: {new_day}")
 
         self.get_new_adans_time()
         self.update_ui()
         self.next_adan.update_five_prayers(self.adans)
-        
-        if hasattr(self, 'mediator') and self.mediator:
-            # Log new adan times
-            adan_times_dict = {}
-            for adan in self.adans:
-                adan_times_dict[adan.get_adan_name()] = adan.get_adan_time().strftime('%H:%M')
-            self.mediator.log("adan_times", adan_times_dict)
 
         self.mediator.notify(self, "adan_time_changed", self.get_adans_for_notification_manager())
         self.next_adan.update_curr_day(new_day)
@@ -562,12 +502,27 @@ class AdanManager():
             lst.append(self.get_current_adan_time(i))
         return lst
 
+    def lock_firebase_update(self):
+        self.is_firebase_update_locked = True
+    
+    def unlock_firebase_update(self):
+        self.is_firebase_update_locked = False
+
     # HERE FIRESTORE UPDATES
     def set_adan_state(self, adans_data):
-        labels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
+        # for i in range(5):
+        #     adan_info = adans_data[labels[i]]
+        #     self.adans_buttons[i].setChecked(adan_info["state"])
+        #     self.adans_volume_sliders[i].setValue(adan_info["volume"])
+
+        for i in labels:
+            adan_state = adans_data[i]["state"]
+            # adan_volume = adans_data[i]["volume"]
+
+            self.adans_buttons[labels.index(i)].setChecked(adan_state)
+            
+    def datetimes_to_hhmm(self):
+        adans_data = {}
         for i in range(5):
-            adan_info = adans_data[labels[i]]
-            self.adans_buttons[i].setChecked(adan_info["state"])
-            self.adans_volume_sliders[i].setValue(adan_info["volume"])
-            
-            
+            adans_data[labels[i]] = {"adanTime": self.adans[i].get_adan_time().strftime("%H:%M"), "state": self.adans[i].check_state(), "volume": self.adans[i].get_volume()}
+        self.mediator.notify(self, "send_firebase_update", {"adansData": adans_data} )

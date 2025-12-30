@@ -13,13 +13,18 @@ class MsgManager():
         self.mediator = mediator
 
     def show_auto_close_error(self, title, message, parent=None, timeout=4000):
+
         msg_box = QMessageBox(parent)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.setModal(False)
-        msg_box.show()
+        
+        try :
+            msg_box.show()
+        except Exception as e:
+            pass
 
         # Store reference
         self.active_boxes.append(msg_box)

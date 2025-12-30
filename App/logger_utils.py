@@ -64,3 +64,12 @@ class AdanLogger:
     
     def log_warning(self, component, warning_msg):
         self.logger.warning(f"[WARNING] {component}: {warning_msg}")
+
+    def log_adan_completion(self, adan_name, duration_played, total_duration):
+        self.logger.info(f"[ADAN_COMPLETE] {adan_name} finished - Played: {duration_played:.1f}s / Total: {total_duration:.1f}s")
+
+    def log_adan_time_reached(self, adan_name, scheduled_time, actual_time):
+        self.logger.info(f"[ADAN_TIME] {adan_name} time reached - Scheduled: {scheduled_time}, Actual: {actual_time}")
+
+    def log_adan_skipped(self, adan_name, reason):
+        self.logger.info(f"[ADAN_SKIP] {adan_name} skipped - Reason: {reason}")
